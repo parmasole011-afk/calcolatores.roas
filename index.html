@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Breakeven ROAS — Calcolatore di Margine Reale</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0C12;
+    --surface: #12151D;
+    --surface-2: #181C27;
+    --border: #232838;
+    --text: #E7E9EE;
+    --text-dim: #8A90A2;
+    --accent: #6C5CE7;
+    --accent-dim: #453B8C;
+    --good: #34D399;
+    --warn: #FBBF24;
+    --bad: #F87171;
+  }
+  *{box-sizing:border-box;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(108,92,231,0.16), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(52,211,153,0.06), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+  }
+  .font-display{font-family:'Space Grotesk',sans-serif;}
+  .font-mono{font-family:'IBM Plex Mono',monospace;}
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+  }
+
+  input[type=range]{
+    -webkit-appearance:none;
+    appearance:none;
+    width:100%;
+    height:4px;
+    border-radius:999px;
+    background:var(--surface-2);
+    outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    appearance:none;
+    width:16px;height:16px;
+    border-radius:50%;
+    background:var(--accent);
+    border:3px solid #fff1;
+    box-shadow:0 0 0 4px rgba(108,92,231,0.18);
+    cursor:pointer;
+    transition:transform .12s ease;
+  }
+  input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15);}
+  input[type=range]::-moz-range-thumb{
+    width:16px;height:16px;border-radius:50%;
+    background:var(--accent); border:3px solid #fff1;
+    box-shadow:0 0 0 4px rgba(108,92,231,0.18);
+    cursor:pointer;
+  }
+
+  .num-input{
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .num-input:focus{
+    outline:none;
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(108,92,231,0.15);
+  }
+
+  .glow-good{box-shadow:0 0 0 1px rgba(52,211,153,0.35), 0 0 40px -8px rgba(52,211,153,0.35);}
+  .glow-warn{box-shadow:0 0 0 1px rgba(251,191,36,0.35), 0 0 40px -8px rgba(251,191,36,0.35);}
+  .glow-bad{box-shadow:0 0 0 1px rgba(248,113,113,0.35), 0 0 40px -8px rgba(248,113,113,0.35);}
+
+  .bar-seg{transition:width .35s ease;}
+  .fade-num{transition:color .25s ease;}
+
+  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body class="antialiased">
+
+<div class="max-w-6xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
+
+  <!-- Header -->
+  <header class="mb-10 sm:mb-14">
+    <div class="flex items-center gap-2 mb-4">
+      <div class="w-2 h-2 rounded-full" style="background:var(--accent)"></div>
+      <span class="text-xs font-mono tracking-widest uppercase" style="color:var(--text-dim)">Unit Economics · E-commerce</span>
+    </div>
+    <h1 class="font-display text-3xl sm:text-4xl font-semibold tracking-tight">
+      Breakeven ROAS &amp; Profitto Reale
+    </h1>
+    <p class="mt-2 text-sm sm:text-base max-w-xl" style="color:var(--text-dim)">
+      Scopri qual è il ROAS minimo per non andare in perdita e quanto puoi davvero spendere per acquisire un cliente — al netto di COGS, spedizione, commissioni e resi.
+    </p>
+  </header>
+
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+
+    <!-- INPUT PANEL -->
+    <section class="lg:col-span-2 card p-6 sm:p-7 space-y-7 h-fit">
+      <div class="flex items-center justify-between">
+        <h2 class="font-display text-sm font-semibold tracking-wide uppercase" style="color:var(--text-dim)">Parametri Prodotto</h2>
+      </div>
+
+      <!-- Prezzo -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-sm font-medium">Prezzo di Vendita</label>
+          <div class="flex items-center gap-1">
+            <span class="text-xs" style="color:var(--text-dim)">€</span>
+            <input id="price-num" type="number" step="0.5" class="num-input w-24 rounded-lg px-2 py-1 text-sm text-right" value="49.90">
+          </div>
+        </div>
+        <input id="price-range" type="range" min="1" max="300" step="0.5" value="49.90">
+      </div>
+
+      <!-- COGS -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-sm font-medium">Costo del Prodotto (COGS)</label>
+          <div class="flex items-center gap-1">
+            <span class="text-xs" style="color:var(--text-dim)">€</span>
+            <input id="cogs-num" type="number" step="0.5" class="num-input w-24 rounded-lg px-2 py-1 text-sm text-right" value="15.00">
+          </div>
+        </div>
+        <input id="cogs-range" type="range" min="0" max="150" step="0.5" value="15.00">
+      </div>
+
+      <!-- Spedizione -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-sm font-medium">Spedizione (a carico venditore)</label>
+          <div class="flex items-center gap-1">
+            <span class="text-xs" style="color:var(--text-dim)">€</span>
+            <input id="ship-num" type="number" step="0.25" class="num-input w-24 rounded-lg px-2 py-1 text-sm text-right" value="4.50">
+          </div>
+        </div>
+        <input id="ship-range" type="range" min="0" max="40" step="0.25" value="4.50">
+      </div>
+
+      <!-- Commissione pagamento -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-sm font-medium">Commissione di Pagamento</label>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mb-2">
+          <div class="flex items-center gap-1">
+            <input id="fee-pct-num" type="number" step="0.1" class="num-input w-full rounded-lg px-2 py-1 text-sm text-right" value="1.5">
+            <span class="text-xs" style="color:var(--text-dim)">%</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <span class="text-xs" style="color:var(--text-dim)">€</span>
+            <input id="fee-fix-num" type="number" step="0.05" class="num-input w-full rounded-lg px-2 py-1 text-sm text-right" value="0.25">
+          </div>
+        </div>
+        <input id="fee-pct-range" type="range" min="0" max="8" step="0.1" value="1.5">
+      </div>
+
+      <!-- Tasso di reso -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-sm font-medium">Tasso Stimato di Reso</label>
+          <div class="flex items-center gap-1">
+            <input id="return-num" type="number" step="0.5" class="num-input w-24 rounded-lg px-2 py-1 text-sm text-right" value="5">
+            <span class="text-xs" style="color:var(--text-dim)">%</span>
+          </div>
+        </div>
+        <input id="return-range" type="range" min="0" max="40" step="0.5" value="5">
+      </div>
+    </section>
+
+    <!-- OUTPUT PANEL -->
+    <section class="lg:col-span-3 space-y-6">
+
+      <!-- Risk indicator card -->
+      <div id="risk-card" class="card p-6 sm:p-7 transition-shadow duration-300">
+        <div class="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-4">
+          <div>
+            <p class="text-xs font-mono uppercase tracking-widest mb-1" style="color:var(--text-dim)">Stato del Margine</p>
+            <h3 id="risk-label" class="font-display text-2xl font-semibold">—</h3>
+            <p id="risk-desc" class="text-sm mt-1" style="color:var(--text-dim)">Inserisci i parametri per calcolare.</p>
+          </div>
+          <div id="risk-dot" class="w-4 h-4 rounded-full shrink-0"></div>
+        </div>
+      </div>
+
+      <!-- Metrics grid -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="card p-5 sm:p-6">
+          <p class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">ROAS di Breakeven</p>
+          <p id="out-roas" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
+          <p class="text-xs mt-2" style="color:var(--text-dim)">Ritorno minimo per non perdere</p>
+        </div>
+        <div class="card p-5 sm:p-6">
+          <p class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">CPA Massima</p>
+          <p id="out-cpa" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
+          <p class="text-xs mt-2" style="color:var(--text-dim)">Spesa max per acquisire un cliente</p>
+        </div>
+        <div class="card p-5 sm:p-6">
+          <p class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">Margine Netto Reale</p>
+          <p id="out-margin" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
+          <p class="text-xs mt-2" style="color:var(--text-dim)">Sul prezzo di vendita</p>
+        </div>
+        <div class="card p-5 sm:p-6">
+          <p class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">Profitto Netto / Unità</p>
+          <p id="out-profit" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
+          <p class="text-xs mt-2" style="color:var(--text-dim)">Dopo tutti i costi</p>
+        </div>
+      </div>
+
+      <!-- Breakdown bar -->
+      <div class="card p-6 sm:p-7">
+        <p class="text-xs font-mono uppercase tracking-widest mb-4" style="color:var(--text-dim)">Composizione del Prezzo</p>
+        <div class="w-full h-8 rounded-lg overflow-hidden flex" style="background:var(--surface-2)">
+          <div id="seg-cogs" class="bar-seg h-full" style="background:#7C6BF0;width:0%"></div>
+          <div id="seg-ship" class="bar-seg h-full" style="background:#5A4FC7;width:0%"></div>
+          <div id="seg-fee" class="bar-seg h-full" style="background:#3E3A82;width:0%"></div>
+          <div id="seg-return" class="bar-seg h-full" style="background:#F87171;width:0%"></div>
+          <div id="seg-profit" class="bar-seg h-full" style="background:#34D399;width:0%"></div>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-4 text-xs">
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#7C6BF0"></span>COGS</div>
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#5A4FC7"></span>Spedizione</div>
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#3E3A82"></span>Commissioni</div>
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#F87171"></span>Resi</div>
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#34D399"></span>Profitto</div>
+        </div>
+      </div>
+
+    </section>
+  </div>
+
+  <footer class="mt-10 text-center text-xs" style="color:var(--text-dim)">
+    Calcolo indicativo — non costituisce consulenza finanziaria.
+  </footer>
+</div>
+
+<script>
+  const ids = ['price','cogs','ship','fee-pct','fee-fix','return'];
+  const el = {};
+  ids.forEach(id => {
+    el[id+'-num'] = document.getElementById(id+'-num');
+    if (document.getElementById(id+'-range')) el[id+'-range'] = document.getElementById(id+'-range');
+  });
+
+  function syncPair(numEl, rangeEl){
+    numEl.addEventListener('input', () => {
+      if (rangeEl){
+        let v = parseFloat(numEl.value);
+        if (!isNaN(v)) rangeEl.value = Math.min(Math.max(v, rangeEl.min), rangeEl.max);
+      }
+      calculate();
+    });
+    if (rangeEl){
+      rangeEl.addEventListener('input', () => {
+        numEl.value = rangeEl.value;
+        calculate();
+      });
+    }
+  }
+
+  syncPair(el['price-num'], el['price-range']);
+  syncPair(el['cogs-num'], el['cogs-range']);
+  syncPair(el['ship-num'], el['ship-range']);
+  syncPair(el['fee-pct-num'], el['fee-pct-range']);
+  syncPair(el['fee-fix-num'], null);
+  syncPair(el['return-num'], el['return-range']);
+
+  function fmtEur(n){
+    if (!isFinite(n)) return '—';
+    return n.toLocaleString('it-IT', {style:'currency', currency:'EUR', minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+  function fmtPct(n){
+    if (!isFinite(n)) return '—';
+    return n.toLocaleString('it-IT', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
+  }
+
+  function calculate(){
+    const price   = parseFloat(el['price-num'].value) || 0;
+    const cogs    = parseFloat(el['cogs-num'].value) || 0;
+    const ship    = parseFloat(el['ship-num'].value) || 0;
+    const feePct  = parseFloat(el['fee-pct-num'].value) || 0;
+    const feeFix  = parseFloat(el['fee-fix-num'].value) || 0;
+    const retRate = parseFloat(el['return-num'].value) || 0;
+
+    const feeAmount = price * (feePct/100) + feeFix;
+    const returnCost = price * (retRate/100);
+    const totalCosts = cogs + ship + feeAmount + returnCost;
+    const netProfit = price - totalCosts;
+    const netMarginPct = price > 0 ? (netProfit / price) * 100 : 0;
+    const roasBreakeven = netProfit > 0 ? price / netProfit : Infinity;
+    const cpaMax = netProfit;
+
+    document.getElementById('out-roas').textContent = isFinite(roasBreakeven) ? roasBreakeven.toFixed(2) + 'x' : '∞';
+    document.getElementById('out-cpa').textContent = fmtEur(cpaMax);
+    document.getElementById('out-margin').textContent = fmtPct(netMarginPct);
+    document.getElementById('out-profit').textContent = fmtEur(netProfit);
+
+    // colore profitto/cpa in base al segno
+    const profitColor = netProfit >= 0 ? 'var(--good)' : 'var(--bad)';
+    document.getElementById('out-profit').style.color = profitColor;
+    document.getElementById('out-cpa').style.color = profitColor;
+
+    // risk state
+    const riskCard = document.getElementById('risk-card');
+    const riskLabel = document.getElementById('risk-label');
+    const riskDesc = document.getElementById('risk-desc');
+    const riskDot = document.getElementById('risk-dot');
+    riskCard.classList.remove('glow-good','glow-warn','glow-bad');
+
+    let state;
+    if (netMarginPct >= 20) state = 'good';
+    else if (netMarginPct >= 5) state = 'warn';
+    else state = 'bad';
+
+    if (state === 'good'){
+      riskCard.classList.add('glow-good');
+      riskLabel.textContent = 'Ottimo Margine';
+      riskLabel.style.color = 'var(--good)';
+      riskDesc.textContent = 'Hai spazio per investire in acquisizione e restare profittevole.';
+      riskDot.style.background = 'var(--good)';
+    } else if (state === 'warn'){
+      riskCard.classList.add('glow-warn');
+      riskLabel.textContent = 'Margine a Rischio';
+      riskLabel.style.color = 'var(--warn)';
+      riskDesc.textContent = 'Margine sottile: piccole variazioni di costo o reso possono azzerare il profitto.';
+      riskDot.style.background = 'var(--warn)';
+    } else {
+      riskCard.classList.add('glow-bad');
+      riskLabel.textContent = netProfit < 0 ? 'In Perdita' : 'Troppo Vicino alla Perdita';
+      riskLabel.style.color = 'var(--bad)';
+      riskDesc.textContent = netProfit < 0
+        ? 'I costi superano il prezzo di vendita: ogni unità venduta genera una perdita.'
+        : 'Il margine residuo è minimo: quasi nessun budget disponibile per il marketing.';
+      riskDot.style.background = 'var(--bad)';
+    }
+
+    // breakdown bar (percentuali sul prezzo, clampate a 0)
+    const clampPct = (v) => Math.max(0, Math.min(100, (v/price)*100 || 0));
+    const pCogs = clampPct(cogs);
+    const pShip = clampPct(ship);
+    const pFee = clampPct(feeAmount);
+    const pReturn = clampPct(returnCost);
+    const pProfit = Math.max(0, 100 - pCogs - pShip - pFee - pReturn);
+
+    document.getElementById('seg-cogs').style.width = pCogs + '%';
+    document.getElementById('seg-ship').style.width = pShip + '%';
+    document.getElementById('seg-fee').style.width = pFee + '%';
+    document.getElementById('seg-return').style.width = pReturn + '%';
+    document.getElementById('seg-profit').style.width = pProfit + '%';
+  }
+
+  calculate();
+</script>
+</body>
+</html>
