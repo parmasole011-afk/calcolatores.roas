@@ -245,6 +245,48 @@
     </section>
   </div>
 
+  <!-- SEZIONE MONETIZZAZIONE -->
+  <div class="mt-10 space-y-6">
+    
+    <!-- Upgrade Pro -->
+    <div class="card p-6 sm:p-8" style="background: linear-gradient(135deg, var(--surface), var(--surface-2)); border-color: var(--accent-dim);">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div class="space-y-2 max-w-xl">
+          <span class="text-[10px] font-mono tracking-widest uppercase px-2.5 py-1 rounded-full font-semibold" style="background:rgba(108,92,231,0.2); color:var(--accent);">Versione Pro</span>
+          <h3 class="font-display text-xl sm:text-2xl font-semibold">Vuoi analizzare l'intero catalogo e-commerce?</h3>
+          <p class="text-xs sm:text-sm leading-relaxed" style="color:var(--text-dim)">
+            Scarica il <strong>Template Google Sheets &amp; Excel Avanzato</strong>. Traccia fino a 100 prodotti contemporaneamente, calcola il ROAS aggregato e analizza i margini reali del tuo store.
+          </p>
+        </div>
+        <div class="w-full md:w-auto text-left md:text-right shrink-0">
+          <a href="https://gumroad.com" target="_blank" class="inline-block w-full md:w-auto text-center font-display font-semibold px-6 py-3.5 rounded-xl transition-all duration-200 hover:opacity-90" style="background:var(--accent); color:#fff; box-shadow:0 0 20px rgba(108,92,231,0.3);">
+            Scarica Template (€4,99)
+          </a>
+          <span class="block text-[11px] font-mono mt-2" style="color:var(--text-dim)">Download immediato .XLSX</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Strumenti Consigliati -->
+    <div class="card p-6">
+      <p class="text-xs font-mono uppercase tracking-widest mb-4" style="color:var(--text-dim)">⚡ Strumenti Consigliati per E-Commerce</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        
+        <a href="#" target="_blank" class="block p-4 rounded-xl border transition-all duration-200 hover:border-slate-500" style="background:var(--surface-2); border-color:var(--border);">
+          <div class="font-display text-sm font-semibold mb-1" style="color:var(--good)">Piattaforma E-commerce</div>
+          <div class="text-xs" style="color:var(--text-dim)">Crea il tuo store con tassi di conversione ottimizzati.</div>
+        </a>
+
+        <a href="#" target="_blank" class="block p-4 rounded-xl border transition-all duration-200 hover:border-slate-500" style="background:var(--surface-2); border-color:var(--border);">
+          <div class="font-display text-sm font-semibold mb-1" style="color:var(--accent)">Spedizioni &amp; Logistica</div>
+          <div class="text-xs" style="color:var(--text-dim)">Abbatti i costi di spedizione fino al 30% per ordine.</div>
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+
   <footer class="mt-10 text-center text-xs" style="color:var(--text-dim)">
     Calcolo indicativo — non costituisce consulenza finanziaria.
   </footer>
@@ -311,12 +353,10 @@
     document.getElementById('out-margin').textContent = fmtPct(netMarginPct);
     document.getElementById('out-profit').textContent = fmtEur(netProfit);
 
-    // colore profitto/cpa in base al segno
     const profitColor = netProfit >= 0 ? 'var(--good)' : 'var(--bad)';
     document.getElementById('out-profit').style.color = profitColor;
     document.getElementById('out-cpa').style.color = profitColor;
 
-    // risk state
     const riskCard = document.getElementById('risk-card');
     const riskLabel = document.getElementById('risk-label');
     const riskDesc = document.getElementById('risk-desc');
@@ -350,7 +390,6 @@
       riskDot.style.background = 'var(--bad)';
     }
 
-    // breakdown bar (percentuali sul prezzo, clampate a 0)
     const clampPct = (v) => Math.max(0, Math.min(100, (v/price)*100 || 0));
     const pCogs = clampPct(cogs);
     const pShip = clampPct(ship);
