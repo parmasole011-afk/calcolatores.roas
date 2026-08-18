@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>Breakeven ROAS & AOV Simulator — Calcolatore di Margine Reale</title>
+<title>Breakeven ROAS, AOV & Scenario Matrix — Calcolatore di Margine Reale</title>
 
 <!-- GoatCounter Analytics -->
 <script data-goatcounter="https://sole.goatcounter.com/count"
@@ -92,7 +92,7 @@
   .bar-seg{transition:width .35s ease;}
   .fade-num{transition:color .25s ease;}
 
-  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar{width:8px;height:8px;}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
 </style>
 </head>
@@ -110,7 +110,7 @@
       Breakeven ROAS &amp; Profitto Reale
     </h1>
     <p class="mt-2 text-sm sm:text-base max-w-xl" style="color:var(--text-dim)">
-      Scopri qual è il ROAS minimo per non andare in perdita e simula l'impatto di sconti, target ROAS e aumento del carrello medio (AOV) sui margini reali.
+      Calcola il ROAS minimo di sostenibilità, simula il profitto target, valuta l'effetto dell'AOV ed esegui uno stress test sui margini con la matrice di scenari.
     </p>
   </header>
 
@@ -294,7 +294,7 @@
         </div>
       </div>
 
-      <!-- FEATURE PREMIUM 2: SIMULATORE AOV & BUNDLE (CARRELLO MEDIO) -->
+      <!-- FEATURE PREMIUM 2: SIMULATORE AOV & BUNDLE -->
       <div class="card p-6 sm:p-7 border-dashed" style="border-color: var(--good);">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
@@ -305,7 +305,7 @@
         </div>
 
         <p class="text-xs mb-4" style="color: var(--text-dim)">
-          Vendere più unità nello stesso ordine abbatte l'impatto della spedizione e delle commissioni fisse. Guarda come scende il tuo Breakeven ROAS aumentandoli.
+          Vendere più unità nello stesso ordine abbatte l'impatto della spedizione e delle commissioni fisse.
         </p>
 
         <div class="space-y-4">
@@ -320,7 +320,6 @@
             <input id="aov-qty-range" type="range" min="1" max="10" step="1" value="2">
           </div>
 
-          <!-- Confronto AOV vs 1 Unità -->
           <div class="grid grid-cols-3 gap-3 pt-3 border-t text-center" style="border-color: var(--border);">
             <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
               <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Nuovo AOV</p>
@@ -336,6 +335,37 @@
             </div>
           </div>
           <p id="aov-status-msg" class="text-[11px] font-medium text-center pt-1" style="color:var(--good);"></p>
+        </div>
+      </div>
+
+      <!-- FEATURE PREMIUM 3: MATRICE DI SENSIBILITÀ & SCENARI -->
+      <div class="card p-6 sm:p-7 border-dashed" style="border-color: var(--warn);">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-base">📊</span>
+            <h3 class="font-display text-sm font-semibold tracking-wide uppercase">Matrice Scenari Sconto vs Spedizione</h3>
+          </div>
+          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(251,191,36,0.2); color: var(--warn);">STRESS TEST</span>
+        </div>
+
+        <p class="text-xs mb-4" style="color: var(--text-dim)">
+          Tabella comparativa: scopri come varia il Breakeven ROAS applicando diversi sconti o cambiando la tariffa di spedizione.
+        </p>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs font-mono text-center border-collapse">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <th class="p-2 text-left font-sans text-[11px]" style="color: var(--text-dim);">Sconto ↓ \ Spedizione →</th>
+                <th id="th-ship-curr" class="p-2">In Uso</th>
+                <th id="th-ship-free" class="p-2">0,00 € (Free)</th>
+                <th id="th-ship-plus" class="p-2">+2,00 €</th>
+              </tr>
+            </thead>
+            <tbody id="matrix-body" class="divide-y divide-slate-800/50">
+              <!-- Renderizzato via JS -->
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -453,6 +483,16 @@
     return n.toLocaleString('it-IT', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
   }
 
+  function computeRoasForParams(listPrice, discountPct, cogs, ship, feePct, feeFix, retRate){
+    const effectivePrice = Math.max(0, listPrice * (1 - discountPct / 100));
+    const feeAmount = effectivePrice * (feePct / 100) + feeFix;
+    const returnCost = effectivePrice * (retRate / 100);
+    const totalCosts = cogs + ship + feeAmount + returnCost;
+    const netProfit = effectivePrice - totalCosts;
+    if (netProfit <= 0) return { roas: Infinity, profit: netProfit };
+    return { roas: effectivePrice / netProfit, profit: netProfit };
+  }
+
   function calculate(){
     const listPrice = parseFloat(el['price-num'].value) || 0;
     const discountPct = parseFloat(el['discount-num'].value) || 0;
@@ -464,11 +504,9 @@
     const targetRoas = parseFloat(el['target-roas-num'].value) || 1;
     const aovQty = Math.max(1, parseInt(el['aov-qty-num'].value) || 1);
 
-    // Prezzo effettivo incassato per SINGOLO pezzo dopo sconto
     const discountAmount = listPrice * (discountPct / 100);
     const effectivePrice = Math.max(0, listPrice - discountAmount);
 
-    // Gestione UI Sconto
     const discountInfo = document.getElementById('discount-info');
     const discountAlert = document.getElementById('discount-alert');
     const effectivePriceDisplay = document.getElementById('effective-price-display');
@@ -480,7 +518,6 @@
       discountInfo.classList.add('hidden');
     }
 
-    // Costi per 1 unità
     const feeAmount = effectivePrice * (feePct / 100) + feeFix;
     const returnCost = effectivePrice * (retRate / 100);
     const totalCosts = cogs + ship + feeAmount + returnCost;
@@ -509,7 +546,7 @@
     document.getElementById('out-profit').style.color = profitColor;
     document.getElementById('out-cpa').style.color = profitColor;
 
-    // LOGICA SIMULATORE TARGET ROAS
+    // TARGET ROAS
     const targetCpaVal = targetRoas > 0 ? effectivePrice / targetRoas : 0;
     const targetProfitVal = netProfit - targetCpaVal;
     const targetMarginVal = effectivePrice > 0 ? (targetProfitVal / effectivePrice) * 100 : 0;
@@ -540,12 +577,11 @@
       elTargetStatusMsg.textContent = `✅ Ottimo! Con ROAS ${targetRoas.toFixed(1)}x generi ${fmtEur(targetProfitVal)} di utile netto ad ordine (${targetMarginVal.toFixed(1)}% di margine).`;
     }
 
-    // LOGICA SIMULATORE AOV / BUNDLE
-    // I costi fissi di spedizione e la quota fissa della commissione si pagano 1 SOLA VOLTA per ordine!
+    // AOV SIMULATOR
     const aovRevenue = effectivePrice * aovQty;
     const aovCogs = cogs * aovQty;
-    const aovShip = ship; // Spedizione fissa sul pacco
-    const aovFee = aovRevenue * (feePct / 100) + feeFix; // % su incasso totale + quota fissa singola
+    const aovShip = ship;
+    const aovFee = aovRevenue * (feePct / 100) + feeFix;
     const aovReturn = aovRevenue * (retRate / 100);
     const aovTotalCosts = aovCogs + aovShip + aovFee + aovReturn;
     const aovNetProfit = aovRevenue - aovTotalCosts;
@@ -569,6 +605,41 @@
         elAovStatus.textContent = `Vendendo ${aovQty} pezzi aumenti il carrello a ${fmtEur(aovRevenue)}.`;
       }
     }
+
+    // RENDER SCENARIO MATRIX
+    document.getElementById('th-ship-curr').textContent = `In Uso (${fmtEur(ship)})`;
+    document.getElementById('th-ship-plus').textContent = fmtEur(ship + 2);
+
+    const discountsToTest = [0, 10, 20, 30];
+    const shipsToTest = [ship, 0, ship + 2];
+    const matrixBody = document.getElementById('matrix-body');
+    matrixBody.innerHTML = '';
+
+    discountsToTest.forEach(dPct => {
+      const tr = document.createElement('tr');
+      const isCurrentDiscount = Math.abs(dPct - discountPct) < 0.5;
+      
+      let html = `<td class="p-2.5 text-left font-sans font-medium" style="color: ${isCurrentDiscount ? 'var(--accent)' : 'var(--text)'};">
+        ${dPct}% Sconto ${isCurrentDiscount ? '◀' : ''}
+      </td>`;
+
+      shipsToTest.forEach(sVal => {
+        const res = computeRoasForParams(listPrice, dPct, cogs, sVal, feePct, feeFix, retRate);
+        let txt = isFinite(res.roas) ? res.roas.toFixed(2) + 'x' : 'IN PERDITA';
+        let badgeStyle = 'color: var(--good);';
+
+        if (!isFinite(res.roas) || res.profit <= 0) {
+          badgeStyle = 'color: var(--bad); font-bold;';
+        } else if (res.roas > 3.5) {
+          badgeStyle = 'color: var(--warn);';
+        }
+
+        html += `<td class="p-2.5 font-bold" style="${badgeStyle}">${txt}</td>`;
+      });
+
+      tr.innerHTML = html;
+      matrixBody.appendChild(tr);
+    });
 
     // RISK INDICATOR
     const riskCard = document.getElementById('risk-card');
