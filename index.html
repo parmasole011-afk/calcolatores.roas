@@ -250,6 +250,51 @@
         </div>
       </div>
 
+      <!-- FEATURE PREMIUM 1: SIMULATORE TARGET ROAS -->
+      <div class="card p-6 sm:p-7 border-dashed" style="border-color: var(--accent);">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🚀</span>
+            <h3 class="font-display text-sm font-semibold tracking-wide uppercase">Simulatore Profitto Target</h3>
+          </div>
+          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(108,92,231,0.2); color: var(--accent);">PRO · GRATIS</span>
+        </div>
+
+        <p class="text-xs mb-4" style="color: var(--text-dim)">
+          Imposta il ROAS che vuoi raggiungere con le Ads per scoprire quanto profitto ti rimane in tasca su ogni ordine.
+        </p>
+
+        <div class="space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-medium">ROAS Obiettivo Ads</label>
+              <div class="flex items-center gap-1">
+                <input id="target-roas-num" type="number" step="0.1" class="num-input w-20 rounded-lg px-2 py-1 text-xs text-right" value="3.0">
+                <span class="text-xs font-mono" style="color:var(--text-dim)">x</span>
+              </div>
+            </div>
+            <input id="target-roas-range" type="range" min="1.0" max="10.0" step="0.1" value="3.0">
+          </div>
+
+          <!-- Risultati Simulazione Target -->
+          <div class="grid grid-cols-3 gap-3 pt-3 border-t text-center" style="border-color: var(--border);">
+            <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
+              <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">CPA Target</p>
+              <p id="target-cpa" class="font-display font-mono text-sm sm:text-base font-semibold mt-1">—</p>
+            </div>
+            <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
+              <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Profitto / Ordine</p>
+              <p id="target-profit" class="font-display font-mono text-sm sm:text-base font-semibold mt-1">—</p>
+            </div>
+            <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
+              <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Margine Finale</p>
+              <p id="target-margin" class="font-display font-mono text-sm sm:text-base font-semibold mt-1">—</p>
+            </div>
+          </div>
+          <p id="target-status-msg" class="text-[11px] font-medium text-center pt-1"></p>
+        </div>
+      </div>
+
       <!-- Breakdown bar -->
       <div class="card p-6 sm:p-7">
         <p class="text-xs font-mono uppercase tracking-widest mb-4" style="color:var(--text-dim)">Composizione del Prezzo di Listino</p>
@@ -324,7 +369,7 @@
 </div>
 
 <script>
-  const ids = ['price','discount','cogs','ship','fee-pct','fee-fix','return'];
+  const ids = ['price','discount','cogs','ship','fee-pct','fee-fix','return','target-roas'];
   const el = {};
   ids.forEach(id => {
     el[id+'-num'] = document.getElementById(id+'-num');
@@ -354,6 +399,7 @@
   syncPair(el['fee-pct-num'], el['fee-pct-range']);
   syncPair(el['fee-fix-num'], null);
   syncPair(el['return-num'], el['return-range']);
+  syncPair(el['target-roas-num'], el['target-roas-range']);
 
   function fmtEur(n){
     if (!isFinite(n)) return '—';
@@ -372,6 +418,7 @@
     const feePct = parseFloat(el['fee-pct-num'].value) || 0;
     const feeFix = parseFloat(el['fee-fix-num'].value) || 0;
     const retRate = parseFloat(el['return-num'].value) || 0;
+    const targetRoas = parseFloat(el['target-roas-num'].value) || 1;
 
     // Prezzo effettivo incassato dopo lo sconto
     const discountAmount = listPrice * (discountPct / 100);
@@ -417,6 +464,37 @@
     const profitColor = netProfit >= 0 ? 'var(--good)' : 'var(--bad)';
     document.getElementById('out-profit').style.color = profitColor;
     document.getElementById('out-cpa').style.color = profitColor;
+
+    // LOGICA SIMULATORE TARGET ROAS
+    const targetCpaVal = targetRoas > 0 ? effectivePrice / targetRoas : 0;
+    const targetProfitVal = netProfit - targetCpaVal;
+    const targetMarginVal = effectivePrice > 0 ? (targetProfitVal / effectivePrice) * 100 : 0;
+
+    const elTargetCpa = document.getElementById('target-cpa');
+    const elTargetProfit = document.getElementById('target-profit');
+    const elTargetMargin = document.getElementById('target-margin');
+    const elTargetStatusMsg = document.getElementById('target-status-msg');
+
+    elTargetCpa.textContent = fmtEur(targetCpaVal);
+    elTargetProfit.textContent = fmtEur(targetProfitVal);
+    elTargetMargin.textContent = fmtPct(targetMarginVal);
+
+    if (targetRoas < roasBreakeven) {
+      elTargetProfit.style.color = 'var(--bad)';
+      elTargetMargin.style.color = 'var(--bad)';
+      elTargetStatusMsg.style.color = 'var(--bad)';
+      elTargetStatusMsg.textContent = `❌ Con un ROAS di ${targetRoas.toFixed(1)}x sei sotto al Breakeven (${roasBreakeven.toFixed(2)}x): perdi ${fmtEur(Math.abs(targetProfitVal))} ad ogni ordine.`;
+    } else if (Math.abs(targetRoas - roasBreakeven) < 0.01) {
+      elTargetProfit.style.color = 'var(--warn)';
+      elTargetMargin.style.color = 'var(--warn)';
+      elTargetStatusMsg.style.color = 'var(--warn)';
+      elTargetStatusMsg.textContent = `⚖️ Sei esattamente in pareggio (0 profitto).`;
+    } else {
+      elTargetProfit.style.color = 'var(--good)';
+      elTargetMargin.style.color = 'var(--good)';
+      elTargetStatusMsg.style.color = 'var(--good)';
+      elTargetStatusMsg.textContent = `✅ Ottimo! Con ROAS ${targetRoas.toFixed(1)}x generi ${fmtEur(targetProfitVal)} di utile netto ad ordine (${targetMarginVal.toFixed(1)}% di margine).`;
+    }
 
     const riskCard = document.getElementById('risk-card');
     const riskLabel = document.getElementById('risk-label');
