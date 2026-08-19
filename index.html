@@ -6,8 +6,10 @@
 <title>Breakeven ROAS, AOV, Matrix & LTV — Calcolatore di Margine Reale</title>
 
 <!-- GoatCounter Analytics -->
-<script data-goatcounter="https://sole.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
+<script data-goatcounter="https://sole.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+
+<!-- Chart.js per il grafico dinamico -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,13 +45,14 @@
     background:var(--surface);
     border:1px solid var(--border);
     border-radius:16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
   }
 
   input[type=range]{
     -webkit-appearance:none;
     appearance:none;
     width:100%;
-    height:4px;
+    height:6px;
     border-radius:999px;
     background:var(--surface-2);
     outline:none;
@@ -57,17 +60,17 @@
   input[type=range]::-webkit-slider-thumb{
     -webkit-appearance:none;
     appearance:none;
-    width:16px;height:16px;
+    width:18px;height:18px;
     border-radius:50%;
     background:var(--accent);
     border:3px solid #fff1;
     box-shadow:0 0 0 4px rgba(108,92,231,0.18);
     cursor:pointer;
-    transition:transform .12s ease;
+    transition:transform .15s ease, background-color .15s ease;
   }
-  input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15);}
+  input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
   input[type=range]::-moz-range-thumb{
-    width:16px;height:16px;border-radius:50%;
+    width:18px;height:18px;border-radius:50%;
     background:var(--accent); border:3px solid #fff1;
     box-shadow:0 0 0 4px rgba(108,92,231,0.18);
     cursor:pointer;
@@ -78,6 +81,7 @@
     border:1px solid var(--border);
     color:var(--text);
     font-family:'IBM Plex Mono',monospace;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
   .num-input:focus{
     outline:none;
@@ -89,18 +93,17 @@
   .glow-warn{box-shadow:0 0 0 1px rgba(251,191,36,0.35), 0 0 40px -8px rgba(251,191,36,0.35);}
   .glow-bad{box-shadow:0 0 0 1px rgba(248,113,113,0.35), 0 0 40px -8px rgba(248,113,113,0.35);}
 
-  .bar-seg{transition:width .35s ease;}
-  .fade-num{transition:color .25s ease;}
+  .bar-seg{transition:width .35s cubic-bezier(0.4, 0, 0.2, 1);}
+  .fade-num{transition:color .25s ease, transform .15s ease;}
 
   ::-webkit-scrollbar{width:8px;height:8px;}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
 
-  /* Stili per Bottoni Azione e Preset integrati con il tema */
   .preset-btn {
     background: var(--surface-2);
     border: 1px solid var(--border);
     color: var(--text);
-    padding: 6px 12px;
+    padding: 8px 14px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 0.75rem;
@@ -109,20 +112,21 @@
   }
   .preset-btn:hover {
     border-color: var(--accent);
-    background: rgba(108,92,231,0.1);
+    background: rgba(108,92,231,0.15);
+    transform: translateY(-1px);
   }
 
   .action-btn {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     margin-top: 10px;
     border: none;
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease, transform 0.1s ease;
   }
-  .action-btn:hover { opacity: 0.9; }
+  .action-btn:hover { opacity: 0.9; transform: translateY(-1px); }
   .btn-share { background: #2563eb; color: white; }
   .btn-pdf { background: #059669; color: white; }
 
@@ -139,10 +143,9 @@
 
 <div class="max-w-[1400px] mx-auto px-4 sm:px-8 py-8 sm:py-12">
 
-  <!-- Header -->
   <header class="mb-8 sm:mb-10 text-center max-w-3xl mx-auto">
     <div class="flex items-center justify-center gap-2 mb-3">
-      <div class="w-2 h-2 rounded-full" style="background:var(--accent)"></div>
+      <div class="w-2 h-2 rounded-full animate-pulse" style="background:var(--accent)"></div>
       <span class="text-xs font-mono tracking-widest uppercase" style="color:var(--text-dim)">Unit Economics · E-commerce</span>
     </div>
     <h1 class="font-display text-3xl sm:text-5xl font-semibold tracking-tight">
@@ -152,12 +155,11 @@
       Calcola il ROAS minimo di sostenibilità, simula il profitto target, valuta l'impatto dell'AOV, testa scenari promozionali e misura l'effetto del valore nel tempo (LTV).
     </p>
 
-    <!-- Pulsanti Azioni Rapide (Condividi & PDF) -->
     <div class="no-print flex items-center justify-center gap-3 mt-6">
-      <button type="button" onclick="shareScenario()" class="px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" style="background: var(--surface-2); border: 1px solid var(--border); color: var(--text);">
+      <button type="button" onclick="shareScenario()" class="px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" style="background: var(--surface-2); border: 1px solid var(--border); color: var(--text);">
         <span>🔗</span> Condividi Scenario
       </button>
-      <button type="button" onclick="window.print()" class="px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" style="background: var(--accent); color: #fff; box-shadow: 0 0 15px rgba(108,92,231,0.3);">
+      <button type="button" onclick="window.print()" class="px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" style="background: var(--accent); color: #fff; box-shadow: 0 0 15px rgba(108,92,231,0.3);">
         <span>📄</span> Scarica Report PDF
       </button>
     </div>
@@ -165,14 +167,13 @@
 
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-    <!-- INPUT PANEL (5 colonne su 12) -->
+    <!-- INPUT PANEL -->
     <section class="lg:col-span-5 card p-6 sm:p-7 space-y-6 lg:sticky lg:top-6">
       <div class="flex items-center justify-between border-b pb-4" style="border-color: var(--border);">
         <h2 class="font-display text-sm font-semibold tracking-wide uppercase" style="color:var(--text-dim)">Parametri Prodotto</h2>
         <span class="text-xs font-mono px-2 py-0.5 rounded" style="background:var(--surface-2); color:var(--text-dim)">Singola Unità</span>
       </div>
 
-      <!-- Sezione Preset di Nicchia -->
       <div class="no-print pb-2">
         <label class="text-xs font-medium block mb-2" style="color:var(--text-dim)">Carica Preset di Nicchia:</label>
         <div class="flex flex-wrap gap-2">
@@ -182,7 +183,6 @@
         </div>
       </div>
 
-      <!-- Prezzo di Listino -->
       <div>
         <div class="flex items-center justify-between mb-2">
           <label class="text-sm font-medium">Prezzo di Listino</label>
@@ -194,8 +194,7 @@
         <input id="price-range" type="range" min="1" max="300" step="0.5" value="49.90">
       </div>
 
-      <!-- Simulatore Sconto / Promo -->
-      <div class="p-4 rounded-xl border" style="background:var(--surface-2); border-color:var(--border);">
+      <div class="p-4 rounded-xl border transition-all" style="background:var(--surface-2); border-color:var(--border);">
         <div class="flex items-center justify-between mb-2">
           <label class="text-sm font-medium flex items-center gap-1.5" style="color:var(--warn)">
             🏷️ Sconto / Promozione
@@ -216,7 +215,6 @@
         </div>
       </div>
 
-      <!-- COGS -->
       <div>
         <div class="flex items-center justify-between mb-2">
           <label class="text-sm font-medium">Costo del Prodotto (COGS)</label>
@@ -228,7 +226,6 @@
         <input id="cogs-range" type="range" min="0" max="150" step="0.5" value="15.00">
       </div>
 
-      <!-- Spedizione -->
       <div>
         <div class="flex items-center justify-between mb-2">
           <label class="text-sm font-medium">Spedizione (a carico venditore)</label>
@@ -240,7 +237,6 @@
         <input id="shipping-range" type="range" min="0" max="40" step="0.25" value="4.50">
       </div>
 
-      <!-- Commissione pagamento -->
       <div>
         <div class="flex items-center justify-between mb-2">
           <label class="text-sm font-medium">Commissioni di Pagamento</label>
@@ -258,7 +254,6 @@
         <input id="fee-pct-range" type="range" min="0" max="8" step="0.1" value="1.5">
       </div>
 
-      <!-- Tasso di reso -->
       <div>
         <div class="flex items-center justify-between mb-2">
           <label class="text-sm font-medium">Tasso Stimato di Reso</label>
@@ -271,11 +266,10 @@
       </div>
     </section>
 
-    <!-- OUTPUT PANEL (7 colonne su 12) -->
+    <!-- OUTPUT PANEL -->
     <section class="lg:col-span-7 space-y-6">
 
-      <!-- Risk indicator card -->
-      <div id="risk-card" class="card p-6 transition-shadow duration-300">
+      <div id="risk-card" class="card p-6 transition-all duration-300">
         <div class="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-4">
           <div>
             <p class="text-xs font-mono uppercase tracking-widest mb-1" style="color:var(--text-dim)">Stato del Margine</p>
@@ -286,7 +280,6 @@
         </div>
       </div>
 
-      <!-- Metrics grid -->
       <div class="grid grid-cols-2 gap-4">
         <div class="card p-5 sm:p-6">
           <p class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">ROAS di Breakeven</p>
@@ -310,7 +303,21 @@
         </div>
       </div>
 
-      <!-- SEZIONE TARGET PROFIT / REVERSE BREAKEVEN -->
+      <!-- NUOVA SEZIONE: GRAFICO DINAMICO PROFFITTO VS ROAS -->
+      <div class="card p-6 sm:p-7">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-base">📈</span>
+            <h3 class="font-display text-sm font-semibold tracking-wide uppercase">Curva di Profitto in Base al ROAS</h3>
+          </div>
+          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(108,92,231,0.2); color: var(--accent);">VISUAL UX</span>
+        </div>
+        <div class="w-full h-64">
+          <canvas id="profitChart"></canvas>
+        </div>
+      </div>
+
+      <!-- TARGET PROFIT / REVERSE BREAKEVEN -->
       <div class="card p-6 sm:p-7 border-dashed" style="border-color: #EC4899;">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
@@ -349,7 +356,7 @@
         </div>
       </div>
 
-      <!-- FEATURE 1: SIMULATORE TARGET ROAS -->
+      <!-- SIMULATORE TARGET ROAS -->
       <div class="card p-6 sm:p-7 border-dashed" style="border-color: var(--accent);">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
@@ -393,7 +400,7 @@
         </div>
       </div>
 
-      <!-- FEATURE 2: SIMULATORE AOV & BUNDLE -->
+      <!-- SIMULATORE AOV & BUNDLE -->
       <div class="card p-6 sm:p-7 border-dashed" style="border-color: var(--good);">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
@@ -437,7 +444,7 @@
         </div>
       </div>
 
-      <!-- FEATURE 3: MATRICE DI SENSIBILITÀ & SCENARI -->
+      <!-- MATRICE DI SENSIBILITÀ & SCENARI -->
       <div class="card p-6 sm:p-7 border-dashed" style="border-color: var(--warn);">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
@@ -462,13 +469,12 @@
               </tr>
             </thead>
             <tbody id="matrix-body" class="divide-y divide-slate-800/50">
-              <!-- Renderizzato via JS -->
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- FEATURE 4: SIMULATORE LTV / REPEAT PURCHASE -->
+      <!-- SIMULATORE LTV / REPEAT PURCHASE -->
       <div class="card p-6 sm:p-7 border-dashed" style="border-color: #38BDF8;">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
@@ -512,7 +518,6 @@
         </div>
       </div>
 
-      <!-- Pulsanti Azione In fondo ai calcoli -->
       <div class="no-print space-y-2">
         <button type="button" class="action-btn btn-share" onclick="shareScenario()">🔗 Condividi Scenario (Copia Link)</button>
         <button type="button" class="action-btn btn-pdf" onclick="window.print()">📄 Scarica Report PDF</button>
@@ -540,48 +545,6 @@
       </div>
 
     </section>
-  </div>
-
-  <!-- SEZIONE RISORSE -->
-  <div class="mt-12 space-y-6 no-print">
-    
-    <!-- PDF Guide Download Box -->
-    <div class="card p-6 sm:p-8" style="background: linear-gradient(135deg, var(--surface), var(--surface-2)); border-color: var(--accent-dim);">
-      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        <div class="space-y-2 max-w-xl">
-          <span class="text-[10px] font-mono tracking-widest uppercase px-2.5 py-1 rounded-full font-semibold" style="background:rgba(108,92,231,0.2); color:var(--accent);">Guida Gratuita PDF</span>
-          <h3 class="font-display text-xl sm:text-2xl font-semibold">Il tuo Breakeven ROAS è troppo alto?</h3>
-          <p class="text-xs sm:text-sm leading-relaxed" style="color:var(--text-dim)">
-            Scarica la guida tascabile con <strong>5 Leve Pratiche per Ridurre il Breakeven ROAS</strong>. Azioni concrete su COGS, packaging, resi e tariffe per salvare i margini del tuo e-commerce.
-          </p>
-        </div>
-        <div class="w-full md:w-auto text-left md:text-right shrink-0">
-          <a href="https://drive.google.com/file/d/1RdF4x_qao_HqNrFfkr6Ys2DtOoQSr2A9/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="inline-block w-full md:w-auto text-center font-display font-semibold px-6 py-3.5 rounded-xl transition-all duration-200 hover:opacity-90" style="background:var(--accent); color:#fff; box-shadow:0 0 20px rgba(108,92,231,0.3);">
-            Scarica Guida PDF
-          </a>
-          <span class="block text-[11px] font-mono mt-2" style="color:var(--text-dim)">Formato PDF · 1 pagina</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Strumenti Consigliati -->
-    <div class="card p-6">
-      <p class="text-xs font-mono uppercase tracking-widest mb-4" style="color:var(--text-dim)">⚡ Strumenti Consigliati per E-Commerce</p>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        
-        <a href="https://www.shopify.com/it/free-trial" target="_blank" rel="noopener noreferrer" class="block p-4 rounded-xl border transition-all duration-200 hover:border-slate-500" style="background:var(--surface-2); border-color:var(--border);">
-          <div class="font-display text-sm font-semibold mb-1" style="color:var(--good)">Shopify</div>
-          <div class="text-xs" style="color:var(--text-dim)">Crea il tuo store con tassi di conversione ottimizzati. Prova gratuita disponibile.</div>
-        </a>
-
-        <a href="https://www.sendcloud.it/" target="_blank" rel="noopener noreferrer" class="block p-4 rounded-xl border transition-all duration-200 hover:border-slate-500" style="background:var(--surface-2); border-color:var(--border);">
-          <div class="font-display text-sm font-semibold mb-1" style="color:var(--accent)">Sendcloud</div>
-          <div class="text-xs" style="color:var(--text-dim)">Gestisci i corrieri e abbatti i costi di spedizione fino al 30% per ordine.</div>
-        </a>
-
-      </div>
-    </div>
-
   </div>
 
   <footer class="mt-10 text-center text-xs no-print" style="color:var(--text-dim)">
@@ -626,7 +589,6 @@
   syncPair(el['ltv-orders'], el['ltv-orders-range']);
   syncPair(el['targetProfit'], el['targetProfit-range']);
 
-  // 1. PRESET DI NICCHIA
   function applyPreset(type) {
     const presets = {
       fashion: { price: 59.9, cogs: 18, shipping: 5.5, returns: 15, roas: 2.8 },
@@ -645,7 +607,6 @@
     calculateAll();
   }
 
-  // 2. CONDIVIDI SCENARIO & LETTURA PARAMETRI URL
   function shareScenario() {
     const priceVal = el['price'] ? el['price'].value : '';
     const cogsVal = el['cogs'] ? el['cogs'].value : '';
@@ -656,24 +617,6 @@
     alert('🔗 Link dello scenario copiato negli appunti!');
   }
 
-  window.addEventListener('DOMContentLoaded', () => {
-    const params = new URLSearchParams(window.location.search);
-    if(params.has('price') && el['price']) {
-      el['price'].value = params.get('price');
-      if(el['price-range']) el['price-range'].value = params.get('price');
-    }
-    if(params.has('cogs') && el['cogs']) {
-      el['cogs'].value = params.get('cogs');
-      if(el['cogs-range']) el['cogs-range'].value = params.get('cogs');
-    }
-    if(params.has('roas') && el['roasTarget']) {
-      el['roasTarget'].value = params.get('roas');
-      if(el['roasTarget-range']) el['roasTarget-range'].value = params.get('roas');
-    }
-    calculateAll();
-  });
-
-  // FORMATTATORI
   function fmtEur(n){
     if (!isFinite(n)) return '—';
     return n.toLocaleString('it-IT', {style:'currency', currency:'EUR', minimumFractionDigits:2, maximumFractionDigits:2});
@@ -693,7 +636,60 @@
     return { roas: effectivePrice / netProfit, profit: netProfit };
   }
 
-  // 3. CALCOLO REVERSE BREAKEVEN (TARGET PROFIT)
+  // INIZIALIZZAZIONE CHART.JS
+  let profitChart = null;
+  function initChart() {
+    const ctx = document.getElementById('profitChart').getContext('2d');
+    profitChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Profitto / Peridta ad Ordine (€)',
+          data: [],
+          borderColor: '#6C5CE7',
+          backgroundColor: 'rgba(108, 92, 231, 0.15)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.3,
+          pointRadius: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: {
+            grid: { color: '#232838' },
+            ticks: { color: '#8A90A2' },
+            title: { display: true, text: 'ROAS Ads', color: '#8A90A2' }
+          },
+          y: {
+            grid: { color: '#232838' },
+            ticks: { color: '#8A90A2' },
+            title: { display: true, text: 'Profitto Netto (€)', color: '#8A90A2' }
+          }
+        }
+      }
+    });
+  }
+
+  function updateChart(effectivePrice, netProfitBeforeAds) {
+    if (!profitChart) return;
+    const roasValues = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 8.0];
+    const profitData = roasValues.map(r => {
+      const cpa = effectivePrice / r;
+      return parseFloat((netProfitBeforeAds - cpa).toFixed(2));
+    });
+
+    profitChart.data.labels = roasValues.map(r => r + 'x');
+    profitChart.data.datasets[0].data = profitData;
+    profitChart.update();
+  }
+
   function updateTargetProfit(netProfitPerUnit, price) {
     const targetProfitEl = el['targetProfit'];
     const roasTargetEl = el['roasTarget'];
@@ -722,7 +718,6 @@
     outBudgetEl.innerText = "N/D";
   }
 
-  // FUNZIONE PRINCIPALE CALCOLI
   function calculateAll(){
     const listPrice = parseFloat(el['price'].value) || 0;
     const discountPct = parseFloat(el['discount'].value) || 0;
@@ -777,8 +772,8 @@
     document.getElementById('out-profit').style.color = profitColor;
     document.getElementById('out-cpa').style.color = profitColor;
 
-    // Aggiornamento Reverse Breakeven / Target Profit
     updateTargetProfit(netProfit, effectivePrice);
+    updateChart(effectivePrice, netProfit);
 
     // TARGET ROAS
     const targetCpaVal = targetRoas > 0 ? effectivePrice / targetRoas : 0;
@@ -945,7 +940,24 @@
     document.getElementById('seg-profit').style.width = pProfit + '%';
   }
 
-  calculateAll();
+  window.addEventListener('DOMContentLoaded', () => {
+    initChart();
+    
+    const params = new URLSearchParams(window.location.search);
+    if(params.has('price') && el['price']) {
+      el['price'].value = params.get('price');
+      if(el['price-range']) el['price-range'].value = params.get('price');
+    }
+    if(params.has('cogs') && el['cogs']) {
+      el['cogs'].value = params.get('cogs');
+      if(el['cogs-range']) el['cogs-range'].value = params.get('cogs');
+    }
+    if(params.has('roas') && el['roasTarget']) {
+      el['roasTarget'].value = params.get('roas');
+      if(el['roasTarget-range']) el['roasTarget-range'].value = params.get('roas');
+    }
+    calculateAll();
+  });
 </script>
 </body>
 </html>
