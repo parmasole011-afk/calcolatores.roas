@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>Breakeven ROAS, AOV, Matrix & LTV — Calcolatore di Margine Reale</title>
+<title>Breakeven ROAS, AOV, Matrix & LTV — Calcolatore di Margine Reale Enterprise</title>
 
 <!-- GoatCounter Analytics -->
 <script data-goatcounter="https://sole.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 
-<!-- Chart.js per il grafico dinamico -->
+<!-- Chart.js per i grafici dinamici -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script src="https://cdn.tailwindcss.com"></script>
@@ -99,7 +99,7 @@
   ::-webkit-scrollbar{width:8px;height:8px;}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
 
-  .preset-btn {
+  .preset-btn, .curr-btn {
     background: var(--surface-2);
     border: 1px solid var(--border);
     color: var(--text);
@@ -110,10 +110,15 @@
     font-weight: 600;
     transition: all 0.2s ease;
   }
-  .preset-btn:hover {
+  .preset-btn:hover, .curr-btn:hover {
     border-color: var(--accent);
     background: rgba(108,92,231,0.15);
     transform: translateY(-1px);
+  }
+  .curr-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
   }
 
   .action-btn {
@@ -129,6 +134,7 @@
   .action-btn:hover { opacity: 0.9; transform: translateY(-1px); }
   .btn-share { background: #2563eb; color: white; }
   .btn-pdf { background: #059669; color: white; }
+  .btn-csv { background: #8b5cf6; color: white; }
 
   @media print {
     body { background: #fff !important; color: #000 !important; }
@@ -146,18 +152,27 @@
   <header class="mb-8 sm:mb-10 text-center max-w-3xl mx-auto">
     <div class="flex items-center justify-center gap-2 mb-3">
       <div class="w-2 h-2 rounded-full animate-pulse" style="background:var(--accent)"></div>
-      <span class="text-xs font-mono tracking-widest uppercase" style="color:var(--text-dim)">Unit Economics · E-commerce</span>
+      <span class="text-xs font-mono tracking-widest uppercase" style="color:var(--text-dim)">Unit Economics · E-commerce Enterprise</span>
     </div>
     <h1 class="font-display text-3xl sm:text-5xl font-semibold tracking-tight">
       Breakeven ROAS &amp; Profitto Reale
     </h1>
     <p class="mt-3 text-sm sm:text-base" style="color:var(--text-dim)">
-      Calcola il ROAS minimo di sostenibilità, simula il profitto target, valuta l'impatto dell'AOV, testa scenari promozionali e misura l'effetto del valore nel tempo (LTV).
+      Calcola il ROAS minimo di sostenibilità, simula il profitto target, valuta l'impatto dell'AOV, considera i costi fissi (OpEx), testa scenari promozionali e misura il valore nel tempo (LTV).
     </p>
 
-    <div class="no-print flex items-center justify-center gap-3 mt-6">
+    <!-- SELETTORE VALUTA & TOOLBAR -->
+    <div class="no-print flex flex-wrap items-center justify-center gap-3 mt-6">
+      <div class="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
+        <button type="button" class="curr-btn active" onclick="setCurrency('EUR')">€ EUR</button>
+        <button type="button" class="curr-btn" onclick="setCurrency('USD')">$ USD</button>
+        <button type="button" class="curr-btn" onclick="setCurrency('GBP')">£ GBP</button>
+      </div>
       <button type="button" onclick="shareScenario()" class="px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" style="background: var(--surface-2); border: 1px solid var(--border); color: var(--text);">
         <span>🔗</span> Condividi Scenario
+      </button>
+      <button type="button" onclick="exportCSV()" class="px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" style="background: var(--surface-2); border: 1px solid var(--border); color: var(--text);">
+        <span>📊</span> Esporta CSV
       </button>
       <button type="button" onclick="window.print()" class="px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" style="background: var(--accent); color: #fff; box-shadow: 0 0 15px rgba(108,92,231,0.3);">
         <span>📄</span> Scarica Report PDF
@@ -180,6 +195,7 @@
           <button type="button" class="preset-btn" onclick="applyPreset('fashion')">👗 Fashion</button>
           <button type="button" class="preset-btn" onclick="applyPreset('beauty')">💄 Beauty</button>
           <button type="button" class="preset-btn" onclick="applyPreset('tech')">🎧 Elettronica</button>
+          <button type="button" class="preset-btn" onclick="applyPreset('highmargin')">💎 Lusso / High Margin</button>
         </div>
       </div>
 
@@ -187,11 +203,11 @@
         <div class="flex items-center justify-between mb-2">
           <label class="text-sm font-medium">Prezzo di Listino</label>
           <div class="flex items-center gap-1">
-            <span class="text-xs" style="color:var(--text-dim)">€</span>
+            <span class="text-xs curr-symbol" style="color:var(--text-dim)">€</span>
             <input id="price" type="number" step="0.5" class="num-input w-24 rounded-lg px-2.5 py-1.5 text-sm text-right font-bold" value="49.90">
           </div>
         </div>
-        <input id="price-range" type="range" min="1" max="300" step="0.5" value="49.90">
+        <input id="price-range" type="range" min="1" max="500" step="0.5" value="49.90">
       </div>
 
       <div class="p-4 rounded-xl border transition-all" style="background:var(--surface-2); border-color:var(--border);">
@@ -219,22 +235,22 @@
         <div class="flex items-center justify-between mb-2">
           <label class="text-sm font-medium">Costo del Prodotto (COGS)</label>
           <div class="flex items-center gap-1">
-            <span class="text-xs" style="color:var(--text-dim)">€</span>
+            <span class="text-xs curr-symbol" style="color:var(--text-dim)">€</span>
             <input id="cogs" type="number" step="0.5" class="num-input w-24 rounded-lg px-2 py-1 text-sm text-right" value="15.00">
           </div>
         </div>
-        <input id="cogs-range" type="range" min="0" max="150" step="0.5" value="15.00">
+        <input id="cogs-range" type="range" min="0" max="250" step="0.5" value="15.00">
       </div>
 
       <div>
         <div class="flex items-center justify-between mb-2">
           <label class="text-sm font-medium">Spedizione (a carico venditore)</label>
           <div class="flex items-center gap-1">
-            <span class="text-xs" style="color:var(--text-dim)">€</span>
+            <span class="text-xs curr-symbol" style="color:var(--text-dim)">€</span>
             <input id="shipping" type="number" step="0.25" class="num-input w-24 rounded-lg px-2 py-1 text-sm text-right" value="4.50">
           </div>
         </div>
-        <input id="shipping-range" type="range" min="0" max="40" step="0.25" value="4.50">
+        <input id="shipping-range" type="range" min="0" max="50" step="0.25" value="4.50">
       </div>
 
       <div>
@@ -247,7 +263,7 @@
             <span class="text-xs" style="color:var(--text-dim)">%</span>
           </div>
           <div class="flex items-center gap-1">
-            <span class="text-xs" style="color:var(--text-dim)">€</span>
+            <span class="text-xs curr-symbol" style="color:var(--text-dim)">€</span>
             <input id="fee-fix" type="number" step="0.05" class="num-input w-full rounded-lg px-2 py-1 text-sm text-right" value="0.25">
           </div>
         </div>
@@ -263,6 +279,20 @@
           </div>
         </div>
         <input id="returns-range" type="range" min="0" max="40" step="0.5" value="5">
+      </div>
+
+      <!-- NUOVO: COSTI FISSI STRUTTURALI (OPEX PER UNITA) -->
+      <div class="pt-2 border-t" style="border-color:var(--border);">
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-xs font-medium flex items-center gap-1" style="color:var(--text-dim)">
+            🏢 Spese Fisse Mensili da Coprire (OpEx)
+          </label>
+          <div class="flex items-center gap-1">
+            <span class="text-xs curr-symbol" style="color:var(--text-dim)">€</span>
+            <input id="opex" type="number" step="100" class="num-input w-24 rounded-lg px-2 py-1 text-xs text-right" value="0">
+          </div>
+        </div>
+        <p class="text-[10px]" style="color:var(--text-dim)">Software, stipendi o affitti distribuiti sugli ordini target mensili.</p>
       </div>
     </section>
 
@@ -303,18 +333,27 @@
         </div>
       </div>
 
-      <!-- NUOVA SEZIONE: GRAFICO DINAMICO PROFFITTO VS ROAS -->
+      <!-- GRAFICO DINAMICO PROFFITTO VS ROAS CON BUFFER DI SICUREZZA -->
       <div class="card p-6 sm:p-7">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <span class="text-base">📈</span>
-            <h3 class="font-display text-sm font-semibold tracking-wide uppercase">Curva di Profitto in Base al ROAS</h3>
+            <h3 class="font-display text-sm font-semibold tracking-wide uppercase">Curva di Profitto &amp; Buffer di Sicurezza Ads</h3>
           </div>
-          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(108,92,231,0.2); color: var(--accent);">VISUAL UX</span>
+          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(108,92,231,0.2); color: var(--accent);">VISUAL ANALYSIS</span>
         </div>
         <div class="w-full h-64">
           <canvas id="profitChart"></canvas>
         </div>
+      </div>
+
+      <!-- SMART SUGGESTIONS (SUGGERIMENTI INTELLIGENTI) -->
+      <div id="smart-suggestions" class="card p-5 border-l-4" style="border-left-color: var(--accent); background: var(--surface-2);">
+        <div class="flex items-center gap-2 mb-2">
+          <span>💡</span>
+          <h4 class="font-display text-xs font-semibold tracking-wide uppercase">Consiglio Strategico Automatico</h4>
+        </div>
+        <p id="suggestion-text" class="text-xs text-slate-300">Caricamento ottimizzazioni...</p>
       </div>
 
       <!-- TARGET PROFIT / REVERSE BREAKEVEN -->
@@ -334,10 +373,10 @@
         <div class="space-y-4">
           <div>
             <div class="flex items-center justify-between mb-2">
-              <label class="text-xs font-medium">Profitto Mensile Desiderato (€)</label>
+              <label class="text-xs font-medium">Profitto Mensile Desiderato (<span class="curr-symbol">€</span>)</label>
               <div class="flex items-center gap-1">
                 <input id="targetProfit" type="number" step="500" class="num-input w-24 rounded-lg px-2 py-1 text-xs text-right" value="5000">
-                <span class="text-xs font-mono" style="color:var(--text-dim)">€</span>
+                <span class="text-xs font-mono curr-symbol" style="color:var(--text-dim)">€</span>
               </div>
             </div>
             <input id="targetProfit-range" type="range" min="500" max="50000" step="500" value="5000">
@@ -464,8 +503,8 @@
               <tr style="border-bottom: 1px solid var(--border);">
                 <th class="p-2 text-left font-sans text-[11px]" style="color: var(--text-dim);">Sconto ↓ \ Spedizione →</th>
                 <th id="th-ship-curr" class="p-2">In Uso</th>
-                <th id="th-ship-free" class="p-2">0,00 € (Free)</th>
-                <th id="th-ship-plus" class="p-2">+2,00 €</th>
+                <th id="th-ship-free" class="p-2">0,00 (Free)</th>
+                <th id="th-ship-plus" class="p-2">+2,00</th>
               </tr>
             </thead>
             <tbody id="matrix-body" class="divide-y divide-slate-800/50">
@@ -520,6 +559,7 @@
 
       <div class="no-print space-y-2">
         <button type="button" class="action-btn btn-share" onclick="shareScenario()">🔗 Condividi Scenario (Copia Link)</button>
+        <button type="button" class="action-btn btn-csv" onclick="exportCSV()">📊 Esporta Report in CSV</button>
         <button type="button" class="action-btn btn-pdf" onclick="window.print()">📄 Scarica Report PDF</button>
       </div>
 
@@ -548,17 +588,32 @@
   </div>
 
   <footer class="mt-10 text-center text-xs no-print" style="color:var(--text-dim)">
-    Calcolo indicativo — non costituisce consulenza finanziaria.
+    Calcolo indicativo — non costituisce consulenza finanziaria. Modello di analisi aggiornato all'ecosistema E-commerce Enterprise.
   </footer>
 </div>
 
 <script>
-  const ids = ['price','discount','cogs','shipping','fee-pct','fee-fix','returns','roasTarget','aov-qty','ltv-orders','targetProfit'];
+  let currentCurrency = 'EUR';
+  const currencySymbols = { EUR: '€', USD: '$', GBP: '£' };
+  const currencyLocales = { EUR: 'it-IT', USD: 'en-US', GBP: 'en-GB' };
+
+  const ids = ['price','discount','cogs','shipping','fee-pct','fee-fix','returns','roasTarget','aov-qty','ltv-orders','targetProfit','opex'];
   const el = {};
   ids.forEach(id => {
     el[id] = document.getElementById(id);
     if (document.getElementById(id+'-range')) el[id+'-range'] = document.getElementById(id+'-range');
   });
+
+  function setCurrency(curr) {
+    currentCurrency = curr;
+    document.querySelectorAll('.curr-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.textContent.includes(curr));
+    });
+    document.querySelectorAll('.curr-symbol').forEach(s => {
+      s.textContent = currencySymbols[curr];
+    });
+    calculateAll();
+  }
 
   function syncPair(numEl, rangeEl){
     if(!numEl) return;
@@ -588,12 +643,14 @@
   syncPair(el['aov-qty'], el['aov-qty-range']);
   syncPair(el['ltv-orders'], el['ltv-orders-range']);
   syncPair(el['targetProfit'], el['targetProfit-range']);
+  if (el['opex']) syncPair(el['opex'], null);
 
   function applyPreset(type) {
     const presets = {
       fashion: { price: 59.9, cogs: 18, shipping: 5.5, returns: 15, roas: 2.8 },
       beauty: { price: 39.9, cogs: 6, shipping: 4.5, returns: 2, roas: 3.5 },
-      tech: { price: 89.9, cogs: 45, shipping: 6.0, returns: 8, roas: 4.0 }
+      tech: { price: 89.9, cogs: 45, shipping: 6.0, returns: 8, roas: 4.0 },
+      highmargin: { price: 149.0, cogs: 22, shipping: 7.0, returns: 4, roas: 2.2 }
     };
     const p = presets[type];
     if(!p) return;
@@ -611,32 +668,56 @@
     const priceVal = el['price'] ? el['price'].value : '';
     const cogsVal = el['cogs'] ? el['cogs'].value : '';
     const roasVal = el['roasTarget'] ? el['roasTarget'].value : '';
+    const currVal = currentCurrency;
     
-    const shareUrl = `${window.location.origin}${window.location.pathname}?price=${priceVal}&cogs=${cogsVal}&roas=${roasVal}`;
+    const shareUrl = `${window.location.origin}${window.location.pathname}?price=${priceVal}&cogs=${cogsVal}&roas=${roasVal}&curr=${currVal}`;
     navigator.clipboard.writeText(shareUrl);
     alert('🔗 Link dello scenario copiato negli appunti!');
   }
 
+  function exportCSV() {
+    const listPrice = el['price'].value;
+    const cogs = el['cogs'].value;
+    const roasTarget = el['roasTarget'].value;
+    const netProfit = document.getElementById('out-profit').textContent;
+    const roasBk = document.getElementById('out-roas').textContent;
+    
+    let csvContent = "data:text/csv;charset=utf-8,Parametro,Valore\n";
+    csvContent += `Prezzo Listino,${listPrice}\n`;
+    csvContent += `COGS,${cogs}\n`;
+    csvContent += `ROAS Breakeven,${roasBk}\n`;
+    csvContent += `ROAS Target,${roasTarget}\n`;
+    csvContent += `Profitto Netto Unita,${netProfit}\n`;
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "report_unit_economics.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   function fmtEur(n){
     if (!isFinite(n)) return '—';
-    return n.toLocaleString('it-IT', {style:'currency', currency:'EUR', minimumFractionDigits:2, maximumFractionDigits:2});
+    return n.toLocaleString(currencyLocales[currentCurrency], {style:'currency', currency: currentCurrency, minimumFractionDigits:2, maximumFractionDigits:2});
   }
   function fmtPct(n){
     if (!isFinite(n)) return '—';
-    return n.toLocaleString('it-IT', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
+    return n.toLocaleString(currencyLocales[currentCurrency], {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
   }
 
-  function computeRoasForParams(listPrice, discountPct, cogs, ship, feePct, feeFix, retRate){
+  function computeRoasForParams(listPrice, discountPct, cogs, ship, feePct, feeFix, retRate, opexPerUnit = 0){
     const effectivePrice = Math.max(0, listPrice * (1 - discountPct / 100));
     const feeAmount = effectivePrice * (feePct / 100) + feeFix;
     const returnCost = effectivePrice * (retRate / 100);
-    const totalCosts = cogs + ship + feeAmount + returnCost;
+    const totalCosts = cogs + ship + feeAmount + returnCost + opexPerUnit;
     const netProfit = effectivePrice - totalCosts;
     if (netProfit <= 0) return { roas: Infinity, profit: netProfit };
     return { roas: effectivePrice / netProfit, profit: netProfit };
   }
 
-  // INIZIALIZZAZIONE CHART.JS
+  // CHART.JS DINAMICO
   let profitChart = null;
   function initChart() {
     const ctx = document.getElementById('profitChart').getContext('2d');
@@ -645,7 +726,7 @@
       data: {
         labels: [],
         datasets: [{
-          label: 'Profitto / Peridta ad Ordine (€)',
+          label: 'Profitto / Perdita ad Ordine',
           data: [],
           borderColor: '#6C5CE7',
           backgroundColor: 'rgba(108, 92, 231, 0.15)',
@@ -670,7 +751,7 @@
           y: {
             grid: { color: '#232838' },
             ticks: { color: '#8A90A2' },
-            title: { display: true, text: 'Profitto Netto (€)', color: '#8A90A2' }
+            title: { display: true, text: 'Profitto Netto', color: '#8A90A2' }
           }
         }
       }
@@ -709,13 +790,29 @@
         const ordersNeeded = Math.ceil(targetProfit / profitPerOrderWithAds);
         const budgetNeeded = ordersNeeded * cpaTarget;
         
-        outOrdersEl.innerText = ordersNeeded.toLocaleString('it-IT') + ' ordini';
+        outOrdersEl.innerText = ordersNeeded.toLocaleString(currencyLocales[currentCurrency]) + ' ordini';
         outBudgetEl.innerText = fmtEur(budgetNeeded);
-        return;
+        return ordersNeeded;
       }
     }
     outOrdersEl.innerText = "N/D (In perdita)";
     outBudgetEl.innerText = "N/D";
+    return 0;
+  }
+
+  function generateSmartSuggestions(netMarginPct, roasBreakeven, cogsPct) {
+    const sugText = document.getElementById('suggestion-text');
+    if (!sugText) return;
+
+    if (netMarginPct < 0) {
+      sugText.textContent = "⚠️ Sei in perdita diretta sul prodotto! Riduci il COGS, rimuovi gli sconti o aumenta il prezzo prima di lanciare qualsiasi campagna Ads.";
+    } else if (netMarginPct < 15) {
+      sugText.textContent = "💡 Margine ridotto: considera di aumentare l'AOV proponendo Bundle (es. 2x o 3x) per ammortizzare le spese fisse di spedizione.";
+    } else if (cogsPct > 40) {
+      sugText.textContent = "📦 Il costo del prodotto (COGS) incide per oltre il 40% del prezzo. Negozia i prezzi con il fornitore per abbassare il Breakeven ROAS.";
+    } else {
+      sugText.textContent = `✅ Ottima struttura costi! Hai un buffer sufficiente per scalare su Ads ed accettare variazioni di CPM/CPA.`;
+    }
   }
 
   function calculateAll(){
@@ -729,6 +826,7 @@
     const targetRoas = parseFloat(el['roasTarget'].value) || 1;
     const aovQty = Math.max(1, parseInt(el['aov-qty'].value) || 1);
     const ltvOrders = Math.max(1, parseFloat(el['ltv-orders'].value) || 1);
+    const opexMonthly = el['opex'] ? (parseFloat(el['opex'].value) || 0) : 0;
 
     const discountAmount = listPrice * (discountPct / 100);
     const effectivePrice = Math.max(0, listPrice - discountAmount);
@@ -744,9 +842,22 @@
       discountInfo.classList.add('hidden');
     }
 
+    // Calcolo preliminare utile ad calcolare la quota OpEx per unità
+    const preliminaryFee = effectivePrice * (feePct / 100) + feeFix;
+    const preliminaryReturn = effectivePrice * (retRate / 100);
+    const preliminaryNetProfit = effectivePrice - (cogs + ship + preliminaryFee + preliminaryReturn);
+
+    let opexPerUnit = 0;
+    if (opexMonthly > 0 && preliminaryNetProfit > 0) {
+      const ordersNeeded = updateTargetProfit(preliminaryNetProfit, effectivePrice);
+      if (ordersNeeded > 0) {
+        opexPerUnit = opexMonthly / ordersNeeded;
+      }
+    }
+
     const feeAmount = effectivePrice * (feePct / 100) + feeFix;
     const returnCost = effectivePrice * (retRate / 100);
-    const totalCosts = cogs + ship + feeAmount + returnCost;
+    const totalCosts = cogs + ship + feeAmount + returnCost + opexPerUnit;
     
     const netProfit = effectivePrice - totalCosts;
     const netMarginPct = effectivePrice > 0 ? (netProfit / effectivePrice) * 100 : 0;
@@ -774,6 +885,7 @@
 
     updateTargetProfit(netProfit, effectivePrice);
     updateChart(effectivePrice, netProfit);
+    generateSmartSuggestions(netMarginPct, roasBreakeven, (cogs / (effectivePrice || 1)) * 100);
 
     // TARGET ROAS
     const targetCpaVal = targetRoas > 0 ? effectivePrice / targetRoas : 0;
@@ -812,7 +924,7 @@
     const aovShip = ship;
     const aovFee = aovRevenue * (feePct / 100) + feeFix;
     const aovReturn = aovRevenue * (retRate / 100);
-    const aovTotalCosts = aovCogs + aovShip + aovFee + aovReturn;
+    const aovTotalCosts = aovCogs + aovShip + aovFee + aovReturn + (opexPerUnit * aovQty);
     const aovNetProfit = aovRevenue - aovTotalCosts;
     const aovBreakevenRoas = aovNetProfit > 0 ? aovRevenue / aovNetProfit : Infinity;
 
@@ -837,6 +949,7 @@
 
     // SCENARIO MATRIX
     document.getElementById('th-ship-curr').textContent = `In Uso (${fmtEur(ship)})`;
+    document.getElementById('th-ship-free').textContent = `${fmtEur(0)} (Free)`;
     document.getElementById('th-ship-plus').textContent = fmtEur(ship + 2);
 
     const discountsToTest = [0, 10, 20, 30];
@@ -853,7 +966,7 @@
       </td>`;
 
       shipsToTest.forEach(sVal => {
-        const res = computeRoasForParams(listPrice, dPct, cogs, sVal, feePct, feeFix, retRate);
+        const res = computeRoasForParams(listPrice, dPct, cogs, sVal, feePct, feeFix, retRate, opexPerUnit);
         let txt = isFinite(res.roas) ? res.roas.toFixed(2) + 'x' : 'IN PERDITA';
         let badgeStyle = 'color: var(--good);';
 
@@ -944,6 +1057,9 @@
     initChart();
     
     const params = new URLSearchParams(window.location.search);
+    if(params.has('curr')) {
+      setCurrency(params.get('curr'));
+    }
     if(params.has('price') && el['price']) {
       el['price'].value = params.get('price');
       if(el['price-range']) el['price-range'].value = params.get('price');
