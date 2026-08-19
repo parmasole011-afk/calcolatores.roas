@@ -14,6 +14,57 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- FASE 2: SCHEMA MARKUP (WebApplication e FAQPage) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "Calcolatore Break-Even ROAS & Profitto E-commerce",
+      "operatingSystem": "All",
+      "applicationCategory": "BusinessApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR"
+      },
+      "description": "Strumento enterprise gratuito per calcolare il Break-Even ROAS, il profitto netto reale e la sostenibilità delle campagne Ads per e-commerce."
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Cos'è il ROAS e come si calcola?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Il ROAS (Return On Ad Spend) misura il fatturato lordo generato per ogni euro speso in pubblicità. Si calcola dividendo il Fatturato Generato dalle Ads per la Spesa Pubblicitaria."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Qual è la differenza tra ROAS e ROI?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Il ROAS considera esclusivamente le entrate lorde rispetto ai costi delle inserzioni pubblicitarie, senza tenere conto dei costi operativi. Il ROI (Return On Investment) misura invece il profitto netto effettivo, sottraendo dal fatturato tutti i costi di gestione, produzione e spedizione."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Come si calcola il Break-Even ROAS per un e-commerce?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Il Break-Even ROAS identifica il punto di pareggio dove l'azienda non guadagna e non perde. Si calcola dividendo il Prezzo di Vendita Netto per il Margine di Contribuzione Prima delle Ads."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+
 <style>
   :root{
     --bg: #0A0C12;
@@ -251,7 +302,7 @@
         <div class="flex items-center justify-between mb-2">
           <label class="text-sm font-medium">Tasso Stimato di Reso</label>
           <div class="flex items-center gap-1">
-            <input id="returns" type="number" step="0.5" class="num-input w-24 rounded-lg px-2 py-1 text-sm text-right" value="5">
+            <input id="returns" type="number" step="0.5" class="num-input w-24 rounded-lg px-2 py-1 text-xs text-right" value="5">
             <span class="text-xs" style="color:var(--text-dim)">%</span>
           </div>
         </div>
@@ -270,6 +321,28 @@
           </div>
         </div>
         <p class="text-[10px]" style="color:var(--text-dim)">Software, stipendi o affitti distribuiti sugli ordini target mensili.</p>
+      </div>
+
+      <!-- FASE 1: INLINE CAPTURE FORM / INTEGRATED LEAD BOX -->
+      <div class="no-print pt-4 border-t" style="border-color:var(--border);">
+        <div class="p-4 rounded-xl border" style="background: rgba(108,92,231,0.08); border-color: rgba(108,92,231,0.3);">
+          <div class="flex items-center gap-2 mb-2">
+            <span>📥</span>
+            <h3 class="font-display text-xs font-bold uppercase tracking-wide">Scarica Template Excel + Report PDF</h3>
+          </div>
+          <p class="text-[11px] mb-3" style="color:var(--text-dim)">
+            Ricevi via email la roadmap completa per l'ottimizzazione dei margini e il foglio di calcolo avanzato.
+          </p>
+          <form onsubmit="handleInlineLeadSubmit(event)" class="space-y-2">
+            <input type="email" id="inlineEmail" required placeholder="La tua email aziendale" class="num-input w-full rounded-lg px-3 py-2 text-xs">
+            <button type="submit" class="action-btn btn-pdf w-full py-2 text-xs font-bold mt-1">
+              Sblocca e Invia Report
+            </button>
+          </form>
+          <p id="inline-lead-msg" class="text-[10px] font-medium text-emerald-400 mt-2 hidden">
+            ✅ Report inviato con successo! Controlla la tua casella di posta.
+          </p>
+        </div>
       </div>
     </section>
 
@@ -537,7 +610,7 @@
       <div class="no-print space-y-2">
         <button type="button" class="action-btn btn-share" onclick="shareScenario()">🔗 <span>Condividi Scenario (Copia Link)</span></button>
         <button type="button" class="action-btn btn-csv" onclick="exportCSV()">📊 <span>Esporta Report in CSV</span></button>
-        <button type="button" class="action-btn btn-pdf" onclick="window.print()">📄 <span>Scarica Report PDF</span></button>
+        <button type="button" class="action-btn btn-pdf" onclick="openLeadModal()">📄 <span>Scarica Report PDF Avanzato (Gratis)</span></button>
       </div>
 
       <!-- Breakdown bar -->
@@ -564,9 +637,140 @@
     </section>
   </div>
 
+  <!-- FASE 3: STRUTTURAZIONE DELL'OFFERTA & MONETIZZAZIONE (Tool Consigliati / Affiliazioni) -->
+  <section class="mt-12 no-print">
+    <div class="card p-6 sm:p-8">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="text-xl">🛠️</span>
+        <h3 class="font-display text-lg font-bold">Tool Consigliati per Ottimizzare i Margini del tuo E-commerce</h3>
+      </div>
+      <p class="text-xs text-slate-400 mb-6">Integrazioni e software essenziali per monitorare l'attribuzione pubblicitaria, automatizzare le email e scalare le vendite.</p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="p-4 rounded-xl border flex flex-col justify-between" style="background:var(--surface-2); border-color:var(--border);">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-bold text-sm">Shopify</span>
+              <span class="text-[10px] px-2 py-0.5 rounded font-mono bg-emerald-500/10 text-emerald-400">Piattaforma</span>
+            </div>
+            <p class="text-xs text-slate-400">Crea e gestisci il tuo negozio online con la migliore infrastruttura di checkout al mondo.</p>
+          </div>
+          <a href="https://www.shopify.com" target="_blank" rel="noopener sponsored" class="mt-4 text-xs font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1">Provalo gratis a 1€/mese &rarr;</a>
+        </div>
+
+        <div class="p-4 rounded-xl border flex flex-col justify-between" style="background:var(--surface-2); border-color:var(--border);">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-bold text-sm">Klaviyo / Brevo</span>
+              <span class="text-[10px] px-2 py-0.5 rounded font-mono bg-sky-500/10 text-sky-400">Email Marketing</span>
+            </div>
+            <p class="text-xs text-slate-400">Aumenta il valore LTV dei tuoi clienti recuperando i carrelli abbandonati in automatico.</p>
+          </div>
+          <a href="https://www.brevo.com" target="_blank" rel="noopener sponsored" class="mt-4 text-xs font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1">Attiva l'account gratuito &rarr;</a>
+        </div>
+
+        <div class="p-4 rounded-xl border flex flex-col justify-between" style="background:var(--surface-2); border-color:var(--border);">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-bold text-sm">Triple Whale</span>
+              <span class="text-[10px] px-2 py-0.5 rounded font-mono bg-amber-500/10 text-amber-400">Tracking Ads</span>
+            </div>
+            <p class="text-xs text-slate-400">Traccia il ROAS reale in prima persona senza perdite dovute agli aggiornamenti di iOS.</p>
+          </div>
+          <a href="#" target="_blank" rel="noopener sponsored" class="mt-4 text-xs font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1">Scopri le funzionalità &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FASE 2: CONTENT & SEO ON-PAGE (Sezione Informativa SEO) -->
+  <article class="mt-12 card p-6 sm:p-10 space-y-8 prose prose-invert max-w-none">
+    <div class="border-b pb-4" style="border-color: var(--border);">
+      <h2 class="font-display text-2xl font-bold">Guida Definitiva al ROAS e alla Redditività nell'E-commerce</h2>
+      <p class="text-xs text-slate-400 mt-1">Comprendere le metriche chiave per sostenere la crescita delle tue campagne pubblicitarie.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="space-y-2">
+        <h3 class="font-display text-base font-semibold text-indigo-300">Cos'è il ROAS e come si calcola?</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Il <strong>ROAS (Return On Ad Spend)</strong> è la metrica che indica quanto fatturato viene generato per ogni euro investito nelle campagne pubblicitarie (Meta Ads, Google Ads, TikTok Ads).
+        </p>
+        <p class="text-xs text-slate-400 font-mono bg-slate-900/50 p-2 rounded border border-slate-800">
+          ROAS = Fatturato Ads / Spesa Ads
+        </p>
+      </div>
+
+      <div class="space-y-2">
+        <h3 class="font-display text-base font-semibold text-indigo-300">Differenza tra ROAS e ROI</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Mentre il <strong>ROAS</strong> valuta unicamente la resa lorda della spesa pubblicitaria ignorando i costi aziendali, il <strong>ROI (Return On Investment)</strong> misura il vero guadagno netto prendendo in considerazione tutti i costi operativi (costo prodotto, spedizione, tasse e commissioni).
+        </p>
+      </div>
+
+      <div class="space-y-2">
+        <h3 class="font-display text-base font-semibold text-indigo-300">Come si calcola il Break-Even ROAS?</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Il <strong>Break-Even ROAS</strong> rappresenta la soglia minima oltre la quale le inserzioni pubblicitarie iniziano a produrre un utile reale. Sotto questo valore, ogni vendita generata comporta una perdita per il negozio.
+        </p>
+        <p class="text-xs text-slate-400 font-mono bg-slate-900/50 p-2 rounded border border-slate-800">
+          BE ROAS = Prezzo Netto / Margine Lordo
+        </p>
+      </div>
+    </div>
+  </article>
+
   <footer class="mt-10 text-center text-xs no-print" style="color:var(--text-dim)">
     Calcolo indicativo — non costituisce consulenza finanziaria. Modello di analisi aggiornato all'ecosistema E-commerce Enterprise.
   </footer>
+</div>
+
+<!-- FASE 1 & 3: MODAL LEAD MAGNET + QUALIFICAZIONE HIGH-TICKET -->
+<div id="leadModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+  <div class="card max-w-md w-full p-6 sm:p-8 relative border-2" style="border-color: var(--accent);">
+    <button onclick="closeLeadModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">&times;</button>
+    
+    <div class="text-center mb-6">
+      <span class="text-3xl">📊</span>
+      <h3 class="font-display text-xl font-bold mt-2">Ricevi il Report PDF Completo</h3>
+      <p class="text-xs text-slate-400 mt-1">Includeremo l'analisi del margine netto, proiezioni LTV e il template Excel per tracciare i costi.</p>
+    </div>
+
+    <!-- Integrazione con servizi email come Brevo/MailerLite via Webhook o form action -->
+    <form id="leadForm" onsubmit="handleLeadSubmit(event)" class="space-y-4">
+      <div>
+        <label class="block text-xs font-medium text-slate-300 mb-1">Il tuo Nome</label>
+        <input type="text" id="leadName" required placeholder="Mario" class="num-input w-full rounded-lg px-3 py-2 text-sm">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-300 mb-1">Email Aziendale / E-commerce</label>
+        <input type="email" id="leadEmail" required placeholder="mario@ecommerce.it" class="num-input w-full rounded-lg px-3 py-2 text-sm">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-300 mb-1">Spesa Ads Mensile Stimata</label>
+        <select id="leadSpend" class="num-input w-full rounded-lg px-3 py-2 text-sm text-slate-300">
+          <option value="<1k">Meno di 1.000 € / mese</option>
+          <option value="1k-5k">1.000 € - 5.000 € / mese</option>
+          <option value="5k-20k">5.000 € - 20.000 € / mese</option>
+          <option value=">20k">Più di 20.000 € / mese (Enterprise)</option>
+        </select>
+      </div>
+
+      <!-- FASE 3: HIGH-TICKET AUDIT CALL-TO-ACTION (Opzionale nel form) -->
+      <div id="highTicketOption" class="p-3 rounded-lg border bg-indigo-950/30 border-indigo-500/30">
+        <label class="flex items-start gap-2 cursor-pointer">
+          <input type="checkbox" id="requestAudit" class="mt-0.5 rounded border-slate-700 text-indigo-600 focus:ring-indigo-500">
+          <span class="text-[11px] text-slate-300">Richiedi un Audit Gratuito delle tue campagne da un nostro Media Buyer dedicato (Riservato a spesa &gt; 5k€/mese).</span>
+        </label>
+      </div>
+      
+      <button type="submit" class="action-btn btn-pdf w-full py-3 text-sm font-bold shadow-lg mt-2">
+        📥 Sblocca e Scarica PDF
+      </button>
+
+      <p class="text-[10px] text-center text-slate-500 mt-2">Niente spam. Zero pubblicità invasiva.</p>
+    </form>
+  </div>
 </div>
 
 <script>
@@ -657,6 +861,62 @@
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  }
+
+  // GESTIONE INLINE CAPTURE FORM (FASE 1)
+  function handleInlineLeadSubmit(e) {
+    e.preventDefault();
+    const email = document.getElementById('inlineEmail').value;
+    
+    sendLeadToWebhook({ email, source: 'inline_calculator_form' });
+
+    document.getElementById('inline-lead-msg').classList.remove('hidden');
+    e.target.reset();
+  }
+
+  // GESTIONE MODAL LEAD MAGNET & AUDIT HIGH-TICKET
+  function openLeadModal() {
+    document.getElementById('leadModal').classList.remove('hidden');
+  }
+
+  function closeLeadModal() {
+    document.getElementById('leadModal').classList.add('hidden');
+  }
+
+  function handleLeadSubmit(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('leadName').value;
+    const email = document.getElementById('leadEmail').value;
+    const spend = document.getElementById('leadSpend').value;
+    const wantsAudit = document.getElementById('requestAudit').checked;
+
+    const payload = { name, email, spend, wantsAudit, source: 'modal_lead_form' };
+    
+    sendLeadToWebhook(payload);
+
+    if (wantsAudit || spend === '5k-20k' || spend === '>20k') {
+      alert(`Grazie ${name}! Oltre al Report PDF, il nostro team ti contatterà all'indirizzo ${email} per l'Audit strategico delle tue campagne.`);
+    } else {
+      alert(`Grazie ${name}! Il report è stato inviato e il download avviato.`);
+    }
+    
+    closeLeadModal();
+    window.print();
+  }
+
+  // FUNZIONE DI INVIO DATI A BREVO / MAILERLITE / ZAPIER / MAKE
+  function sendLeadToWebhook(data) {
+    console.log('Invio lead in corso:', data);
+    
+    // SOSTITUISCI QUESTO URL CON IL TUO WEBHOOK DI BREVO / MAILERLITE / ZAPIER / MAKE
+    const webhookUrl = 'https://your-webhook-endpoint.com/leads'; 
+    
+    fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    }).catch(err => console.log('Simulazione invio lead (Webhook non configurato):', data));
   }
 
   function fmtEur(n){
@@ -765,7 +1025,7 @@
     if (!sugText) return;
 
     if (netMarginPct < 0) {
-      sugText.textContent = "⚠️ Sei in perdita diretta sul prodotto! Riduci il COGS, rimuovi gli sconti o aumenta il prezzo prima di lanciare qualsiasi campagna Ads.";
+      sugText.textContent = "⚠️ Sei in perdita diretta sul prodotto! Riduci il COGS, rimuovi gli sconto o aumenta il prezzo prima di lanciare qualsiasi campagna Ads.";
     } else if (netMarginPct < 15) {
       sugText.textContent = "💡 Margine ridotto: considera di aumentare l'AOV proponendo Bundle (es. 2x o 3x) per ammortizzare le spese fisse di spedizione.";
     } else if (cogsPct > 40) {
