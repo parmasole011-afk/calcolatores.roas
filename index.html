@@ -1,627 +1,246 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>Breakeven ROAS, IVA &amp; Costi Fissi — Calcolatore Avanzato E-commerce</title>
+<!-- INTERFACCIA UTENTE COMPLETA (INPUT & OUTPUT) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-<!-- GoatCounter Analytics -->
-<script data-goatcounter="https://sole.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg: #0A0C12;
-    --surface: #12151D;
-    --surface-2: #181C27;
-    --border: #232838;
-    --text: #E7E9EE;
-    --text-dim: #8A90A2;
-    --accent: #6C5CE7;
-    --good: #34D399;
-    --warn: #FBBF24;
-    --bad: #F87171;
-  }
-  *{box-sizing:border-box;}
-  body{
-    background:
-      radial-gradient(1200px 600px at 15% -10%, rgba(108,92,231,0.16), transparent 60%),
-      radial-gradient(900px 500px at 100% 0%, rgba(52,211,153,0.06), transparent 55%),
-      var(--bg);
-    color:var(--text);
-    font-family:'Inter',sans-serif;
-    min-height:100vh;
-  }
-  .font-display{font-family:'Space Grotesk',sans-serif;}
-  .font-mono{font-family:'IBM Plex Mono',monospace;}
-
-  .card{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:16px;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  }
-
-  input[type=range]{
-    -webkit-appearance:none;
-    appearance:none;
-    width:100%;
-    height:6px;
-    border-radius:999px;
-    background:var(--surface-2);
-    outline:none;
-  }
-  input[type=range]::-webkit-slider-thumb{
-    -webkit-appearance:none;
-    appearance:none;
-    width:18px;height:18px;
-    border-radius:50%;
-    background:var(--accent);
-    border:3px solid #fff1;
-    box-shadow:0 0 0 4px rgba(108,92,231,0.18);
-    cursor:pointer;
-    transition:transform .15s ease;
-  }
-  input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
-
-  .num-input, .select-input{
-    background:var(--surface-2);
-    border:1px solid var(--border);
-    color:var(--text);
-    font-family:'IBM Plex Mono',monospace;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  }
-  .num-input:focus, .select-input:focus{
-    outline:none;
-    border-color:var(--accent);
-    box-shadow:0 0 0 3px rgba(108,92,231,0.15);
-  }
-
-  .glow-good{box-shadow:0 0 0 1px rgba(52,211,153,0.35), 0 0 40px -8px rgba(52,211,153,0.35);}
-  .glow-warn{box-shadow:0 0 0 1px rgba(251,191,36,0.35), 0 0 40px -8px rgba(251,191,36,0.35);}
-  .glow-bad{box-shadow:0 0 0 1px rgba(248,113,113,0.35), 0 0 40px -8px rgba(248,113,113,0.35);}
-
-  .bar-seg{transition:width .35s cubic-bezier(0.4, 0, 0.2, 1);}
-  .fade-num{transition:color .25s ease;}
-
-  .preset-btn {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 8px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.75rem;
-    font-weight: 600;
-    transition: all 0.2s ease;
-  }
-  .preset-btn:hover {
-    border-color: var(--accent);
-    background: rgba(108,92,231,0.15);
-  }
-
-  @media print {
-    body { background: #fff !important; color: #000 !important; }
-    .no-print { display: none !important; }
-    .card { border: 1px solid #ccc !important; background: #fff !important; color: #000 !important; }
-    p, span, label, h1, h2, h3 { color: #000 !important; }
-    .num-input, .select-input { background: #fff !important; border: 1px solid #ccc !important; color: #000 !important; }
-  }
-</style>
-</head>
-<body class="antialiased">
-
-<div class="max-w-[1400px] mx-auto px-4 sm:px-8 py-8 sm:py-12">
-
-  <header class="mb-8 sm:mb-10 text-center max-w-3xl mx-auto">
-    <div class="flex items-center justify-center gap-2 mb-3">
-      <div class="w-2 h-2 rounded-full animate-pulse" style="background:var(--accent)"></div>
-      <span class="text-xs font-mono tracking-widest uppercase" style="color:var(--text-dim)">Unit Economics · E-commerce Avanzato</span>
+  <!-- INPUT PANEL -->
+  <section class="lg:col-span-5 card p-6 sm:p-7 space-y-6 lg:sticky lg:top-6">
+    <div class="flex items-center justify-between border-b pb-4" style="border-color: var(--border);">
+      <h2 class="font-display text-sm font-semibold tracking-wide uppercase" style="color:var(--text-dim)">Parametri Unità &amp; Tasse</h2>
+      <div class="flex items-center gap-2">
+        <!-- SELETTORE VALUTA -->
+        <select id="currency-select" class="select-input text-xs rounded-lg px-2 py-1 font-mono" onchange="calculateAll()">
+          <option value="EUR">EUR (€)</option>
+          <option value="USD">USD ($)</option>
+          <option value="GBP">GBP (£)</option>
+        </select>
+        <span class="text-xs font-mono px-2 py-0.5 rounded" style="background:var(--surface-2); color:var(--text-dim)">Input Reali</span>
+      </div>
     </div>
-    <h1 class="font-display text-3xl sm:text-5xl font-semibold tracking-tight">
-      Calcolatore Margine, IVA &amp; Costi Fissi
-    </h1>
-    <p class="mt-3 text-sm sm:text-base" style="color:var(--text-dim)">
-      Analisi completa dei costi: gestisci le aliquote IVA internazionali, calcola il punto di pareggio aziendale (costi fissi) e simula i margini netti reali.
-    </p>
 
-    <div class="no-print flex items-center justify-center gap-3 mt-6">
-      <button type="button" onclick="shareScenario()" class="px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" style="background: var(--surface-2); border: 1px solid var(--border); color: var(--text);">
-        <span>🔗</span> Condividi Scenario
-      </button>
-      <button type="button" onclick="window.print()" class="px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" style="background: var(--accent); color: #fff; box-shadow: 0 0 15px rgba(108,92,231,0.3);">
-        <span>📄</span> Scarica Report PDF
-      </button>
+    <!-- PRESET NICCHIA -->
+    <div class="no-print pb-2">
+      <label class="text-xs font-medium block mb-2" style="color:var(--text-dim)">Preset Nicchia Fast-Setup:</label>
+      <div class="flex flex-wrap gap-2">
+        <button type="button" class="preset-btn" onclick="applyPreset('fashion')">👗 Fashion</button>
+        <button type="button" class="preset-btn" onclick="applyPreset('beauty')">💄 Beauty</button>
+        <button type="button" class="preset-btn" onclick="applyPreset('tech')">🎧 Elettronica</button>
+      </div>
     </div>
-  </header>
 
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <!-- SELEZIONE IVA / COUNTRY VAT -->
+    <div class="p-4 rounded-xl border" style="background:var(--surface-2); border-color:var(--border);">
+      <div class="flex items-center justify-between mb-2">
+        <label class="text-xs font-semibold uppercase tracking-wider text-indigo-400">🌍 Gestione IVA / VAT Target</label>
+        <select id="vat-preset" class="select-input text-xs rounded-lg px-2 py-1" onchange="updateVatFromPreset()">
+          <option value="22" selected>Italia (22%)</option>
+          <option value="20">Francia / UK (20%)</option>
+          <option value="19">Germania (19%)</option>
+          <option value="21">Spagna (21%)</option>
+          <option value="0">Extra-UE / B2B (0%)</option>
+          <option value="custom">Personalizzata</option>
+        </select>
+      </div>
+      <div class="flex items-center justify-between mt-3">
+        <span class="text-xs" style="color:var(--text-dim)">Aliquota IVA Applicata:</span>
+        <div class="flex items-center gap-1">
+          <input id="vat-rate" type="number" step="0.5" class="num-input w-20 rounded-lg px-2 py-1 text-xs text-right" value="22">
+          <span class="text-xs" style="color:var(--text-dim)">%</span>
+        </div>
+      </div>
+    </div>
 
-    <!-- INPUT PANEL -->
-    <section class="lg:col-span-5 card p-6 sm:p-7 space-y-6 lg:sticky lg:top-6">
-      <div class="flex items-center justify-between border-b pb-4" style="border-color: var(--border);">
-        <h2 class="font-display text-sm font-semibold tracking-wide uppercase" style="color:var(--text-dim)">Parametri Unità &amp; Tasse</h2>
+    <!-- PREZZO LORDO DI LISTINO -->
+    <div>
+      <div class="flex items-center justify-between mb-2">
+        <label class="text-sm font-medium">Prezzo di Listino (IVA Inclusa)</label>
+        <div class="flex items-center gap-1">
+          <span class="text-xs currency-symbol" style="color:var(--text-dim)">€</span>
+          <input id="price" type="number" step="0.5" class="num-input w-24 rounded-lg px-2.5 py-1.5 text-sm text-right font-bold" value="49.90">
+        </div>
+      </div>
+      <input id="price-range" type="range" min="1" max="300" step="0.5" value="49.90">
+    </div>
+
+    <!-- SCONTO APPLICATO -->
+    <div class="p-4 rounded-xl border" style="background:var(--surface-2); border-color:var(--border);">
+      <div class="flex items-center justify-between mb-2">
+        <label class="text-sm font-medium flex items-center gap-1.5" style="color:var(--warn)">
+          🏷️ Sconto Applicato
+        </label>
+        <div class="flex items-center gap-1">
+          <input id="discount" type="number" step="1" class="num-input w-20 rounded-lg px-2 py-1 text-sm text-right" value="0">
+          <span class="text-xs" style="color:var(--text-dim)">%</span>
+        </div>
+      </div>
+      <input id="discount-range" type="range" min="0" max="70" step="1" value="0">
+    </div>
+
+    <!-- COGS -->
+    <div>
+      <div class="flex items-center justify-between mb-2">
+        <label class="text-sm font-medium">Costo del Prodotto (COGS netto)</label>
+        <div class="flex items-center gap-1">
+          <span class="text-xs currency-symbol" style="color:var(--text-dim)">€</span>
+          <input id="cogs" type="number" step="0.5" class="num-input w-24 rounded-lg px-2 py-1 text-sm text-right" value="15.00">
+        </div>
+      </div>
+      <input id="cogs-range" type="range" min="0" max="150" step="0.5" value="15.00">
+    </div>
+
+    <!-- SPEDIZIONE -->
+    <div>
+      <div class="flex items-center justify-between mb-2">
+        <label class="text-sm font-medium">Spedizione Venditore (netta)</label>
+        <div class="flex items-center gap-1">
+          <span class="text-xs currency-symbol" style="color:var(--text-dim)">€</span>
+          <input id="shipping" type="number" step="0.25" class="num-input w-24 rounded-lg px-2 py-1 text-sm text-right" value="4.50">
+        </div>
+      </div>
+      <input id="shipping-range" type="range" min="0" max="40" step="0.25" value="4.50">
+    </div>
+
+    <!-- COMMISSIONI STRIPE/PAYPAL -->
+    <div>
+      <div class="flex items-center justify-between mb-2">
+        <label class="text-sm font-medium">Commissioni Gateway (% + fisso)</label>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-2">
+        <div class="flex items-center gap-1">
+          <input id="fee-pct" type="number" step="0.1" class="num-input w-full rounded-lg px-2 py-1 text-sm text-right" value="1.5">
+          <span class="text-xs" style="color:var(--text-dim)">%</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <span class="text-xs currency-symbol" style="color:var(--text-dim)">€</span>
+          <input id="fee-fix" type="number" step="0.05" class="num-input w-full rounded-lg px-2 py-1 text-sm text-right" value="0.25">
+        </div>
+      </div>
+    </div>
+
+    <!-- TASSO RESO -->
+    <div>
+      <div class="flex items-center justify-between mb-2">
+        <label class="text-sm font-medium">Tasso Stimato di Reso</label>
+        <div class="flex items-center gap-1">
+          <input id="returns" type="number" step="0.5" class="num-input w-24 rounded-lg px-2 py-1 text-sm text-right" value="5">
+          <span class="text-xs" style="color:var(--text-dim)">%</span>
+        </div>
+      </div>
+      <input id="returns-range" type="range" min="0" max="40" step="0.5" value="5">
+    </div>
+
+    <!-- COSTI FISSI MENSILE AZIENDALI -->
+    <div class="p-4 rounded-xl border space-y-3" style="background:var(--surface-2); border-color:var(--border);">
+      <label class="text-xs font-semibold uppercase tracking-wider text-amber-400 block">🏢 Costi Fissi Mensili (Overhead)</label>
+      <p class="text-[11px]" style="color:var(--text-dim)">Software, Shopify, Magazzino, Collaboratori, Utenze.</p>
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-medium">Totale Fissi Mensili:</span>
+        <div class="flex items-center gap-1">
+          <span class="text-xs currency-symbol" style="color:var(--text-dim)">€</span>
+          <input id="fixed-costs" type="number" step="100" class="num-input w-28 rounded-lg px-2 py-1 text-xs text-right font-bold" value="1500">
+        </div>
+      </div>
+      <input id="fixed-costs-range" type="range" min="0" max="20000" step="100" value="1500">
+    </div>
+
+  </section>
+
+  <!-- OUTPUT PANEL -->
+  <section class="lg:col-span-7 space-y-6">
+
+    <!-- SEMAFORO DI RISCHIO -->
+    <div id="risk-card" class="card p-6 transition-all duration-300">
+      <div class="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-4">
+        <div>
+          <p class="text-xs font-mono uppercase tracking-widest mb-1" style="color:var(--text-dim)">Stato del Margine Unitario</p>
+          <h3 id="risk-label" class="font-display text-2xl sm:text-3xl font-semibold">—</h3>
+          <p id="risk-desc" class="text-sm mt-1" style="color:var(--text-dim)">Inserisci i parametri per calcolare.</p>
+        </div>
+        <div id="risk-dot" class="w-5 h-5 rounded-full shrink-0 transition-all duration-300"></div>
+      </div>
+    </div>
+
+    <!-- CARD METRICHE CHIAVE -->
+    <div class="grid grid-cols-2 gap-4">
+      <div class="card p-5 sm:p-6">
+        <p class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">ROAS di Breakeven</p>
+        <p id="out-roas" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
+        <p class="text-xs mt-2" style="color:var(--text-dim)">Sulla quota Netta IVA incassata</p>
+      </div>
+      <div class="card p-5 sm:p-6">
+        <p class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">Incasso Netto (Senza IVA)</p>
+        <p id="out-net-price" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
+        <p class="text-xs mt-2" style="color:var(--text-dim)">Quota reale spettante al negozio</p>
+      </div>
+      <div class="card p-5 sm:p-6">
+        <p class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">Margine Netto Reale</p>
+        <p id="out-margin" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
+        <p class="text-xs mt-2" style="color:var(--text-dim)">Su fatturato Netto da IVA</p>
+      </div>
+      <div class="card p-5 sm:p-6">
+        <p class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">Profitto Netto / Ordine</p>
+        <p id="out-profit" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
+        <p class="text-xs mt-2" style="color:var(--text-dim)">Prima delle spese Ads</p>
+      </div>
+    </div>
+
+    <!-- BREAKEVEN PUNTO DI PAREGGIO AZIENDALE (COSTI FISSI) -->
+    <div class="card p-6 sm:p-7 border-dashed" style="border-color: #FBBF24;">
+      <div class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-2">
-          <!-- VALUTA -->
-          <select id="currency-select" class="select-input text-xs rounded-lg px-2 py-1 font-mono" onchange="calculateAll()">
-            <option value="EUR">EUR (€)</option>
-            <option value="USD">USD ($)</option>
-            <option value="GBP">GBP (£)</option>
-          </select>
-          <span class="text-xs font-mono px-2 py-0.5 rounded" style="background:var(--surface-2); color:var(--text-dim)">Input Reali</span>
+          <span class="text-base">🏛️</span>
+          <h3 class="font-display text-sm font-semibold tracking-wide uppercase">Breakeven Aziendale (Copertura Costi Fissi)</h3>
         </div>
+        <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(251,191,36,0.2); color: #FBBF24;">OVERHEAD TEST</span>
       </div>
 
-      <div class="no-print pb-2">
-        <label class="text-xs font-medium block mb-2" style="color:var(--text-dim)">Preset Nicchia Fast-Setup:</label>
-        <div class="flex flex-wrap gap-2">
-          <button type="button" class="preset-btn" onclick="applyPreset('fashion')">👗 Fashion</button>
-          <button type="button" class="preset-btn" onclick="applyPreset('beauty')">💄 Beauty</button>
-          <button type="button" class="preset-btn" onclick="applyPreset('tech')">🎧 Elettronica</button>
+      <p class="text-xs mb-4" style="color: var(--text-dim)">
+        Ordini minimi e fatturato mensile necessari unicamente per coprire i <strong class="text-white" id="fixed-costs-disp">1.500 €</strong> di costi fissi di struttura (senza utile netto personale).
+      </p>
+
+      <div class="grid grid-cols-2 gap-4 text-center">
+        <div class="p-3 rounded-lg" style="background: var(--surface-2);">
+          <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Ordini Mensili Minimi</p>
+          <p id="out-fixed-orders" class="font-display font-mono text-lg sm:text-2xl font-semibold mt-1" style="color: #FBBF24;">0</p>
+        </div>
+        <div class="p-3 rounded-lg" style="background: var(--surface-2);">
+          <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Fatturato Minimo Copertura</p>
+          <p id="out-fixed-rev" class="font-display font-mono text-lg sm:text-2xl font-semibold mt-1" style="color: #FBBF24;">0,00 €</p>
         </div>
       </div>
+    </div>
 
-      <!-- SELEZIONE IVA / COUNTRY VAT -->
-      <div class="p-4 rounded-xl border" style="background:var(--surface-2); border-color:var(--border);">
-        <div class="flex items-center justify-between mb-2">
-          <label class="text-xs font-semibold uppercase tracking-wider text-indigo-400">🌍 Gestione IVA / VAT Target</label>
-          <select id="vat-preset" class="select-input text-xs rounded-lg px-2 py-1" onchange="updateVatFromPreset()">
-            <option value="22" selected>Italia (22%)</option>
-            <option value="20">Francia / UK (20%)</option>
-            <option value="19">Germania (19%)</option>
-            <option value="21">Spagna (21%)</option>
-            <option value="0">Extra-UE / B2B (0%)</option>
-            <option value="custom">Personalizzata</option>
-          </select>
-        </div>
-        <div class="flex items-center justify-between mt-3">
-          <span class="text-xs" style="color:var(--text-dim)">Aliquota IVA Applicata:</span>
-          <div class="flex items-center gap-1">
-            <input id="vat-rate" type="number" step="0.5" class="num-input w-20 rounded-lg px-2 py-1 text-xs text-right" value="22">
-            <span class="text-xs" style="color:var(--text-dim)">%</span>
-          </div>
+    <!-- GRAFICO DINAMICO PROFITTO VS ROAS -->
+    <div class="card p-6 sm:p-7">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <span class="text-base">📈</span>
+          <h3 class="font-display text-sm font-semibold tracking-wide uppercase">Curva di Profitto ad Ordine vs ROAS Ads</h3>
         </div>
       </div>
-
-      <div>
-        <div class="flex items-center justify-between mb-2">
-          <label class="text-sm font-medium">Prezzo di Listino (IVA Inclusa)</label>
-          <div class="flex items-center gap-1">
-            <span class="text-xs currency-symbol" style="color:var(--text-dim)">€</span>
-            <input id="price" type="number" step="0.5" class="num-input w-24 rounded-lg px-2.5 py-1.5 text-sm text-right font-bold" value="49.90">
-          </div>
-        </div>
-        <input id="price-range" type="range" min="1" max="300" step="0.5" value="49.90">
+      <div class="w-full h-64">
+        <canvas id="profitChart"></canvas>
       </div>
+    </div>
 
-      <div class="p-4 rounded-xl border" style="background:var(--surface-2); border-color:var(--border);">
-        <div class="flex items-center justify-between mb-2">
-          <label class="text-sm font-medium flex items-center gap-1.5" style="color:var(--warn)">
-            🏷️ Sconto Applicato
-          </label>
-          <div class="flex items-center gap-1">
-            <input id="discount" type="number" step="1" class="num-input w-20 rounded-lg px-2 py-1 text-sm text-right" value="0">
-            <span class="text-xs" style="color:var(--text-dim)">%</span>
-          </div>
-        </div>
-        <input id="discount-range" type="range" min="0" max="70" step="1" value="0">
+    <!-- BARRA VISIVA SCOMPOSIZIONE COSTI -->
+    <div class="card p-6 sm:p-7">
+      <p class="text-xs font-mono uppercase tracking-widest mb-4" style="color:var(--text-dim)">Composizione dell'Incasso Totale (con IVA)</p>
+      <div class="w-full h-8 rounded-lg overflow-hidden flex" style="background:var(--surface-2)">
+        <div id="seg-vat" class="bar-seg h-full" style="background:#E11D48;width:0%" title="IVA"></div>
+        <div id="seg-cogs" class="bar-seg h-full" style="background:#7C6BF0;width:0%" title="COGS"></div>
+        <div id="seg-ship" class="bar-seg h-full" style="background:#5A4FC7;width:0%" title="Spedizione"></div>
+        <div id="seg-fee" class="bar-seg h-full" style="background:#3E3A82;width:0%" title="Commissioni"></div>
+        <div id="seg-return" class="bar-seg h-full" style="background:#F87171;width:0%" title="Resi"></div>
+        <div id="seg-profit" class="bar-seg h-full" style="background:#34D399;width:0%" title="Profitto"></div>
       </div>
-
-      <div>
-        <div class="flex items-center justify-between mb-2">
-          <label class="text-sm font-medium">Costo del Prodotto (COGS netto)</label>
-          <div class="flex items-center gap-1">
-            <span class="text-xs currency-symbol" style="color:var(--text-dim)">€</span>
-            <input id="cogs" type="number" step="0.5" class="num-input w-24 rounded-lg px-2 py-1 text-sm text-right" value="15.00">
-          </div>
-        </div>
-        <input id="cogs-range" type="range" min="0" max="150" step="0.5" value="15.00">
+      <div class="grid grid-cols-2 sm:grid-cols-6 gap-2 mt-4 text-xs">
+        <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#E11D48"></span>IVA Stato</div>
+        <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#7C6BF0"></span>COGS</div>
+        <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#5A4FC7"></span>Spedizione</div>
+        <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#3E3A82"></span>Commissioni</div>
+        <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#F87171"></span>Resi</div>
+        <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#34D399"></span>Profitto</div>
       </div>
+    </div>
 
-      <div>
-        <div class="flex items-center justify-between mb-2">
-          <label class="text-sm font-medium">Spedizione Venditore (netta)</label>
-          <div class="flex items-center gap-1">
-            <span class="text-xs currency-symbol" style="color:var(--text-dim)">€</span>
-            <input id="shipping" type="number" step="0.25" class="num-input w-24 rounded-lg px-2 py-1 text-sm text-right" value="4.50">
-          </div>
-        </div>
-        <input id="shipping-range" type="range" min="0" max="40" step="0.25" value="4.50">
-      </div>
-
-      <div>
-        <div class="flex items-center justify-between mb-2">
-          <label class="text-sm font-medium">Commissioni Stripe/PayPal</label>
-        </div>
-        <div class="grid grid-cols-2 gap-3 mb-2">
-          <div class="flex items-center gap-1">
-            <input id="fee-pct" type="number" step="0.1" class="num-input w-full rounded-lg px-2 py-1 text-sm text-right" value="1.5">
-            <span class="text-xs" style="color:var(--text-dim)">%</span>
-          </div>
-          <div class="flex items-center gap-1">
-            <span class="text-xs currency-symbol" style="color:var(--text-dim)">€</span>
-            <input id="fee-fix" type="number" step="0.05" class="num-input w-full rounded-lg px-2 py-1 text-sm text-right" value="0.25">
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <div class="flex items-center justify-between mb-2">
-          <label class="text-sm font-medium">Tasso Stimato di Reso</label>
-          <div class="flex items-center gap-1">
-            <input id="returns" type="number" step="0.5" class="num-input w-24 rounded-lg px-2 py-1 text-sm text-right" value="5">
-            <span class="text-xs" style="color:var(--text-dim)">%</span>
-          </div>
-        </div>
-        <input id="returns-range" type="range" min="0" max="40" step="0.5" value="5">
-      </div>
-
-      <!-- NUOVA SEZIONE: COSTI FISSI MENSILE AZIENDALI -->
-      <div class="p-4 rounded-xl border space-y-3" style="background:var(--surface-2); border-color:var(--border);">
-        <label class="text-xs font-semibold uppercase tracking-wider text-amber-400 block">🏢 Costi Fissi Mensili (Overhead)</label>
-        <p class="text-[11px]" style="color:var(--text-dim)">Software, Shopify, Magazzino, Collaboratori, Utenze.</p>
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-medium">Totale Fissi Mensili:</span>
-          <div class="flex items-center gap-1">
-            <span class="text-xs currency-symbol" style="color:var(--text-dim)">€</span>
-            <input id="fixed-costs" type="number" step="100" class="num-input w-28 rounded-lg px-2 py-1 text-xs text-right font-bold" value="1500">
-          </div>
-        </div>
-        <input id="fixed-costs-range" type="range" min="0" max="20000" step="100" value="1500">
-      </div>
-
-    </section>
-
-    <!-- OUTPUT PANEL -->
-    <section class="lg:col-span-7 space-y-6">
-
-      <!-- RISKO METER CON SEMAFORO DINAMICO -->
-      <div id="risk-card" class="card p-6 transition-all duration-300">
-        <div class="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-4">
-          <div>
-            <p class="text-xs font-mono uppercase tracking-widest mb-1" style="color:var(--text-dim)">Stato del Margine Unitario</p>
-            <h3 id="risk-label" class="font-display text-2xl sm:text-3xl font-semibold">—</h3>
-            <p id="risk-desc" class="text-sm mt-1" style="color:var(--text-dim)">Inserisci i parametri per calcolare.</p>
-          </div>
-          <div id="risk-dot" class="w-5 h-5 rounded-full shrink-0 transition-all duration-300"></div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-4">
-        <div class="card p-5 sm:p-6">
-          <p class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">ROAS di Breakeven</p>
-          <p id="out-roas" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
-          <p class="text-xs mt-2" style="color:var(--text-dim)">Sulla quota Netta IVA incassata</p>
-        </div>
-        <div class="card p-5 sm:p-6">
-          <p class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">Incasso Netto (Senza IVA)</p>
-          <p id="out-net-price" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
-          <p class="text-xs mt-2" style="color:var(--text-dim)">Quota reale spettante al negozio</p>
-        </div>
-        <div class="card p-5 sm:p-6">
-          <p class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">Margine Netto Reale</p>
-          <p id="out-margin" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
-          <p class="text-xs mt-2" style="color:var(--text-dim)">Su fatturato Netto da IVA</p>
-        </div>
-        <div class="card p-5 sm:p-6">
-          <p class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">Profitto Netto / Ordine</p>
-          <p id="out-profit" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
-          <p class="text-xs mt-2" style="color:var(--text-dim)">Prima delle spese Ads</p>
-        </div>
-      </div>
-
-      <!-- BREAKEVEN PUNTO DI PAREGGIO AZIENDALE (COSTI FISSI) -->
-      <div class="card p-6 sm:p-7 border-dashed" style="border-color: #FBBF24;">
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-2">
-            <span class="text-base">🏛️</span>
-            <h3 class="font-display text-sm font-semibold tracking-wide uppercase">Breakeven Aziendale (Copertura Costi Fissi)</h3>
-          </div>
-          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(251,191,36,0.2); color: #FBBF24;">OVERHEAD TEST</span>
-        </div>
-
-        <p class="text-xs mb-4" style="color: var(--text-dim)">
-          Ordini minimi e fatturato mensile necessari unicamente per coprire i <strong class="text-white" id="fixed-costs-disp">1.500 €</strong> di costi fissi di struttura (senza utile netto personale).
-        </p>
-
-        <div class="grid grid-cols-2 gap-4 text-center">
-          <div class="p-3 rounded-lg" style="background: var(--surface-2);">
-            <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Ordini Mensili Minimi</p>
-            <p id="out-fixed-orders" class="font-display font-mono text-lg sm:text-2xl font-semibold mt-1" style="color: #FBBF24;">0</p>
-          </div>
-          <div class="p-3 rounded-lg" style="background: var(--surface-2);">
-            <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Fatturato Minimo Copertura</p>
-            <p id="out-fixed-rev" class="font-display font-mono text-lg sm:text-2xl font-semibold mt-1" style="color: #FBBF24;">0,00 €</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- GRAFICO DINAMICO PROFITTO VS ROAS -->
-      <div class="card p-6 sm:p-7">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center gap-2">
-            <span class="text-base">📈</span>
-            <h3 class="font-display text-sm font-semibold tracking-wide uppercase">Curva di Profitto ad Ordine vs ROAS Ads</h3>
-          </div>
-        </div>
-        <div class="w-full h-64">
-          <canvas id="profitChart"></canvas>
-        </div>
-      </div>
-
-      <!-- BREAKDOWN BAR -->
-      <div class="card p-6 sm:p-7">
-        <p class="text-xs font-mono uppercase tracking-widest mb-4" style="color:var(--text-dim)">Composizione dell'Incasso Totale (con IVA)</p>
-        <div class="w-full h-8 rounded-lg overflow-hidden flex" style="background:var(--surface-2)">
-          <div id="seg-vat" class="bar-seg h-full" style="background:#E11D48;width:0%" title="IVA"></div>
-          <div id="seg-cogs" class="bar-seg h-full" style="background:#7C6BF0;width:0%" title="COGS"></div>
-          <div id="seg-ship" class="bar-seg h-full" style="background:#5A4FC7;width:0%" title="Spedizione"></div>
-          <div id="seg-fee" class="bar-seg h-full" style="background:#3E3A82;width:0%" title="Commissioni"></div>
-          <div id="seg-return" class="bar-seg h-full" style="background:#F87171;width:0%" title="Resi"></div>
-          <div id="seg-profit" class="bar-seg h-full" style="background:#34D399;width:0%" title="Profitto"></div>
-        </div>
-        <div class="grid grid-cols-2 sm:grid-cols-6 gap-2 mt-4 text-xs">
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#E11D48"></span>IVA Stato</div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#7C6BF0"></span>COGS</div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#5A4FC7"></span>Spedizione</div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#3E3A82"></span>Commissioni</div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#F87171"></span>Resi</div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#34D399"></span>Profitto</div>
-        </div>
-      </div>
-
-    </section>
-  </div>
+  </section>
 </div>
-
-<script>
-  const ids = ['price','discount','cogs','shipping','fee-pct','fee-fix','returns','vat-rate','fixed-costs'];
-  const el = {};
-  ids.forEach(id => {
-    el[id] = document.getElementById(id);
-    if (document.getElementById(id+'-range')) el[id+'-range'] = document.getElementById(id+'-range');
-  });
-
-  function syncPair(numEl, rangeEl){
-    if(!numEl) return;
-    numEl.addEventListener('input', () => {
-      if (rangeEl){
-        let v = parseFloat(numEl.value);
-        if (!isNaN(v)) rangeEl.value = Math.min(Math.max(v, rangeEl.min), rangeEl.max);
-      }
-      calculateAll();
-    });
-    if (rangeEl){
-      rangeEl.addEventListener('input', () => {
-        numEl.value = rangeEl.value;
-        calculateAll();
-      });
-    }
-  }
-
-  syncPair(el['price'], el['price-range']);
-  syncPair(el['discount'], el['discount-range']);
-  syncPair(el['cogs'], el['cogs-range']);
-  syncPair(el['shipping'], el['shipping-range']);
-  syncPair(el['returns'], el['returns-range']);
-  syncPair(el['fixed-costs'], el['fixed-costs-range']);
-
-  if(el['vat-rate']) el['vat-rate'].addEventListener('input', calculateAll);
-  if(el['fee-pct']) el['fee-pct'].addEventListener('input', calculateAll);
-  if(el['fee-fix']) el['fee-fix'].addEventListener('input', calculateAll);
-
-  function getCurrencySymbol() {
-    const sel = document.getElementById('currency-select');
-    if (!sel) return '€';
-    switch(sel.value) {
-      case 'USD': return '$';
-      case 'GBP': return '£';
-      default: return '€';
-    }
-  }
-
-  function updateCurrencyUI() {
-    const sym = getCurrencySymbol();
-    document.querySelectorAll('.currency-symbol').forEach(e => e.textContent = sym);
-  }
-
-  function updateVatFromPreset() {
-    const vatPreset = document.getElementById('vat-preset').value;
-    if (vatPreset !== 'custom') {
-      el['vat-rate'].value = vatPreset;
-      calculateAll();
-    }
-  }
-
-  function applyPreset(type) {
-    const presets = {
-      fashion: { price: 59.9, cogs: 18, shipping: 5.5, returns: 15 },
-      beauty: { price: 39.9, cogs: 6, shipping: 4.5, returns: 2 },
-      tech: { price: 89.9, cogs: 45, shipping: 6.0, returns: 8 }
-    };
-    const p = presets[type];
-    if(!p) return;
-    
-    if(el['price']) { el['price'].value = p.price; if(el['price-range']) el['price-range'].value = p.price; }
-    if(el['cogs']) { el['cogs'].value = p.cogs; if(el['cogs-range']) el['cogs-range'].value = p.cogs; }
-    if(el['shipping']) { el['shipping'].value = p.shipping; if(el['shipping-range']) el['shipping-range'].value = p.shipping; }
-    if(el['returns']) { el['returns'].value = p.returns; if(el['returns-range']) el['returns-range'].value = p.returns; }
-    
-    calculateAll();
-  }
-
-  function fmtCurr(n){
-    if (!isFinite(n)) return '—';
-    const sym = getCurrencySymbol();
-    return sym + ' ' + n.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
-  }
-
-  function fmtPct(n){
-    if (!isFinite(n)) return '—';
-    return n.toLocaleString('it-IT', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
-  }
-
-  let profitChart = null;
-  function initChart() {
-    const ctx = document.getElementById('profitChart').getContext('2d');
-    profitChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [{
-          label: 'Profitto Netto ad Ordine',
-          data: [],
-          borderColor: '#6C5CE7',
-          backgroundColor: 'rgba(108, 92, 231, 0.15)',
-          borderWidth: 2,
-          fill: true,
-          tension: 0.3
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { grid: { color: '#232838' }, ticks: { color: '#8A90A2' } },
-          y: { grid: { color: '#232838' }, ticks: { color: '#8A90A2' } }
-        }
-      }
-    });
-  }
-
-  function updateChart(effectivePriceNet, netProfitBeforeAds) {
-    if (!profitChart) return;
-    const roasValues = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0];
-    const profitData = roasValues.map(r => {
-      const cpa = effectivePriceNet / r;
-      return parseFloat((netProfitBeforeAds - cpa).toFixed(2));
-    });
-
-    profitChart.data.labels = roasValues.map(r => r + 'x');
-    profitChart.data.datasets[0].data = profitData;
-    profitChart.update();
-  }
-
-  function shareScenario() {
-    const params = new URLSearchParams();
-    ids.forEach(id => {
-      if(el[id]) params.set(id, el[id].value);
-    });
-    const url = window.location.origin + window.location.pathname + '?' + params.toString();
-    navigator.clipboard.writeText(url).then(() => {
-      alert('Link dello scenario copiato negli appunti!');
-    });
-  }
-
-  function loadScenarioFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    ids.forEach(id => {
-      if (params.has(id) && el[id]) {
-        el[id].value = params.get(id);
-        if (el[id+'-range']) el[id+'-range'].value = params.get(id);
-      }
-    });
-  }
-
-  function calculateAll(){
-    updateCurrencyUI();
-
-    const listPriceGross = parseFloat(el['price'].value) || 0;
-    const discountPct = parseFloat(el['discount'].value) || 0;
-    const vatRate = parseFloat(el['vat-rate'].value) || 0;
-    const cogs = parseFloat(el['cogs'].value) || 0;
-    const ship = parseFloat(el['shipping'].value) || 0;
-    const feePct = parseFloat(el['fee-pct'].value) || 0;
-    const feeFix = parseFloat(el['fee-fix'].value) || 0;
-    const retRate = parseFloat(el['returns'].value) || 0;
-    const fixedCosts = parseFloat(el['fixed-costs'].value) || 0;
-
-    // SCORPORO IVA DAL PREZZO SCONTATO
-    const effectivePriceGross = Math.max(0, listPriceGross * (1 - discountPct / 100));
-    const effectivePriceNet = effectivePriceGross / (1 + vatRate / 100);
-    const vatAmount = effectivePriceGross - effectivePriceNet;
-
-    // CALCOLO COSTI VARIABILI UNITARI
-    const feeAmount = effectivePriceGross * (feePct / 100) + feeFix;
-    const returnCost = effectivePriceNet * (retRate / 100);
-    const totalCosts = cogs + ship + feeAmount + returnCost;
-
-    // MARGINE UNITARIO NETTO
-    const netProfitUnit = effectivePriceNet - totalCosts;
-    const netMarginPct = effectivePriceNet > 0 ? (netProfitUnit / effectivePriceNet) * 100 : 0;
-    const roasBreakeven = netProfitUnit > 0 ? effectivePriceNet / netProfitUnit : Infinity;
-
-    document.getElementById('out-roas').textContent = isFinite(roasBreakeven) ? roasBreakeven.toFixed(2) + 'x' : '∞';
-    document.getElementById('out-net-price').textContent = fmtCurr(effectivePriceNet);
-    document.getElementById('out-margin').textContent = fmtPct(netMarginPct);
-    document.getElementById('out-profit').textContent = fmtCurr(netProfitUnit);
-
-    // AGGIORNAMENTO SEMAFORO E INDICATORE DI RISCHIO
-    const riskCard = document.getElementById('risk-card');
-    const riskLabel = document.getElementById('risk-label');
-    const riskDesc = document.getElementById('risk-desc');
-    const riskDot = document.getElementById('risk-dot');
-
-    riskCard.classList.remove('glow-good', 'glow-warn', 'glow-bad');
-
-    if (netMarginPct >= 40) {
-      riskCard.classList.add('glow-good');
-      riskLabel.textContent = 'Ottima Scalabilità';
-      riskLabel.style.color = 'var(--good)';
-      riskDesc.textContent = 'Margine solido per investire con sicurezza in paid advertising.';
-      riskDot.style.background = 'var(--good)';
-    } else if (netMarginPct >= 20) {
-      riskCard.classList.add('glow-warn');
-      riskLabel.textContent = 'Margine Moderato';
-      riskLabel.style.color = 'var(--warn)';
-      riskDesc.textContent = 'Fattibile con campagne ADV ben ottimizzate. Monitora le metriche.';
-      riskDot.style.background = 'var(--warn)';
-    } else {
-      riskCard.classList.add('glow-bad');
-      riskLabel.textContent = 'Alto Rischio / Insufficiente';
-      riskLabel.style.color = 'var(--bad)';
-      riskDesc.textContent = 'Margine troppo stretto: rischi di perdere denaro acquisendo traffico.';
-      riskDot.style.background = 'var(--bad)';
-    }
-
-    // BREAKEVEN COSTI FISSI
-    document.getElementById('fixed-costs-disp').textContent = fmtCurr(fixedCosts);
-    const fixedOrdersEl = document.getElementById('out-fixed-orders');
-    const fixedRevEl = document.getElementById('out-fixed-rev');
-
-    if (netProfitUnit > 0) {
-      const minOrdersNeeded = Math.ceil(fixedCosts / netProfitUnit);
-      const minRevNeeded = minOrdersNeeded * effectivePriceGross;
-      fixedOrdersEl.textContent = minOrdersNeeded.toLocaleString('it-IT') + ' ordini/mese';
-      fixedRevEl.textContent = fmtCurr(minRevNeeded);
-    } else {
-      fixedOrdersEl.textContent = 'Impossibile (Unità in perdita)';
-      fixedRevEl.textContent = '—';
-    }
-
-    updateChart(effectivePriceNet, netProfitUnit);
-
-    // BREAKDOWN BAR (SU PREZZO LORDO)
-    const clampPct = (v) => effectivePriceGross > 0 ? Math.max(0, Math.min(100, (v / effectivePriceGross) * 100)) : 0;
-    document.getElementById('seg-vat').style.width = clampPct(vatAmount) + '%';
-    document.getElementById('seg-cogs').style.width = clampPct(cogs) + '%';
-    document.getElementById('seg-ship').style.width = clampPct(ship) + '%';
-    document.getElementById('seg-fee').style.width = clampPct(feeAmount) + '%';
-    document.getElementById('seg-return').style.width = clampPct(returnCost) + '%';
-    document.getElementById('seg-profit').style.width = Math.max(0, 100 - clampPct(vatAmount) - clampPct(cogs) - clampPct(ship) - clampPct(feeAmount) - clampPct(returnCost)) + '%';
-  }
-
-  window.addEventListener('DOMContentLoaded', () => {
-    initChart();
-    loadScenarioFromURL();
-    calculateAll();
-  });
-</script>
-</body>
-</html>
