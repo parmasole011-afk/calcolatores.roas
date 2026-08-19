@@ -94,6 +94,31 @@
 
   ::-webkit-scrollbar{width:8px;height:8px;}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+
+  /* Nuovi stili per Bottoni Azione e Stampa PDF */
+  .preset-btn {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .preset-btn:hover {
+    border-color: var(--accent);
+    background: rgba(108,92,231,0.1);
+  }
+
+  @media print {
+    body { background: #fff !important; color: #000 !important; }
+    .no-print { display: none !important; }
+    .card { border: 1px solid #ccc !important; background: #fff !important; color: #000 !important; }
+    p, span, label, h1, h2, h3 { color: #000 !important; }
+    .num-input { background: #fff !important; border: 1px solid #ccc !important; color: #000 !important; }
+  }
 </style>
 </head>
 <body class="antialiased">
@@ -112,15 +137,35 @@
     <p class="mt-3 text-sm sm:text-base" style="color:var(--text-dim)">
       Calcola il ROAS minimo di sostenibilità, simula il profitto target, valuta l'impatto dell'AOV, testa scenari promozionali e misura l'effetto del valore nel tempo (LTV).
     </p>
+
+    <!-- Pulsanti Azioni Rapide (Condividi & PDF) -->
+    <div class="no-print flex items-center justify-center gap-3 mt-6">
+      <button type="button" onclick="shareScenario()" class="px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" style="background: var(--surface-2); border: 1px solid var(--border); color: var(--text);">
+        <span>🔗</span> Condividi Scenario
+      </button>
+      <button type="button" onclick="window.print()" class="px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" style="background: var(--accent); color: #fff; box-shadow: 0 0 15px rgba(108,92,231,0.3);">
+        <span>📄</span> Scarica Report PDF
+      </button>
+    </div>
   </header>
 
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-    <!-- INPUT PANEL (5 colonne su 12, con sticky su desktop) -->
+    <!-- INPUT PANEL (5 colonne su 12) -->
     <section class="lg:col-span-5 card p-6 sm:p-7 space-y-6 lg:sticky lg:top-6">
       <div class="flex items-center justify-between border-b pb-4" style="border-color: var(--border);">
         <h2 class="font-display text-sm font-semibold tracking-wide uppercase" style="color:var(--text-dim)">Parametri Prodotto</h2>
         <span class="text-xs font-mono px-2 py-0.5 rounded" style="background:var(--surface-2); color:var(--text-dim)">Singola Unità</span>
+      </div>
+
+      <!-- Preset Rapidi -->
+      <div class="no-print pb-2">
+        <label class="text-xs font-medium block mb-2" style="color:var(--text-dim)">Carica Preset di Nicchia:</label>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" class="preset-btn" onclick="applyPreset('fashion')">👗 Fashion</button>
+          <button type="button" class="preset-btn" onclick="applyPreset('beauty')">💄 Beauty</button>
+          <button type="button" class="preset-btn" onclick="applyPreset('tech')">🎧 Elettronica</button>
+        </div>
       </div>
 
       <!-- Prezzo di Listino -->
@@ -248,6 +293,45 @@
           <p class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">Profitto Netto / Unità</p>
           <p id="out-profit" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
           <p class="text-xs mt-2" style="color:var(--text-dim)">Dopo tutti i costi prima delle Ads</p>
+        </div>
+      </div>
+
+      <!-- REVERSE BREAKEVEN (TARGET PROFIT) -->
+      <div class="card p-6 sm:p-7 border-dashed" style="border-color: #EC4899;">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🎯</span>
+            <h3 class="font-display text-sm font-semibold tracking-wide uppercase">Reverse Breakeven (Target Profit)</h3>
+          </div>
+          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(236,72,153,0.2); color: #EC4899;">OBIETTIVO MENSE</span>
+        </div>
+
+        <p class="text-xs mb-4" style="color: var(--text-dim)">
+          Inserisci il profitto netto mensile che desideri generare per scoprire quanti ordini devi fare e che budget Ads serve.
+        </p>
+
+        <div class="space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-medium">Profitto Mensile Target (€)</label>
+              <div class="flex items-center gap-1">
+                <input id="target-monthly-profit-num" type="number" step="500" class="num-input w-24 rounded-lg px-2 py-1 text-xs text-right" value="5000">
+                <span class="text-xs font-mono" style="color:var(--text-dim)">€</span>
+              </div>
+            </div>
+            <input id="target-monthly-profit-range" type="range" min="500" max="50000" step="500" value="5000">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 pt-3 border-t text-center" style="border-color: var(--border);">
+            <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
+              <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Ordini / Mese Necessari</p>
+              <p id="target-monthly-orders" class="font-display font-mono text-sm sm:text-base font-semibold mt-1" style="color: #EC4899;">—</p>
+            </div>
+            <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
+              <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Budget ADS Mese Stimato</p>
+              <p id="target-monthly-budget" class="font-display font-mono text-sm sm:text-base font-semibold mt-1" style="color: #EC4899;">—</p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -439,7 +523,7 @@
   </div>
 
   <!-- SEZIONE RISORSE -->
-  <div class="mt-12 space-y-6">
+  <div class="mt-12 space-y-6 no-print">
     
     <!-- PDF Guide Download Box -->
     <div class="card p-6 sm:p-8" style="background: linear-gradient(135deg, var(--surface), var(--surface-2)); border-color: var(--accent-dim);">
@@ -480,13 +564,13 @@
 
   </div>
 
-  <footer class="mt-10 text-center text-xs" style="color:var(--text-dim)">
+  <footer class="mt-10 text-center text-xs no-print" style="color:var(--text-dim)">
     Calcolo indicativo — non costituisce consulenza finanziaria.
   </footer>
 </div>
 
 <script>
-  const ids = ['price','discount','cogs','ship','fee-pct','fee-fix','return','target-roas','aov-qty','ltv-orders'];
+  const ids = ['price','discount','cogs','ship','fee-pct','fee-fix','return','target-roas','aov-qty','ltv-orders','target-monthly-profit'];
   const el = {};
   ids.forEach(id => {
     el[id+'-num'] = document.getElementById(id+'-num');
@@ -494,6 +578,7 @@
   });
 
   function syncPair(numEl, rangeEl){
+    if(!numEl) return;
     numEl.addEventListener('input', () => {
       if (rangeEl){
         let v = parseFloat(numEl.value);
@@ -519,6 +604,57 @@
   syncPair(el['target-roas-num'], el['target-roas-range']);
   syncPair(el['aov-qty-num'], el['aov-qty-range']);
   syncPair(el['ltv-orders-num'], el['ltv-orders-range']);
+  syncPair(el['target-monthly-profit-num'], el['target-monthly-profit-range']);
+
+  // PRESET E URL PARAMETERS
+  function applyPreset(type) {
+    const presets = {
+      fashion: { price: 59.9, cogs: 18, ship: 5.5, returnRate: 15, roas: 2.8 },
+      beauty: { price: 39.9, cogs: 6, ship: 4.5, returnRate: 2, roas: 3.5 },
+      tech: { price: 89.9, cogs: 45, ship: 6.0, returnRate: 8, roas: 4.0 }
+    };
+    const p = presets[type];
+    if(!p) return;
+    
+    el['price-num'].value = p.price;
+    if(el['price-range']) el['price-range'].value = p.price;
+    el['cogs-num'].value = p.cogs;
+    if(el['cogs-range']) el['cogs-range'].value = p.cogs;
+    el['ship-num'].value = p.ship;
+    if(el['ship-range']) el['ship-range'].value = p.ship;
+    el['return-num'].value = p.returnRate;
+    if(el['return-range']) el['return-range'].value = p.returnRate;
+    el['target-roas-num'].value = p.roas;
+    if(el['target-roas-range']) el['target-roas-range'].value = p.roas;
+    
+    calculate();
+  }
+
+  function shareScenario() {
+    const p = el['price-num'].value;
+    const c = el['cogs-num'].value;
+    const r = el['target-roas-num'].value;
+    const url = `${window.location.origin}${window.location.pathname}?price=${p}&cogs=${c}&roas=${r}`;
+    navigator.clipboard.writeText(url);
+    alert('🔗 Link dello scenario copiato negli appunti!');
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    if(params.has('price')) {
+      el['price-num'].value = params.get('price');
+      if(el['price-range']) el['price-range'].value = params.get('price');
+    }
+    if(params.has('cogs')) {
+      el['cogs-num'].value = params.get('cogs');
+      if(el['cogs-range']) el['cogs-range'].value = params.get('cogs');
+    }
+    if(params.has('roas')) {
+      el['target-roas-num'].value = params.get('roas');
+      if(el['target-roas-range']) el['target-roas-range'].value = params.get('roas');
+    }
+    calculate();
+  });
 
   function fmtEur(n){
     if (!isFinite(n)) return '—';
@@ -550,6 +686,7 @@
     const targetRoas = parseFloat(el['target-roas-num'].value) || 1;
     const aovQty = Math.max(1, parseInt(el['aov-qty-num'].value) || 1);
     const ltvOrders = Math.max(1, parseFloat(el['ltv-orders-num'].value) || 1);
+    const monthlyTarget = parseFloat(el['target-monthly-profit-num'].value) || 0;
 
     const discountAmount = listPrice * (discountPct / 100);
     const effectivePrice = Math.max(0, listPrice - discountAmount);
@@ -593,8 +730,21 @@
     document.getElementById('out-profit').style.color = profitColor;
     document.getElementById('out-cpa').style.color = profitColor;
 
-    // 1. TARGET ROAS
+    // REVERSE BREAKEVEN / TARGET PROFIT
     const targetCpaVal = targetRoas > 0 ? effectivePrice / targetRoas : 0;
+    const profitPerOrderWithAds = netProfit - targetCpaVal;
+    
+    if (profitPerOrderWithAds > 0) {
+      const neededOrders = Math.ceil(monthlyTarget / profitPerOrderWithAds);
+      const neededBudget = neededOrders * targetCpaVal;
+      document.getElementById('target-monthly-orders').textContent = neededOrders.toLocaleString('it-IT') + ' ordini';
+      document.getElementById('target-monthly-budget').textContent = fmtEur(neededBudget);
+    } else {
+      document.getElementById('target-monthly-orders').textContent = 'N/D (In perdita)';
+      document.getElementById('target-monthly-budget').textContent = 'N/D';
+    }
+
+    // 1. TARGET ROAS
     const targetProfitVal = netProfit - targetCpaVal;
     const targetMarginVal = effectivePrice > 0 ? (targetProfitVal / effectivePrice) * 100 : 0;
 
