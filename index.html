@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>Breakeven ROAS, IVA &amp; Costi Fissi — Calcolatore Avanzato E-commerce</title>
+<title>Breakeven ROAS, AOV, Matrix & LTV — Calcolatore di Margine Reale</title>
 
 <!-- GoatCounter Analytics -->
 <script data-goatcounter="https://sole.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 
-<!-- Chart.js -->
+<!-- Chart.js per il grafico dinamico -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script src="https://cdn.tailwindcss.com"></script>
@@ -23,6 +23,7 @@
     --text: #E7E9EE;
     --text-dim: #8A90A2;
     --accent: #6C5CE7;
+    --accent-dim: #453B8C;
     --good: #34D399;
     --warn: #FBBF24;
     --bad: #F87171;
@@ -65,18 +66,24 @@
     border:3px solid #fff1;
     box-shadow:0 0 0 4px rgba(108,92,231,0.18);
     cursor:pointer;
-    transition:transform .15s ease;
+    transition:transform .15s ease, background-color .15s ease;
   }
   input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);}
+  input[type=range]::-moz-range-thumb{
+    width:18px;height:18px;border-radius:50%;
+    background:var(--accent); border:3px solid #fff1;
+    box-shadow:0 0 0 4px rgba(108,92,231,0.18);
+    cursor:pointer;
+  }
 
-  .num-input, .select-input{
+  .num-input{
     background:var(--surface-2);
     border:1px solid var(--border);
     color:var(--text);
     font-family:'IBM Plex Mono',monospace;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
-  .num-input:focus, .select-input:focus{
+  .num-input:focus{
     outline:none;
     border-color:var(--accent);
     box-shadow:0 0 0 3px rgba(108,92,231,0.15);
@@ -87,7 +94,10 @@
   .glow-bad{box-shadow:0 0 0 1px rgba(248,113,113,0.35), 0 0 40px -8px rgba(248,113,113,0.35);}
 
   .bar-seg{transition:width .35s cubic-bezier(0.4, 0, 0.2, 1);}
-  .fade-num{transition:color .25s ease;}
+  .fade-num{transition:color .25s ease, transform .15s ease;}
+
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
 
   .preset-btn {
     background: var(--surface-2);
@@ -103,14 +113,29 @@
   .preset-btn:hover {
     border-color: var(--accent);
     background: rgba(108,92,231,0.15);
+    transform: translateY(-1px);
   }
+
+  .action-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.1s ease;
+  }
+  .action-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-share { background: #2563eb; color: white; }
+  .btn-pdf { background: #059669; color: white; }
 
   @media print {
     body { background: #fff !important; color: #000 !important; }
     .no-print { display: none !important; }
     .card { border: 1px solid #ccc !important; background: #fff !important; color: #000 !important; }
     p, span, label, h1, h2, h3 { color: #000 !important; }
-    .num-input, .select-input { background: #fff !important; border: 1px solid #ccc !important; color: #000 !important; }
+    .num-input { background: #fff !important; border: 1px solid #ccc !important; color: #000 !important; }
   }
 </style>
 </head>
@@ -121,13 +146,13 @@
   <header class="mb-8 sm:mb-10 text-center max-w-3xl mx-auto">
     <div class="flex items-center justify-center gap-2 mb-3">
       <div class="w-2 h-2 rounded-full animate-pulse" style="background:var(--accent)"></div>
-      <span class="text-xs font-mono tracking-widest uppercase" style="color:var(--text-dim)">Unit Economics · E-commerce Avanzato</span>
+      <span class="text-xs font-mono tracking-widest uppercase" style="color:var(--text-dim)">Unit Economics · E-commerce</span>
     </div>
     <h1 class="font-display text-3xl sm:text-5xl font-semibold tracking-tight">
-      Calcolatore Margine, IVA &amp; Costi Fissi
+      Breakeven ROAS &amp; Profitto Reale
     </h1>
     <p class="mt-3 text-sm sm:text-base" style="color:var(--text-dim)">
-      Analisi completa dei costi: gestisci le aliquote IVA internazionali, calcola il punto di pareggio aziendale (costi fissi) e simula i margini netti reali.
+      Calcola il ROAS minimo di sostenibilità, simula il profitto target, valuta l'impatto dell'AOV, testa scenari promozionali e misura l'effetto del valore nel tempo (LTV).
     </p>
 
     <div class="no-print flex items-center justify-center gap-3 mt-6">
@@ -145,12 +170,12 @@
     <!-- INPUT PANEL -->
     <section class="lg:col-span-5 card p-6 sm:p-7 space-y-6 lg:sticky lg:top-6">
       <div class="flex items-center justify-between border-b pb-4" style="border-color: var(--border);">
-        <h2 class="font-display text-sm font-semibold tracking-wide uppercase" style="color:var(--text-dim)">Parametri Unità &amp; Tasse</h2>
-        <span class="text-xs font-mono px-2 py-0.5 rounded" style="background:var(--surface-2); color:var(--text-dim)">Input Reali</span>
+        <h2 class="font-display text-sm font-semibold tracking-wide uppercase" style="color:var(--text-dim)">Parametri Prodotto</h2>
+        <span class="text-xs font-mono px-2 py-0.5 rounded" style="background:var(--surface-2); color:var(--text-dim)">Singola Unità</span>
       </div>
 
       <div class="no-print pb-2">
-        <label class="text-xs font-medium block mb-2" style="color:var(--text-dim)">Preset Nicchia Fast-Setup:</label>
+        <label class="text-xs font-medium block mb-2" style="color:var(--text-dim)">Carica Preset di Nicchia:</label>
         <div class="flex flex-wrap gap-2">
           <button type="button" class="preset-btn" onclick="applyPreset('fashion')">👗 Fashion</button>
           <button type="button" class="preset-btn" onclick="applyPreset('beauty')">💄 Beauty</button>
@@ -158,31 +183,9 @@
         </div>
       </div>
 
-      <!-- SELEZIONE IVA / COUNTRY VAT -->
-      <div class="p-4 rounded-xl border" style="background:var(--surface-2); border-color:var(--border);">
-        <div class="flex items-center justify-between mb-2">
-          <label class="text-xs font-semibold uppercase tracking-wider text-indigo-400">🌍 Gestione IVA / VAT Target</label>
-          <select id="vat-preset" class="select-input text-xs rounded-lg px-2 py-1" onchange="updateVatFromPreset()">
-            <option value="22" selected>Italia (22%)</option>
-            <option value="20">Francia / UK (20%)</option>
-            <option value="19">Germania (19%)</option>
-            <option value="21">Spagna (21%)</option>
-            <option value="0">Extra-UE / B2B (0%)</option>
-            <option value="custom">Personalizzata</option>
-          </select>
-        </div>
-        <div class="flex items-center justify-between mt-3">
-          <span class="text-xs" style="color:var(--text-dim)">Aliquota IVA Applicata:</span>
-          <div class="flex items-center gap-1">
-            <input id="vat-rate" type="number" step="0.5" class="num-input w-20 rounded-lg px-2 py-1 text-xs text-right" value="22">
-            <span class="text-xs" style="color:var(--text-dim)">%</span>
-          </div>
-        </div>
-      </div>
-
       <div>
         <div class="flex items-center justify-between mb-2">
-          <label class="text-sm font-medium">Prezzo di Listino (IVA Inclusa)</label>
+          <label class="text-sm font-medium">Prezzo di Listino</label>
           <div class="flex items-center gap-1">
             <span class="text-xs" style="color:var(--text-dim)">€</span>
             <input id="price" type="number" step="0.5" class="num-input w-24 rounded-lg px-2.5 py-1.5 text-sm text-right font-bold" value="49.90">
@@ -191,22 +194,30 @@
         <input id="price-range" type="range" min="1" max="300" step="0.5" value="49.90">
       </div>
 
-      <div class="p-4 rounded-xl border" style="background:var(--surface-2); border-color:var(--border);">
+      <div class="p-4 rounded-xl border transition-all" style="background:var(--surface-2); border-color:var(--border);">
         <div class="flex items-center justify-between mb-2">
           <label class="text-sm font-medium flex items-center gap-1.5" style="color:var(--warn)">
-            🏷️ Sconto Applicato
+            🏷️ Sconto / Promozione
           </label>
           <div class="flex items-center gap-1">
             <input id="discount" type="number" step="1" class="num-input w-20 rounded-lg px-2 py-1 text-sm text-right" value="0">
             <span class="text-xs" style="color:var(--text-dim)">%</span>
           </div>
         </div>
-        <input id="discount-range" type="range" min="0" max="70" step="1" value="0">
+        <input id="discount-range" type="range" min="0" max="70" step="1" value="0" class="mb-2">
+        
+        <div id="discount-info" class="text-xs space-y-1 hidden">
+          <div class="flex justify-between" style="color:var(--text-dim)">
+            <span>Prezzo Scontato Reale:</span>
+            <strong id="effective-price-display" class="font-mono text-white">49,90 €</strong>
+          </div>
+          <div id="discount-alert" class="pt-1 font-medium text-[11px]"></div>
+        </div>
       </div>
 
       <div>
         <div class="flex items-center justify-between mb-2">
-          <label class="text-sm font-medium">Costo del Prodotto (COGS netto)</label>
+          <label class="text-sm font-medium">Costo del Prodotto (COGS)</label>
           <div class="flex items-center gap-1">
             <span class="text-xs" style="color:var(--text-dim)">€</span>
             <input id="cogs" type="number" step="0.5" class="num-input w-24 rounded-lg px-2 py-1 text-sm text-right" value="15.00">
@@ -217,7 +228,7 @@
 
       <div>
         <div class="flex items-center justify-between mb-2">
-          <label class="text-sm font-medium">Spedizione Venditore (netta)</label>
+          <label class="text-sm font-medium">Spedizione (a carico venditore)</label>
           <div class="flex items-center gap-1">
             <span class="text-xs" style="color:var(--text-dim)">€</span>
             <input id="shipping" type="number" step="0.25" class="num-input w-24 rounded-lg px-2 py-1 text-sm text-right" value="4.50">
@@ -228,7 +239,7 @@
 
       <div>
         <div class="flex items-center justify-between mb-2">
-          <label class="text-sm font-medium">Commissioni Stripe/PayPal</label>
+          <label class="text-sm font-medium">Commissioni di Pagamento</label>
         </div>
         <div class="grid grid-cols-2 gap-3 mb-2">
           <div class="flex items-center gap-1">
@@ -240,6 +251,7 @@
             <input id="fee-fix" type="number" step="0.05" class="num-input w-full rounded-lg px-2 py-1 text-sm text-right" value="0.25">
           </div>
         </div>
+        <input id="fee-pct-range" type="range" min="0" max="8" step="0.1" value="1.5">
       </div>
 
       <div>
@@ -252,21 +264,6 @@
         </div>
         <input id="returns-range" type="range" min="0" max="40" step="0.5" value="5">
       </div>
-
-      <!-- NUOVA SEZIONE: COSTI FISSI MENSILE AZIENDALI -->
-      <div class="p-4 rounded-xl border space-y-3" style="background:var(--surface-2); border-color:var(--border);">
-        <label class="text-xs font-semibold uppercase tracking-wider text-amber-400 block">🏢 Costi Fissi Mensili (Overhead)</label>
-        <p class="text-[11px]" style="color:var(--text-dim)">Software, Shopify, Magazzino, Collaboratori, Utenze.</p>
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-medium">Totale Fissi Mensili:</span>
-          <div class="flex items-center gap-1">
-            <span class="text-xs" style="color:var(--text-dim)">€</span>
-            <input id="fixed-costs" type="number" step="100" class="num-input w-28 rounded-lg px-2 py-1 text-xs text-right font-bold" value="1500">
-          </div>
-        </div>
-        <input id="fixed-costs-range" type="range" min="0" max="20000" step="100" value="1500">
-      </div>
-
     </section>
 
     <!-- OUTPUT PANEL -->
@@ -275,7 +272,7 @@
       <div id="risk-card" class="card p-6 transition-all duration-300">
         <div class="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-4">
           <div>
-            <p class="text-xs font-mono uppercase tracking-widest mb-1" style="color:var(--text-dim)">Stato del Margine Unitario</p>
+            <p class="text-xs font-mono uppercase tracking-widest mb-1" style="color:var(--text-dim)">Stato del Margine</p>
             <h3 id="risk-label" class="font-display text-2xl sm:text-3xl font-semibold">—</h3>
             <p id="risk-desc" class="text-sm mt-1" style="color:var(--text-dim)">Inserisci i parametri per calcolare.</p>
           </div>
@@ -287,91 +284,276 @@
         <div class="card p-5 sm:p-6">
           <p class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">ROAS di Breakeven</p>
           <p id="out-roas" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
-          <p class="text-xs mt-2" style="color:var(--text-dim)">Sulla quota Netta IVA incassata</p>
+          <p class="text-xs mt-2" style="color:var(--text-dim)">Ritorno minimo sulle Ads per non perdere</p>
         </div>
         <div class="card p-5 sm:p-6">
-          <p class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">Incasso Netto (Senza IVA)</p>
-          <p id="out-net-price" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
-          <p class="text-xs mt-2" style="color:var(--text-dim)">Quota reale spettante al negozio</p>
+          <p class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">CPA Massima</p>
+          <p id="out-cpa" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
+          <p class="text-xs mt-2" style="color:var(--text-dim)">Spesa max per acquisire un cliente</p>
         </div>
         <div class="card p-5 sm:p-6">
           <p class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">Margine Netto Reale</p>
           <p id="out-margin" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
-          <p class="text-xs mt-2" style="color:var(--text-dim)">Su fatturato Netto da IVA</p>
+          <p class="text-xs mt-2" style="color:var(--text-dim)">Sul prezzo effettivo incassato</p>
         </div>
         <div class="card p-5 sm:p-6">
-          <p class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">Profitto Netto / Ordine</p>
+          <p class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">Profitto Netto / Unità</p>
           <p id="out-profit" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
-          <p class="text-xs mt-2" style="color:var(--text-dim)">Prima delle spese Ads</p>
+          <p class="text-xs mt-2" style="color:var(--text-dim)">Dopo tutti i costi prima delle Ads</p>
         </div>
       </div>
 
-      <!-- NUOVA SEZIONE: BREAKEVEN PUNTO DI PAREGGIO AZIENDALE (COSTI FISSI) -->
-      <div class="card p-6 sm:p-7 border-dashed" style="border-color: #FBBF24;">
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-2">
-            <span class="text-base">🏛️</span>
-            <h3 class="font-display text-sm font-semibold tracking-wide uppercase">Breakeven Aziendale (Copertura Costi Fissi)</h3>
-          </div>
-          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(251,191,36,0.2); color: #FBBF24;">OVERHEAD TEST</span>
-        </div>
-
-        <p class="text-xs mb-4" style="color: var(--text-dim)">
-          Ordini minimi e fatturato mensile necessari unicamente per coprire i <strong class="text-white" id="fixed-costs-disp">1.500 €</strong> di costi fissi di struttura (senza utile netto personale).
-        </p>
-
-        <div class="grid grid-cols-2 gap-4 text-center">
-          <div class="p-3 rounded-lg" style="background: var(--surface-2);">
-            <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Ordini Mensili Minimi</p>
-            <p id="out-fixed-orders" class="font-display font-mono text-lg sm:text-2xl font-semibold mt-1" style="color: #FBBF24;">0</p>
-          </div>
-          <div class="p-3 rounded-lg" style="background: var(--surface-2);">
-            <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Fatturato Minimo Copertura</p>
-            <p id="out-fixed-rev" class="font-display font-mono text-lg sm:text-2xl font-semibold mt-1" style="color: #FBBF24;">0,00 €</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- GRAFICO DINAMICO PROFFITTO VS ROAS -->
+      <!-- NUOVA SEZIONE: GRAFICO DINAMICO PROFFITTO VS ROAS -->
       <div class="card p-6 sm:p-7">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <span class="text-base">📈</span>
-            <h3 class="font-display text-sm font-semibold tracking-wide uppercase">Curva di Profitto ad Ordine vs ROAS Ads</h3>
+            <h3 class="font-display text-sm font-semibold tracking-wide uppercase">Curva di Profitto in Base al ROAS</h3>
           </div>
+          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(108,92,231,0.2); color: var(--accent);">VISUAL UX</span>
         </div>
         <div class="w-full h-64">
           <canvas id="profitChart"></canvas>
         </div>
       </div>
 
+      <!-- TARGET PROFIT / REVERSE BREAKEVEN -->
+      <div class="card p-6 sm:p-7 border-dashed" style="border-color: #EC4899;">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🎯</span>
+            <h3 class="font-display text-sm font-semibold tracking-wide uppercase">Reverse Breakeven (Target Profit)</h3>
+          </div>
+          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(236,72,153,0.2); color: #EC4899;">OBIETTIVO MENSILE</span>
+        </div>
+
+        <p class="text-xs mb-4" style="color: var(--text-dim)">
+          Inserisci il profitto netto mensile che desideri generare per scoprire quanti ordini devi fare e che budget Ads serve.
+        </p>
+
+        <div class="space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-medium">Profitto Mensile Desiderato (€)</label>
+              <div class="flex items-center gap-1">
+                <input id="targetProfit" type="number" step="500" class="num-input w-24 rounded-lg px-2 py-1 text-xs text-right" value="5000">
+                <span class="text-xs font-mono" style="color:var(--text-dim)">€</span>
+              </div>
+            </div>
+            <input id="targetProfit-range" type="range" min="500" max="50000" step="500" value="5000">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 pt-3 border-t text-center" style="border-color: var(--border);">
+            <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
+              <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Ordini Necessari</p>
+              <p id="outTargetOrders" class="font-display font-mono text-sm sm:text-base font-semibold mt-1" style="color: #EC4899;">0</p>
+            </div>
+            <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
+              <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Budget ADS Stimato</p>
+              <p id="outTargetBudget" class="font-display font-mono text-sm sm:text-base font-semibold mt-1" style="color: #EC4899;">0.00 €</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIMULATORE TARGET ROAS -->
+      <div class="card p-6 sm:p-7 border-dashed" style="border-color: var(--accent);">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🚀</span>
+            <h3 class="font-display text-sm font-semibold tracking-wide uppercase">Simulatore Profitto Target</h3>
+          </div>
+          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(108,92,231,0.2); color: var(--accent);">PRO · GRATIS</span>
+        </div>
+
+        <p class="text-xs mb-4" style="color: var(--text-dim)">
+          Imposta il ROAS che vuoi raggiungere con le Ads per scoprire quanto profitto ti rimane in tasca su ogni ordine.
+        </p>
+
+        <div class="space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-medium">ROAS Obiettivo Ads</label>
+              <div class="flex items-center gap-1">
+                <input id="roasTarget" type="number" step="0.1" class="num-input w-20 rounded-lg px-2 py-1 text-xs text-right" value="3.0">
+                <span class="text-xs font-mono" style="color:var(--text-dim)">x</span>
+              </div>
+            </div>
+            <input id="roasTarget-range" type="range" min="1.0" max="10.0" step="0.1" value="3.0">
+          </div>
+
+          <div class="grid grid-cols-3 gap-3 pt-3 border-t text-center" style="border-color: var(--border);">
+            <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
+              <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">CPA Target</p>
+              <p id="target-cpa" class="font-display font-mono text-sm sm:text-base font-semibold mt-1">—</p>
+            </div>
+            <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
+              <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Profitto / Ordine</p>
+              <p id="target-profit" class="font-display font-mono text-sm sm:text-base font-semibold mt-1">—</p>
+            </div>
+            <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
+              <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Margine Finale</p>
+              <p id="target-margin" class="font-display font-mono text-sm sm:text-base font-semibold mt-1">—</p>
+            </div>
+          </div>
+          <p id="target-status-msg" class="text-[11px] font-medium text-center pt-1"></p>
+        </div>
+      </div>
+
+      <!-- SIMULATORE AOV & BUNDLE -->
+      <div class="card p-6 sm:p-7 border-dashed" style="border-color: var(--good);">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-base">📦</span>
+            <h3 class="font-display text-sm font-semibold tracking-wide uppercase">Simulatore Carrello Medio (AOV / Bundle)</h3>
+          </div>
+          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(52,211,153,0.2); color: var(--good);">EFFETTO SCALA</span>
+        </div>
+
+        <p class="text-xs mb-4" style="color: var(--text-dim)">
+          Vendere più unità nello stesso ordine abbatte l'impatto della spedizione e delle commissioni fisse.
+        </p>
+
+        <div class="space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-medium">Unità medie per ordine</label>
+              <div class="flex items-center gap-1">
+                <input id="aov-qty" type="number" step="1" class="num-input w-20 rounded-lg px-2 py-1 text-xs text-right" value="2">
+                <span class="text-xs font-mono" style="color:var(--text-dim)">pz</span>
+              </div>
+            </div>
+            <input id="aov-qty-range" type="range" min="1" max="10" step="1" value="2">
+          </div>
+
+          <div class="grid grid-cols-3 gap-3 pt-3 border-t text-center" style="border-color: var(--border);">
+            <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
+              <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Nuovo AOV</p>
+              <p id="aov-val" class="font-display font-mono text-sm sm:text-base font-semibold mt-1">—</p>
+            </div>
+            <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
+              <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Nuovo Breakeven ROAS</p>
+              <p id="aov-roas" class="font-display font-mono text-sm sm:text-base font-semibold mt-1" style="color:var(--good);">—</p>
+            </div>
+            <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
+              <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Profitto ad Ordine</p>
+              <p id="aov-profit" class="font-display font-mono text-sm sm:text-base font-semibold mt-1" style="color:var(--good);">—</p>
+            </div>
+          </div>
+          <p id="aov-status-msg" class="text-[11px] font-medium text-center pt-1" style="color:var(--good);"></p>
+        </div>
+      </div>
+
+      <!-- MATRICE DI SENSIBILITÀ & SCENARI -->
+      <div class="card p-6 sm:p-7 border-dashed" style="border-color: var(--warn);">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-base">📊</span>
+            <h3 class="font-display text-sm font-semibold tracking-wide uppercase">Matrice Scenari Sconto vs Spedizione</h3>
+          </div>
+          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(251,191,36,0.2); color: var(--warn);">STRESS TEST</span>
+        </div>
+
+        <p class="text-xs mb-4" style="color: var(--text-dim)">
+          Tabella comparativa: scopri come varia il Breakeven ROAS applicando diversi sconti o cambiando la tariffa di spedizione.
+        </p>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs font-mono text-center border-collapse">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <th class="p-2 text-left font-sans text-[11px]" style="color: var(--text-dim);">Sconto ↓ \ Spedizione →</th>
+                <th id="th-ship-curr" class="p-2">In Uso</th>
+                <th id="th-ship-free" class="p-2">0,00 € (Free)</th>
+                <th id="th-ship-plus" class="p-2">+2,00 €</th>
+              </tr>
+            </thead>
+            <tbody id="matrix-body" class="divide-y divide-slate-800/50">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SIMULATORE LTV / REPEAT PURCHASE -->
+      <div class="card p-6 sm:p-7 border-dashed" style="border-color: #38BDF8;">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🔄</span>
+            <h3 class="font-display text-sm font-semibold tracking-wide uppercase">Simulatore LTV &amp; Riacquisti Futuri</h3>
+          </div>
+          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(56,189,248,0.2); color: #38BDF8;">LIFETIME VALUE</span>
+        </div>
+
+        <p class="text-xs mb-4" style="color: var(--text-dim)">
+          I clienti non comprano una volta sola. Calcola quanto puoi spendere per acquisire un cliente al 1° ordine sapendo quanto riacquisterà nei mesi successivi (senza ulteriori spese di Ads).
+        </p>
+
+        <div class="space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-medium">Numero medio di ordini per cliente (LTV)</label>
+              <div class="flex items-center gap-1">
+                <input id="ltv-orders" type="number" step="0.1" class="num-input w-20 rounded-lg px-2 py-1 text-xs text-right" value="1.5">
+                <span class="text-xs font-mono" style="color:var(--text-dim)">ordini</span>
+              </div>
+            </div>
+            <input id="ltv-orders-range" type="range" min="1.0" max="5.0" step="0.1" value="1.5">
+          </div>
+
+          <div class="grid grid-cols-3 gap-3 pt-3 border-t text-center" style="border-color: var(--border);">
+            <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
+              <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">LTV Incassato</p>
+              <p id="ltv-revenue" class="font-display font-mono text-sm sm:text-base font-semibold mt-1" style="color: #38BDF8;">—</p>
+            </div>
+            <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
+              <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">CPA Max a LTV</p>
+              <p id="ltv-cpa" class="font-display font-mono text-sm sm:text-base font-semibold mt-1" style="color: #38BDF8;">—</p>
+            </div>
+            <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
+              <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">ROAS 1° Ordine Min.</p>
+              <p id="ltv-roas" class="font-display font-mono text-sm sm:text-base font-semibold mt-1" style="color: #38BDF8;">—</p>
+            </div>
+          </div>
+          <p id="ltv-status-msg" class="text-[11px] font-medium text-center pt-1" style="color: #38BDF8;"></p>
+        </div>
+      </div>
+
+      <div class="no-print space-y-2">
+        <button type="button" class="action-btn btn-share" onclick="shareScenario()">🔗 Condividi Scenario (Copia Link)</button>
+        <button type="button" class="action-btn btn-pdf" onclick="window.print()">📄 Scarica Report PDF</button>
+      </div>
+
       <!-- Breakdown bar -->
       <div class="card p-6 sm:p-7">
-        <p class="text-xs font-mono uppercase tracking-widest mb-4" style="color:var(--text-dim)">Composizione dell'Incasso Totale (con IVA)</p>
+        <p class="text-xs font-mono uppercase tracking-widest mb-4" style="color:var(--text-dim)">Composizione del Prezzo di Listino Singolo</p>
         <div class="w-full h-8 rounded-lg overflow-hidden flex" style="background:var(--surface-2)">
-          <div id="seg-vat" class="bar-seg h-full" style="background:#E11D48;width:0%" title="IVA"></div>
-          <div id="seg-cogs" class="bar-seg h-full" style="background:#7C6BF0;width:0%" title="COGS"></div>
-          <div id="seg-ship" class="bar-seg h-full" style="background:#5A4FC7;width:0%" title="Spedizione"></div>
-          <div id="seg-fee" class="bar-seg h-full" style="background:#3E3A82;width:0%" title="Commissioni"></div>
-          <div id="seg-return" class="bar-seg h-full" style="background:#F87171;width:0%" title="Resi"></div>
-          <div id="seg-profit" class="bar-seg h-full" style="background:#34D399;width:0%" title="Profitto"></div>
+          <div id="seg-cogs" class="bar-seg h-full" style="background:#7C6BF0;width:0%"></div>
+          <div id="seg-ship" class="bar-seg h-full" style="background:#5A4FC7;width:0%"></div>
+          <div id="seg-fee" class="bar-seg h-full" style="background:#3E3A82;width:0%"></div>
+          <div id="seg-return" class="bar-seg h-full" style="background:#F87171;width:0%"></div>
+          <div id="seg-discount" class="bar-seg h-full" style="background:#FBBF24;width:0%"></div>
+          <div id="seg-profit" class="bar-seg h-full" style="background:#34D399;width:0%"></div>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-6 gap-2 mt-4 text-xs">
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#E11D48"></span>IVA Stato</div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#7C6BF0"></span>COGS</div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#5A4FC7"></span>Spedizione</div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#3E3A82"></span>Commissioni</div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#F87171"></span>Resi</div>
-          <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background:#34D399"></span>Profitto</div>
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#7C6BF0"></span>COGS</div>
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#5A4FC7"></span>Spedizione</div>
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#3E3A82"></span>Commissioni</div>
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#F87171"></span>Resi</div>
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#FBBF24"></span>Sconto</div>
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#34D399"></span>Profitto</div>
         </div>
       </div>
 
     </section>
   </div>
+
+  <footer class="mt-10 text-center text-xs no-print" style="color:var(--text-dim)">
+    Calcolo indicativo — non costituisce consulenza finanziaria.
+  </footer>
 </div>
 
 <script>
-  const ids = ['price','discount','cogs','shipping','fee-pct','fee-fix','returns','vat-rate','fixed-costs'];
+  const ids = ['price','discount','cogs','shipping','fee-pct','fee-fix','returns','roasTarget','aov-qty','ltv-orders','targetProfit'];
   const el = {};
   ids.forEach(id => {
     el[id] = document.getElementById(id);
@@ -399,26 +581,19 @@
   syncPair(el['discount'], el['discount-range']);
   syncPair(el['cogs'], el['cogs-range']);
   syncPair(el['shipping'], el['shipping-range']);
+  syncPair(el['fee-pct'], el['fee-pct-range']);
+  syncPair(el['fee-fix'], null);
   syncPair(el['returns'], el['returns-range']);
-  syncPair(el['fixed-costs'], el['fixed-costs-range']);
-
-  if(el['vat-rate']) el['vat-rate'].addEventListener('input', calculateAll);
-  if(el['fee-pct']) el['fee-pct'].addEventListener('input', calculateAll);
-  if(el['fee-fix']) el['fee-fix'].addEventListener('input', calculateAll);
-
-  function updateVatFromPreset() {
-    const vatPreset = document.getElementById('vat-preset').value;
-    if (vatPreset !== 'custom') {
-      el['vat-rate'].value = vatPreset;
-      calculateAll();
-    }
-  }
+  syncPair(el['roasTarget'], el['roasTarget-range']);
+  syncPair(el['aov-qty'], el['aov-qty-range']);
+  syncPair(el['ltv-orders'], el['ltv-orders-range']);
+  syncPair(el['targetProfit'], el['targetProfit-range']);
 
   function applyPreset(type) {
     const presets = {
-      fashion: { price: 59.9, cogs: 18, shipping: 5.5, returns: 15 },
-      beauty: { price: 39.9, cogs: 6, shipping: 4.5, returns: 2 },
-      tech: { price: 89.9, cogs: 45, shipping: 6.0, returns: 8 }
+      fashion: { price: 59.9, cogs: 18, shipping: 5.5, returns: 15, roas: 2.8 },
+      beauty: { price: 39.9, cogs: 6, shipping: 4.5, returns: 2, roas: 3.5 },
+      tech: { price: 89.9, cogs: 45, shipping: 6.0, returns: 8, roas: 4.0 }
     };
     const p = presets[type];
     if(!p) return;
@@ -427,8 +602,19 @@
     if(el['cogs']) { el['cogs'].value = p.cogs; if(el['cogs-range']) el['cogs-range'].value = p.cogs; }
     if(el['shipping']) { el['shipping'].value = p.shipping; if(el['shipping-range']) el['shipping-range'].value = p.shipping; }
     if(el['returns']) { el['returns'].value = p.returns; if(el['returns-range']) el['returns-range'].value = p.returns; }
+    if(el['roasTarget']) { el['roasTarget'].value = p.roas; if(el['roasTarget-range']) el['roasTarget-range'].value = p.roas; }
     
     calculateAll();
+  }
+
+  function shareScenario() {
+    const priceVal = el['price'] ? el['price'].value : '';
+    const cogsVal = el['cogs'] ? el['cogs'].value : '';
+    const roasVal = el['roasTarget'] ? el['roasTarget'].value : '';
+    
+    const shareUrl = `${window.location.origin}${window.location.pathname}?price=${priceVal}&cogs=${cogsVal}&roas=${roasVal}`;
+    navigator.clipboard.writeText(shareUrl);
+    alert('🔗 Link dello scenario copiato negli appunti!');
   }
 
   function fmtEur(n){
@@ -440,6 +626,17 @@
     return n.toLocaleString('it-IT', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
   }
 
+  function computeRoasForParams(listPrice, discountPct, cogs, ship, feePct, feeFix, retRate){
+    const effectivePrice = Math.max(0, listPrice * (1 - discountPct / 100));
+    const feeAmount = effectivePrice * (feePct / 100) + feeFix;
+    const returnCost = effectivePrice * (retRate / 100);
+    const totalCosts = cogs + ship + feeAmount + returnCost;
+    const netProfit = effectivePrice - totalCosts;
+    if (netProfit <= 0) return { roas: Infinity, profit: netProfit };
+    return { roas: effectivePrice / netProfit, profit: netProfit };
+  }
+
+  // INIZIALIZZAZIONE CHART.JS
   let profitChart = null;
   function initChart() {
     const ctx = document.getElementById('profitChart').getContext('2d');
@@ -448,32 +645,43 @@
       data: {
         labels: [],
         datasets: [{
-          label: 'Profitto Netto ad Ordine (€)',
+          label: 'Profitto / Peridta ad Ordine (€)',
           data: [],
           borderColor: '#6C5CE7',
           backgroundColor: 'rgba(108, 92, 231, 0.15)',
           borderWidth: 2,
           fill: true,
-          tension: 0.3
+          tension: 0.3,
+          pointRadius: 3
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        plugins: {
+          legend: { display: false }
+        },
         scales: {
-          x: { grid: { color: '#232838' }, ticks: { color: '#8A90A2' } },
-          y: { grid: { color: '#232838' }, ticks: { color: '#8A90A2' } }
+          x: {
+            grid: { color: '#232838' },
+            ticks: { color: '#8A90A2' },
+            title: { display: true, text: 'ROAS Ads', color: '#8A90A2' }
+          },
+          y: {
+            grid: { color: '#232838' },
+            ticks: { color: '#8A90A2' },
+            title: { display: true, text: 'Profitto Netto (€)', color: '#8A90A2' }
+          }
         }
       }
     });
   }
 
-  function updateChart(effectivePriceNet, netProfitBeforeAds) {
+  function updateChart(effectivePrice, netProfitBeforeAds) {
     if (!profitChart) return;
-    const roasValues = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0];
+    const roasValues = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 8.0];
     const profitData = roasValues.map(r => {
-      const cpa = effectivePriceNet / r;
+      const cpa = effectivePrice / r;
       return parseFloat((netProfitBeforeAds - cpa).toFixed(2));
     });
 
@@ -482,66 +690,272 @@
     profitChart.update();
   }
 
+  function updateTargetProfit(netProfitPerUnit, price) {
+    const targetProfitEl = el['targetProfit'];
+    const roasTargetEl = el['roasTarget'];
+    const outOrdersEl = document.getElementById('outTargetOrders');
+    const outBudgetEl = document.getElementById('outTargetBudget');
+    
+    if (!targetProfitEl || !roasTargetEl || !outOrdersEl || !outBudgetEl) return;
+
+    const targetProfit = parseFloat(targetProfitEl.value) || 0;
+    const roasTarget = parseFloat(roasTargetEl.value) || 1;
+    
+    if (netProfitPerUnit > 0) {
+      const cpaTarget = price / roasTarget;
+      const profitPerOrderWithAds = netProfitPerUnit - cpaTarget;
+      
+      if (profitPerOrderWithAds > 0) {
+        const ordersNeeded = Math.ceil(targetProfit / profitPerOrderWithAds);
+        const budgetNeeded = ordersNeeded * cpaTarget;
+        
+        outOrdersEl.innerText = ordersNeeded.toLocaleString('it-IT') + ' ordini';
+        outBudgetEl.innerText = fmtEur(budgetNeeded);
+        return;
+      }
+    }
+    outOrdersEl.innerText = "N/D (In perdita)";
+    outBudgetEl.innerText = "N/D";
+  }
+
   function calculateAll(){
-    const listPriceGross = parseFloat(el['price'].value) || 0;
+    const listPrice = parseFloat(el['price'].value) || 0;
     const discountPct = parseFloat(el['discount'].value) || 0;
-    const vatRate = parseFloat(el['vat-rate'].value) || 0;
     const cogs = parseFloat(el['cogs'].value) || 0;
     const ship = parseFloat(el['shipping'].value) || 0;
     const feePct = parseFloat(el['fee-pct'].value) || 0;
     const feeFix = parseFloat(el['fee-fix'].value) || 0;
     const retRate = parseFloat(el['returns'].value) || 0;
-    const fixedCosts = parseFloat(el['fixed-costs'].value) || 0;
+    const targetRoas = parseFloat(el['roasTarget'].value) || 1;
+    const aovQty = Math.max(1, parseInt(el['aov-qty'].value) || 1);
+    const ltvOrders = Math.max(1, parseFloat(el['ltv-orders'].value) || 1);
 
-    // SCORPORO IVA DAL PREZZO SCONTATO
-    const effectivePriceGross = Math.max(0, listPriceGross * (1 - discountPct / 100));
-    const effectivePriceNet = effectivePriceGross / (1 + vatRate / 100);
-    const vatAmount = effectivePriceGross - effectivePriceNet;
+    const discountAmount = listPrice * (discountPct / 100);
+    const effectivePrice = Math.max(0, listPrice - discountAmount);
 
-    // CALCOLO COSTI VARIABILI UNITARI
-    const feeAmount = effectivePriceGross * (feePct / 100) + feeFix;
-    const returnCost = effectivePriceNet * (retRate / 100);
-    const totalCosts = cogs + ship + feeAmount + returnCost;
+    const discountInfo = document.getElementById('discount-info');
+    const discountAlert = document.getElementById('discount-alert');
+    const effectivePriceDisplay = document.getElementById('effective-price-display');
 
-    // MARGINE UNITARIO NETTO
-    const netProfitUnit = effectivePriceNet - totalCosts;
-    const netMarginPct = effectivePriceNet > 0 ? (netProfitUnit / effectivePriceNet) * 100 : 0;
-    const roasBreakeven = netProfitUnit > 0 ? effectivePriceNet / netProfitUnit : Infinity;
-
-    document.getElementById('out-roas').textContent = isFinite(roasBreakeven) ? roasBreakeven.toFixed(2) + 'x' : '∞';
-    document.getElementById('out-net-price').textContent = fmtEur(effectivePriceNet);
-    document.getElementById('out-margin').textContent = fmtPct(netMarginPct);
-    document.getElementById('out-profit').textContent = fmtEur(netProfitUnit);
-
-    // BREAKEVEN COSTI FISSI
-    document.getElementById('fixed-costs-disp').textContent = fmtEur(fixedCosts);
-    const fixedOrdersEl = document.getElementById('out-fixed-orders');
-    const fixedRevEl = document.getElementById('out-fixed-rev');
-
-    if (netProfitUnit > 0) {
-      const minOrdersNeeded = Math.ceil(fixedCosts / netProfitUnit);
-      const minRevNeeded = minOrdersNeeded * effectivePriceGross;
-      fixedOrdersEl.textContent = minOrdersNeeded.toLocaleString('it-IT') + ' ordini/mese';
-      fixedRevEl.textContent = fmtEur(minRevNeeded);
+    if (discountPct > 0) {
+      discountInfo.classList.remove('hidden');
+      effectivePriceDisplay.textContent = fmtEur(effectivePrice);
     } else {
-      fixedOrdersEl.textContent = 'Impossibile (Unità in perdita)';
-      fixedRevEl.textContent = '—';
+      discountInfo.classList.add('hidden');
     }
 
-    updateChart(effectivePriceNet, netProfitUnit);
+    const feeAmount = effectivePrice * (feePct / 100) + feeFix;
+    const returnCost = effectivePrice * (retRate / 100);
+    const totalCosts = cogs + ship + feeAmount + returnCost;
+    
+    const netProfit = effectivePrice - totalCosts;
+    const netMarginPct = effectivePrice > 0 ? (netProfit / effectivePrice) * 100 : 0;
+    const roasBreakeven = netProfit > 0 ? effectivePrice / netProfit : Infinity;
+    const cpaMax = netProfit;
 
-    // BREAKDOWN BAR (SU PREZZO LORDO)
-    const clampPct = (v) => effectivePriceGross > 0 ? Math.max(0, Math.min(100, (v / effectivePriceGross) * 100)) : 0;
-    document.getElementById('seg-vat').style.width = clampPct(vatAmount) + '%';
-    document.getElementById('seg-cogs').style.width = clampPct(cogs) + '%';
-    document.getElementById('seg-ship').style.width = clampPct(ship) + '%';
-    document.getElementById('seg-fee').style.width = clampPct(feeAmount) + '%';
-    document.getElementById('seg-return').style.width = clampPct(returnCost) + '%';
-    document.getElementById('seg-profit').style.width = Math.max(0, 100 - clampPct(vatAmount) - clampPct(cogs) - clampPct(ship) - clampPct(feeAmount) - clampPct(returnCost)) + '%';
+    if (discountPct > 0) {
+      if (netProfit <= 0) {
+        discountAlert.style.color = 'var(--bad)';
+        discountAlert.textContent = '⚠️ Con questo sconto sei in perdita prima ancora di spendere in Ads!';
+      } else {
+        discountAlert.style.color = 'var(--warn)';
+        discountAlert.textContent = `⚠️ Sconto applicato: il Breakeven ROAS sale a ${roasBreakeven.toFixed(2)}x per mantenere il margine.`;
+      }
+    }
+
+    document.getElementById('out-roas').textContent = isFinite(roasBreakeven) ? roasBreakeven.toFixed(2) + 'x' : '∞';
+    document.getElementById('out-cpa').textContent = fmtEur(cpaMax);
+    document.getElementById('out-margin').textContent = fmtPct(netMarginPct);
+    document.getElementById('out-profit').textContent = fmtEur(netProfit);
+
+    const profitColor = netProfit >= 0 ? 'var(--good)' : 'var(--bad)';
+    document.getElementById('out-profit').style.color = profitColor;
+    document.getElementById('out-cpa').style.color = profitColor;
+
+    updateTargetProfit(netProfit, effectivePrice);
+    updateChart(effectivePrice, netProfit);
+
+    // TARGET ROAS
+    const targetCpaVal = targetRoas > 0 ? effectivePrice / targetRoas : 0;
+    const targetProfitVal = netProfit - targetCpaVal;
+    const targetMarginVal = effectivePrice > 0 ? (targetProfitVal / effectivePrice) * 100 : 0;
+
+    const elTargetCpa = document.getElementById('target-cpa');
+    const elTargetProfit = document.getElementById('target-profit');
+    const elTargetMargin = document.getElementById('target-margin');
+    const elTargetStatusMsg = document.getElementById('target-status-msg');
+
+    elTargetCpa.textContent = fmtEur(targetCpaVal);
+    elTargetProfit.textContent = fmtEur(targetProfitVal);
+    elTargetMargin.textContent = fmtPct(targetMarginVal);
+
+    if (targetRoas < roasBreakeven) {
+      elTargetProfit.style.color = 'var(--bad)';
+      elTargetMargin.style.color = 'var(--bad)';
+      elTargetStatusMsg.style.color = 'var(--bad)';
+      elTargetStatusMsg.textContent = `❌ Con un ROAS di ${targetRoas.toFixed(1)}x sei sotto al Breakeven (${roasBreakeven.toFixed(2)}x): perdi ${fmtEur(Math.abs(targetProfitVal))} ad ogni ordine.`;
+    } else if (Math.abs(targetRoas - roasBreakeven) < 0.01) {
+      elTargetProfit.style.color = 'var(--warn)';
+      elTargetMargin.style.color = 'var(--warn)';
+      elTargetStatusMsg.style.color = 'var(--warn)';
+      elTargetStatusMsg.textContent = `⚖️ Sei esattamente in pareggio (0 profitto).`;
+    } else {
+      elTargetProfit.style.color = 'var(--good)';
+      elTargetMargin.style.color = 'var(--good)';
+      elTargetStatusMsg.style.color = 'var(--good)';
+      elTargetStatusMsg.textContent = `✅ Ottimo! Con ROAS ${targetRoas.toFixed(1)}x generi ${fmtEur(targetProfitVal)} di utile netto ad ordine (${targetMarginVal.toFixed(1)}% di margine).`;
+    }
+
+    // AOV SIMULATOR
+    const aovRevenue = effectivePrice * aovQty;
+    const aovCogs = cogs * aovQty;
+    const aovShip = ship;
+    const aovFee = aovRevenue * (feePct / 100) + feeFix;
+    const aovReturn = aovRevenue * (retRate / 100);
+    const aovTotalCosts = aovCogs + aovShip + aovFee + aovReturn;
+    const aovNetProfit = aovRevenue - aovTotalCosts;
+    const aovBreakevenRoas = aovNetProfit > 0 ? aovRevenue / aovNetProfit : Infinity;
+
+    document.getElementById('aov-val').textContent = fmtEur(aovRevenue);
+    document.getElementById('aov-roas').textContent = isFinite(aovBreakevenRoas) ? aovBreakevenRoas.toFixed(2) + 'x' : '∞';
+    document.getElementById('aov-profit').textContent = fmtEur(aovNetProfit);
+
+    const elAovStatus = document.getElementById('aov-status-msg');
+    if (aovQty === 1) {
+      elAovStatus.style.color = 'var(--text-dim)';
+      elAovStatus.textContent = 'Aumenta la quantità a 2 o più pezzi per vedere l\'abbattimento del Breakeven ROAS.';
+    } else {
+      const roasDiff = roasBreakeven - aovBreakevenRoas;
+      if (roasDiff > 0) {
+        elAovStatus.style.color = 'var(--good)';
+        elAovStatus.textContent = `⚡ Portando l'ordine a ${aovQty} pezzi, il Breakeven ROAS si riduce di ${roasDiff.toFixed(2)}x (da ${roasBreakeven.toFixed(2)}x a ${aovBreakevenRoas.toFixed(2)}x)!`;
+      } else {
+        elAovStatus.style.color = 'var(--warn)';
+        elAovStatus.textContent = `Vendendo ${aovQty} pezzi aumenti il carrello a ${fmtEur(aovRevenue)}.`;
+      }
+    }
+
+    // SCENARIO MATRIX
+    document.getElementById('th-ship-curr').textContent = `In Uso (${fmtEur(ship)})`;
+    document.getElementById('th-ship-plus').textContent = fmtEur(ship + 2);
+
+    const discountsToTest = [0, 10, 20, 30];
+    const shipsToTest = [ship, 0, ship + 2];
+    const matrixBody = document.getElementById('matrix-body');
+    matrixBody.innerHTML = '';
+
+    discountsToTest.forEach(dPct => {
+      const tr = document.createElement('tr');
+      const isCurrentDiscount = Math.abs(dPct - discountPct) < 0.5;
+      
+      let html = `<td class="p-2.5 text-left font-sans font-medium" style="color: ${isCurrentDiscount ? 'var(--accent)' : 'var(--text)'};">
+        ${dPct}% Sconto ${isCurrentDiscount ? '◀' : ''}
+      </td>`;
+
+      shipsToTest.forEach(sVal => {
+        const res = computeRoasForParams(listPrice, dPct, cogs, sVal, feePct, feeFix, retRate);
+        let txt = isFinite(res.roas) ? res.roas.toFixed(2) + 'x' : 'IN PERDITA';
+        let badgeStyle = 'color: var(--good);';
+
+        if (!isFinite(res.roas) || res.profit <= 0) {
+          badgeStyle = 'color: var(--bad); font-bold;';
+        } else if (res.roas > 3.5) {
+          badgeStyle = 'color: var(--warn);';
+        }
+
+        html += `<td class="p-2.5 font-bold" style="${badgeStyle}">${txt}</td>`;
+      });
+
+      tr.innerHTML = html;
+      matrixBody.appendChild(tr);
+    });
+
+    // LTV SIMULATOR
+    const totalLtvRevenue = effectivePrice * ltvOrders;
+    const totalLtvMarginProfit = netProfit * ltvOrders;
+    const ltvMaxCpa = totalLtvMarginProfit;
+    const ltvFirstOrderBreakevenRoas = ltvMaxCpa > 0 ? effectivePrice / ltvMaxCpa : Infinity;
+
+    document.getElementById('ltv-revenue').textContent = fmtEur(totalLtvRevenue);
+    document.getElementById('ltv-cpa').textContent = fmtEur(ltvMaxCpa);
+    document.getElementById('ltv-roas').textContent = isFinite(ltvFirstOrderBreakevenRoas) ? ltvFirstOrderBreakevenRoas.toFixed(2) + 'x' : '∞';
+
+    const elLtvStatusMsg = document.getElementById('ltv-status-msg');
+    if (ltvOrders === 1) {
+      elLtvStatusMsg.style.color = 'var(--text-dim)';
+      elLtvStatusMsg.textContent = 'Aumenta il numero di ordini medi per calcolare la sostenibilità basata sul Lifetime Value.';
+    } else {
+      elLtvStatusMsg.style.color = '#38BDF8';
+      elLtvStatusMsg.textContent = `💡 Con ${ltvOrders} ordini medi per cliente, puoi accettare un ROAS sul 1° ordine pari a ${ltvFirstOrderBreakevenRoas.toFixed(2)}x (anziché ${roasBreakeven.toFixed(2)}x) senza perdere un solo euro a LTV.`;
+    }
+
+    // RISK INDICATOR
+    const riskCard = document.getElementById('risk-card');
+    const riskLabel = document.getElementById('risk-label');
+    const riskDesc = document.getElementById('risk-desc');
+    const riskDot = document.getElementById('risk-dot');
+    riskCard.classList.remove('glow-good','glow-warn','glow-bad');
+
+    let state;
+    if (netMarginPct >= 20) state = 'good';
+    else if (netMarginPct >= 5) state = 'warn';
+    else state = 'bad';
+
+    if (state === 'good'){
+      riskCard.classList.add('glow-good');
+      riskLabel.textContent = 'Ottimo Margine';
+      riskLabel.style.color = 'var(--good)';
+      riskDesc.textContent = 'Hai spazio per investire in acquisizione e restare profittevole.';
+      riskDot.style.background = 'var(--good)';
+    } else if (state === 'warn'){
+      riskCard.classList.add('glow-warn');
+      riskLabel.textContent = 'Margine a Rischio';
+      riskLabel.style.color = 'var(--warn)';
+      riskDesc.textContent = 'Margine sottile: piccole variazioni di costo, sconto o reso possono azzerare il profitto.';
+      riskDot.style.background = 'var(--warn)';
+    } else {
+      riskCard.classList.add('glow-bad');
+      riskLabel.textContent = netProfit < 0 ? 'In Perdita' : 'Troppo Vicino alla Perdita';
+      riskLabel.style.color = 'var(--bad)';
+      riskDesc.textContent = netProfit < 0
+        ? 'I costi (compreso lo sconto) superano il prezzo incassato: ogni vendita genera una perdita.'
+        : 'Il margine residuo è minimo: quasi nessun budget disponibile per il marketing.';
+      riskDot.style.background = 'var(--bad)';
+    }
+
+    // BREAKDOWN BAR
+    const clampPct = (v) => listPrice > 0 ? Math.max(0, Math.min(100, (v / listPrice) * 100)) : 0;
+    const pCogs = clampPct(cogs);
+    const pShip = clampPct(ship);
+    const pFee = clampPct(feeAmount);
+    const pReturn = clampPct(returnCost);
+    const pDiscount = clampPct(discountAmount);
+    const pProfit = Math.max(0, 100 - pCogs - pShip - pFee - pReturn - pDiscount);
+
+    document.getElementById('seg-cogs').style.width = pCogs + '%';
+    document.getElementById('seg-ship').style.width = pShip + '%';
+    document.getElementById('seg-fee').style.width = pFee + '%';
+    document.getElementById('seg-return').style.width = pReturn + '%';
+    document.getElementById('seg-discount').style.width = pDiscount + '%';
+    document.getElementById('seg-profit').style.width = pProfit + '%';
   }
 
   window.addEventListener('DOMContentLoaded', () => {
     initChart();
+    
+    const params = new URLSearchParams(window.location.search);
+    if(params.has('price') && el['price']) {
+      el['price'].value = params.get('price');
+      if(el['price-range']) el['price-range'].value = params.get('price');
+    }
+    if(params.has('cogs') && el['cogs']) {
+      el['cogs'].value = params.get('cogs');
+      if(el['cogs-range']) el['cogs-range'].value = params.get('cogs');
+    }
+    if(params.has('roas') && el['roasTarget']) {
+      el['roasTarget'].value = params.get('roas');
+      if(el['roasTarget-range']) el['roasTarget-range'].value = params.get('roas');
+    }
     calculateAll();
   });
 </script>
