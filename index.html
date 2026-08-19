@@ -116,21 +116,6 @@
     transform: translateY(-1px);
   }
 
-  .action-btn {
-    width: 100%;
-    padding: 12px;
-    margin-top: 10px;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s ease, transform 0.1s ease;
-  }
-  .action-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-  .btn-share { background: #2563eb; color: white; }
-  .btn-pdf { background: #059669; color: white; }
-  .btn-csv { background: #8b5cf6; color: white; }
-
   @media print {
     body { background: #fff !important; color: #000 !important; }
     .no-print { display: none !important; }
@@ -156,15 +141,15 @@
       Calcola il ROAS minimo di sostenibilità, simula il profitto target, valuta l'impatto dell'AOV, considera i costi fissi (OpEx), testa scenari promozionali e misura il valore nel tempo (LTV).
     </p>
 
-    <!-- TOOLBAR AZIONI -->
+    <!-- TOOLBAR AZIONI UNICA -->
     <div class="no-print flex flex-wrap items-center justify-center gap-3 mt-6">
-      <button type="button" onclick="shareScenario()" class="px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" style="background: var(--surface-2); border: 1px solid var(--border); color: var(--text);">
+      <button type="button" onclick="shareScenario()" class="px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer hover:border-[var(--accent)]" style="background: var(--surface-2); border: 1px solid var(--border); color: var(--text);">
         <span>🔗</span> <span>Condividi Scenario</span>
       </button>
-      <button type="button" onclick="exportCSV()" class="px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" style="background: var(--surface-2); border: 1px solid var(--border); color: var(--text);">
+      <button type="button" onclick="exportCSV()" class="px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer hover:border-[var(--accent)]" style="background: var(--surface-2); border: 1px solid var(--border); color: var(--text);">
         <span>📊</span> <span>Esporta CSV</span>
       </button>
-      <button type="button" onclick="window.print()" class="px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" style="background: var(--accent); color: #fff; box-shadow: 0 0 15px rgba(108,92,231,0.3);">
+      <button type="button" onclick="window.print()" class="px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer hover:opacity-90" style="background: var(--accent); color: #fff; box-shadow: 0 0 15px rgba(108,92,231,0.3);">
         <span>📄</span> <span>Scarica Report PDF</span>
       </button>
     </div>
@@ -547,12 +532,6 @@
         </div>
       </div>
 
-      <div class="no-print space-y-2">
-        <button type="button" class="action-btn btn-share" onclick="shareScenario()">🔗 <span>Condividi Scenario (Copia Link)</span></button>
-        <button type="button" class="action-btn btn-csv" onclick="exportCSV()">📊 <span>Esporta Report in CSV</span></button>
-        <button type="button" class="action-btn btn-pdf" onclick="window.print()">📄 <span>Scarica Report PDF</span></button>
-      </div>
-
       <!-- Breakdown bar -->
       <div class="card p-6 sm:p-7">
         <p class="text-xs font-mono uppercase tracking-widest mb-4" style="color:var(--text-dim)">Composizione del Prezzo di Listino Singolo</p>
@@ -882,7 +861,7 @@
       elTargetProfit.style.color = 'var(--good)';
       elTargetMargin.style.color = 'var(--good)';
       elTargetStatusMsg.style.color = 'var(--good)';
-      elTargetStatusMsg.textContent = `✅ ${targetRoas.toFixed(1)}x ROAS $\\rightarrow$ +${fmtEur(targetProfitVal)} (${targetMarginVal.toFixed(1)}%)`;
+      elTargetStatusMsg.textContent = `✅ ${targetRoas.toFixed(1)}x ROAS → +${fmtEur(targetProfitVal)} (${targetMarginVal.toFixed(1)}%)`;
     }
 
     // AOV SIMULATOR
