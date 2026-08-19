@@ -141,15 +141,15 @@
       Calcola il ROAS minimo di sostenibilità, simula il profitto target, valuta l'impatto dell'AOV, considera i costi fissi (OpEx), testa scenari promozionali e misura il valore nel tempo (LTV).
     </p>
 
-    <!-- TOOLBAR AZIONI UNICA -->
+    <!-- TOOLBAR AZIONI -->
     <div class="no-print flex flex-wrap items-center justify-center gap-3 mt-6">
-      <button type="button" onclick="shareScenario()" class="px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer hover:border-[var(--accent)]" style="background: var(--surface-2); border: 1px solid var(--border); color: var(--text);">
+      <button type="button" onclick="shareScenario()" class="px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" style="background: var(--surface-2); border: 1px solid var(--border); color: var(--text);">
         <span>🔗</span> <span>Condividi Scenario</span>
       </button>
-      <button type="button" onclick="exportCSV()" class="px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer hover:border-[var(--accent)]" style="background: var(--surface-2); border: 1px solid var(--border); color: var(--text);">
+      <button type="button" onclick="exportCSV()" class="px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" style="background: var(--surface-2); border: 1px solid var(--border); color: var(--text);">
         <span>📊</span> <span>Esporta CSV</span>
       </button>
-      <button type="button" onclick="window.print()" class="px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer hover:opacity-90" style="background: var(--accent); color: #fff; box-shadow: 0 0 15px rgba(108,92,231,0.3);">
+      <button type="button" onclick="window.print()" class="px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" style="background: var(--accent); color: #fff; box-shadow: 0 0 15px rgba(108,92,231,0.3);">
         <span>📄</span> <span>Scarica Report PDF</span>
       </button>
     </div>
@@ -597,397 +597,322 @@
   syncPair(el['aov-qty'], el['aov-qty-range']);
   syncPair(el['ltv-orders'], el['ltv-orders-range']);
   syncPair(el['targetProfit'], el['targetProfit-range']);
-  if (el['opex']) syncPair(el['opex'], null);
+  syncPair(el['opex'], null);
 
-  function applyPreset(type) {
-    const presets = {
-      fashion: { price: 59.9, cogs: 18, shipping: 5.5, returns: 15, roas: 2.8 },
-      beauty: { price: 39.9, cogs: 6, shipping: 4.5, returns: 2, roas: 3.5 },
-      tech: { price: 89.9, cogs: 45, shipping: 6.0, returns: 8, roas: 4.0 },
-      highmargin: { price: 149.0, cogs: 22, shipping: 7.0, returns: 4, roas: 2.2 }
-    };
-    const p = presets[type];
-    if(!p) return;
-    
-    if(el['price']) { el['price'].value = p.price; if(el['price-range']) el['price-range'].value = p.price; }
-    if(el['cogs']) { el['cogs'].value = p.cogs; if(el['cogs-range']) el['cogs-range'].value = p.cogs; }
-    if(el['shipping']) { el['shipping'].value = p.shipping; if(el['shipping-range']) el['shipping-range'].value = p.shipping; }
-    if(el['returns']) { el['returns'].value = p.returns; if(el['returns-range']) el['returns-range'].value = p.returns; }
-    if(el['roasTarget']) { el['roasTarget'].value = p.roas; if(el['roasTarget-range']) el['roasTarget-range'].value = p.roas; }
-    
-    calculateAll();
-  }
+  let chartInstance = null;
 
-  function shareScenario() {
-    const priceVal = el['price'] ? el['price'].value : '';
-    const cogsVal = el['cogs'] ? el['cogs'].value : '';
-    const roasVal = el['roasTarget'] ? el['roasTarget'].value : '';
-    
-    const shareUrl = `${window.location.origin}${window.location.pathname}?price=${priceVal}&cogs=${cogsVal}&roas=${roasVal}`;
-    navigator.clipboard.writeText(shareUrl);
-    alert('🔗 Link dello scenario copiato negli appunti!');
-  }
-
-  function exportCSV() {
-    const listPrice = el['price'].value;
-    const cogs = el['cogs'].value;
-    const roasTarget = el['roasTarget'].value;
-    const netProfit = document.getElementById('out-profit').textContent;
-    const roasBk = document.getElementById('out-roas').textContent;
-    
-    let csvContent = "data:text/csv;charset=utf-8,Parametro,Valore\n";
-    csvContent += `Prezzo Listino,${listPrice}\n`;
-    csvContent += `COGS,${cogs}\n`;
-    csvContent += `Breakeven ROAS,${roasBk}\n`;
-    csvContent += `Target ROAS,${roasTarget}\n`;
-    csvContent += `Profitto Netto Unita,${netProfit}\n`;
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `unit_economics_report.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
-  function fmtEur(n){
-    if (!isFinite(n)) return '—';
-    return n.toLocaleString('it-IT', {style:'currency', currency: 'EUR', minimumFractionDigits:2, maximumFractionDigits:2});
-  }
-  function fmtPct(n){
-    if (!isFinite(n)) return '—';
-    return n.toLocaleString('it-IT', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
-  }
-
-  function computeRoasForParams(listPrice, discountPct, cogs, ship, feePct, feeFix, retRate, opexPerUnit = 0){
-    const effectivePrice = Math.max(0, listPrice * (1 - discountPct / 100));
-    const feeAmount = effectivePrice * (feePct / 100) + feeFix;
-    const returnCost = effectivePrice * (retRate / 100);
-    const totalCosts = cogs + ship + feeAmount + returnCost + opexPerUnit;
-    const netProfit = effectivePrice - totalCosts;
-    if (netProfit <= 0) return { roas: Infinity, profit: netProfit };
-    return { roas: effectivePrice / netProfit, profit: netProfit };
-  }
-
-  let profitChart = null;
   function initChart() {
     const ctx = document.getElementById('profitChart').getContext('2d');
-    profitChart = new Chart(ctx, {
+    chartInstance = new Chart(ctx, {
       type: 'line',
       data: {
         labels: [],
         datasets: [{
-          label: 'Profitto',
+          label: 'Profitto Netto per Ordine (€)',
           data: [],
           borderColor: '#6C5CE7',
           backgroundColor: 'rgba(108, 92, 231, 0.15)',
-          borderWidth: 2,
           fill: true,
           tension: 0.3,
-          pointRadius: 3
+          pointRadius: 4,
+          pointHoverRadius: 6
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { display: false }
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) => `Profitto: ${context.parsed.y.toFixed(2)} €`
+            }
+          }
         },
         scales: {
           x: {
+            title: { display: true, text: 'ROAS Ads', color: '#8A90A2' },
             grid: { color: '#232838' },
-            ticks: { color: '#8A90A2' },
-            title: { display: true, text: 'ROAS Ads', color: '#8A90A2' }
+            ticks: { color: '#8A90A2' }
           },
           y: {
+            title: { display: true, text: 'Profitto (€)', color: '#8A90A2' },
             grid: { color: '#232838' },
-            ticks: { color: '#8A90A2' },
-            title: { display: true, text: 'Profitto Netto (€)', color: '#8A90A2' }
+            ticks: { color: '#8A90A2' }
           }
         }
       }
     });
   }
 
-  function updateChart(effectivePrice, netProfitBeforeAds) {
-    if (!profitChart) return;
-    const roasValues = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 8.0];
-    const profitData = roasValues.map(r => {
-      const cpa = effectivePrice / r;
-      return parseFloat((netProfitBeforeAds - cpa).toFixed(2));
-    });
-
-    profitChart.data.labels = roasValues.map(r => r + 'x');
-    profitChart.data.datasets[0].data = profitData;
-    profitChart.update();
-  }
-
-  function updateTargetProfit(netProfitPerUnit, price) {
-    const targetProfitEl = el['targetProfit'];
-    const roasTargetEl = el['roasTarget'];
-    const outOrdersEl = document.getElementById('outTargetOrders');
-    const outBudgetEl = document.getElementById('outTargetBudget');
-    
-    if (!targetProfitEl || !roasTargetEl || !outOrdersEl || !outBudgetEl) return;
-
-    const targetProfit = parseFloat(targetProfitEl.value) || 0;
-    const roasTarget = parseFloat(roasTargetEl.value) || 1;
-    
-    if (netProfitPerUnit > 0) {
-      const cpaTarget = price / roasTarget;
-      const profitPerOrderWithAds = netProfitPerUnit - cpaTarget;
-      
-      if (profitPerOrderWithAds > 0) {
-        const ordersNeeded = Math.ceil(targetProfit / profitPerOrderWithAds);
-        const budgetNeeded = ordersNeeded * cpaTarget;
-        
-        outOrdersEl.innerText = ordersNeeded.toLocaleString('it-IT') + ' ordini';
-        outBudgetEl.innerText = fmtEur(budgetNeeded);
-        return ordersNeeded;
-      }
-    }
-    outOrdersEl.innerText = "N/D";
-    outBudgetEl.innerText = "N/D";
-    return 0;
-  }
-
-  function generateSmartSuggestions(netMarginPct, roasBreakeven, cogsPct) {
-    const sugText = document.getElementById('suggestion-text');
-    if (!sugText) return;
-
-    if (netMarginPct < 0) {
-      sugText.textContent = "⚠️ Sei in perdita diretta sul prodotto! Riduci il COGS, rimuovi gli sconti o aumenta il prezzo prima di lanciare qualsiasi campagna Ads.";
-    } else if (netMarginPct < 15) {
-      sugText.textContent = "💡 Margine ridotto: considera di aumentare l'AOV proponendo Bundle (es. 2x o 3x) per ammortizzare le spese fisse di spedizione.";
-    } else if (cogsPct > 40) {
-      sugText.textContent = "📦 Il costo del prodotto (COGS) incide per oltre il 40% del prezzo. Negozia i prezzi con il fornitore per abbassare il Breakeven ROAS.";
-    } else {
-      sugText.textContent = "✅ Ottima struttura costi! Hai un buffer sufficiente per scalare su Ads ed accettare variazioni di CPM/CPA.";
-    }
-  }
-
-  function calculateAll(){
-    const listPrice = parseFloat(el['price'].value) || 0;
+  function calculateAll() {
+    const price = parseFloat(el['price'].value) || 0;
     const discountPct = parseFloat(el['discount'].value) || 0;
     const cogs = parseFloat(el['cogs'].value) || 0;
-    const ship = parseFloat(el['shipping'].value) || 0;
+    const shipping = parseFloat(el['shipping'].value) || 0;
     const feePct = parseFloat(el['fee-pct'].value) || 0;
     const feeFix = parseFloat(el['fee-fix'].value) || 0;
-    const retRate = parseFloat(el['returns'].value) || 0;
-    const targetRoas = parseFloat(el['roasTarget'].value) || 1;
-    const aovQty = Math.max(1, parseInt(el['aov-qty'].value) || 1);
-    const ltvOrders = Math.max(1, parseFloat(el['ltv-orders'].value) || 1);
-    const opexMonthly = el['opex'] ? (parseFloat(el['opex'].value) || 0) : 0;
+    const returnsPct = parseFloat(el['returns'].value) || 0;
+    const opex = parseFloat(el['opex'].value) || 0;
 
-    const discountAmount = listPrice * (discountPct / 100);
-    const effectivePrice = Math.max(0, listPrice - discountAmount);
+    const discountAmount = price * (discountPct / 100);
+    const effectivePrice = price - discountAmount;
 
     const discountInfo = document.getElementById('discount-info');
-    const discountAlert = document.getElementById('discount-alert');
     const effectivePriceDisplay = document.getElementById('effective-price-display');
+    const discountAlert = document.getElementById('discount-alert');
 
     if (discountPct > 0) {
       discountInfo.classList.remove('hidden');
-      effectivePriceDisplay.textContent = fmtEur(effectivePrice);
+      effectivePriceDisplay.textContent = effectivePrice.toFixed(2) + ' €';
+      discountAlert.textContent = `Sconto applicato: -${discountAmount.toFixed(2)} €`;
+      discountAlert.style.color = 'var(--warn)';
     } else {
       discountInfo.classList.add('hidden');
     }
 
-    const preliminaryFee = effectivePrice * (feePct / 100) + feeFix;
-    const preliminaryReturn = effectivePrice * (retRate / 100);
-    const preliminaryNetProfit = effectivePrice - (cogs + ship + preliminaryFee + preliminaryReturn);
+    const feeAmount = (effectivePrice * (feePct / 100)) + feeFix;
+    const returnsCost = effectivePrice * (returnsPct / 100);
+    const netProfitBeforeAds = effectivePrice - cogs - shipping - feeAmount - returnsCost;
+    const netMarginPct = effectivePrice > 0 ? (netProfitBeforeAds / effectivePrice) * 100 : 0;
 
-    let opexPerUnit = 0;
-    if (opexMonthly > 0 && preliminaryNetProfit > 0) {
-      const ordersNeeded = updateTargetProfit(preliminaryNetProfit, effectivePrice);
-      if (ordersNeeded > 0) {
-        opexPerUnit = opexMonthly / ordersNeeded;
-      }
-    }
+    let breakevenRoas = netProfitBeforeAds > 0 ? (effectivePrice / netProfitBeforeAds) : 0;
+    let maxCpa = netProfitBeforeAds;
 
-    const feeAmount = effectivePrice * (feePct / 100) + feeFix;
-    const returnCost = effectivePrice * (retRate / 100);
-    const totalCosts = cogs + ship + feeAmount + returnCost + opexPerUnit;
-    
-    const netProfit = effectivePrice - totalCosts;
-    const netMarginPct = effectivePrice > 0 ? (netProfit / effectivePrice) * 100 : 0;
-    const roasBreakeven = netProfit > 0 ? effectivePrice / netProfit : Infinity;
-    const cpaMax = netProfit;
+    document.getElementById('out-roas').textContent = netProfitBeforeAds > 0 ? breakevenRoas.toFixed(2) + 'x' : 'N/A';
+    document.getElementById('out-cpa').textContent = netProfitBeforeAds > 0 ? maxCpa.toFixed(2) + ' €' : '0,00 €';
+    document.getElementById('out-margin').textContent = netMarginPct.toFixed(1) + '%';
+    document.getElementById('out-profit').textContent = netProfitBeforeAds.toFixed(2) + ' €';
 
-    if (discountPct > 0) {
-      if (netProfit <= 0) {
-        discountAlert.style.color = 'var(--bad)';
-        discountAlert.textContent = '⚠️ Con questo sconto sei in perdita!';
-      } else {
-        discountAlert.style.color = 'var(--warn)';
-        discountAlert.textContent = `⚠️ Sconto applicato: Breakeven ROAS a ${roasBreakeven.toFixed(2)}x`;
-      }
-    }
-
-    document.getElementById('out-roas').textContent = isFinite(roasBreakeven) ? roasBreakeven.toFixed(2) + 'x' : '∞';
-    document.getElementById('out-cpa').textContent = fmtEur(cpaMax);
-    document.getElementById('out-margin').textContent = fmtPct(netMarginPct);
-    document.getElementById('out-profit').textContent = fmtEur(netProfit);
-
-    const profitColor = netProfit >= 0 ? 'var(--good)' : 'var(--bad)';
-    document.getElementById('out-profit').style.color = profitColor;
-    document.getElementById('out-cpa').style.color = profitColor;
-
-    updateTargetProfit(netProfit, effectivePrice);
-    updateChart(effectivePrice, netProfit);
-    generateSmartSuggestions(netMarginPct, roasBreakeven, (cogs / (effectivePrice || 1)) * 100);
-
-    // TARGET ROAS
-    const targetCpaVal = targetRoas > 0 ? effectivePrice / targetRoas : 0;
-    const targetProfitVal = netProfit - targetCpaVal;
-    const targetMarginVal = effectivePrice > 0 ? (targetProfitVal / effectivePrice) * 100 : 0;
-
-    const elTargetCpa = document.getElementById('target-cpa');
-    const elTargetProfit = document.getElementById('target-profit');
-    const elTargetMargin = document.getElementById('target-margin');
-    const elTargetStatusMsg = document.getElementById('target-status-msg');
-
-    elTargetCpa.textContent = fmtEur(targetCpaVal);
-    elTargetProfit.textContent = fmtEur(targetProfitVal);
-    elTargetMargin.textContent = fmtPct(targetMarginVal);
-
-    if (targetRoas < roasBreakeven) {
-      elTargetProfit.style.color = 'var(--bad)';
-      elTargetMargin.style.color = 'var(--bad)';
-      elTargetStatusMsg.style.color = 'var(--bad)';
-      elTargetStatusMsg.textContent = `❌ ${targetRoas.toFixed(1)}x ROAS < Breakeven (${roasBreakeven.toFixed(2)}x): -${fmtEur(Math.abs(targetProfitVal))}`;
-    } else {
-      elTargetProfit.style.color = 'var(--good)';
-      elTargetMargin.style.color = 'var(--good)';
-      elTargetStatusMsg.style.color = 'var(--good)';
-      elTargetStatusMsg.textContent = `✅ ${targetRoas.toFixed(1)}x ROAS → +${fmtEur(targetProfitVal)} (${targetMarginVal.toFixed(1)}%)`;
-    }
-
-    // AOV SIMULATOR
-    const aovRevenue = effectivePrice * aovQty;
-    const aovCogs = cogs * aovQty;
-    const aovShip = ship;
-    const aovFee = aovRevenue * (feePct / 100) + feeFix;
-    const aovReturn = aovRevenue * (retRate / 100);
-    const aovTotalCosts = aovCogs + aovShip + aovFee + aovReturn + (opexPerUnit * aovQty);
-    const aovNetProfit = aovRevenue - aovTotalCosts;
-    const aovBreakevenRoas = aovNetProfit > 0 ? aovRevenue / aovNetProfit : Infinity;
-
-    document.getElementById('aov-val').textContent = fmtEur(aovRevenue);
-    document.getElementById('aov-roas').textContent = isFinite(aovBreakevenRoas) ? aovBreakevenRoas.toFixed(2) + 'x' : '∞';
-    document.getElementById('aov-profit').textContent = fmtEur(aovNetProfit);
-
-    // MATRIX
-    document.getElementById('th-ship-curr').textContent = `In Uso (${fmtEur(ship)})`;
-    document.getElementById('th-ship-free').textContent = `${fmtEur(0)} (Gratis)`;
-    document.getElementById('th-ship-plus').textContent = fmtEur(ship + 2);
-
-    const discountsToTest = [0, 10, 20, 30];
-    const shipsToTest = [ship, 0, ship + 2];
-    const matrixBody = document.getElementById('matrix-body');
-    matrixBody.innerHTML = '';
-
-    discountsToTest.forEach(dPct => {
-      const tr = document.createElement('tr');
-      const isCurrentDiscount = Math.abs(dPct - discountPct) < 0.5;
-      
-      let html = `<td class="p-2.5 text-left font-sans font-medium" style="color: ${isCurrentDiscount ? 'var(--accent)' : 'var(--text)'};">
-        ${dPct}% ${isCurrentDiscount ? '◀' : ''}
-      </td>`;
-
-      shipsToTest.forEach(sVal => {
-        const res = computeRoasForParams(listPrice, dPct, cogs, sVal, feePct, feeFix, retRate, opexPerUnit);
-        let txt = isFinite(res.roas) ? res.roas.toFixed(2) + 'x' : 'PERDITA';
-        let badgeStyle = 'color: var(--good);';
-
-        if (!isFinite(res.roas) || res.profit <= 0) {
-          badgeStyle = 'color: var(--bad); font-bold;';
-        } else if (res.roas > 3.5) {
-          badgeStyle = 'color: var(--warn);';
-        }
-
-        html += `<td class="p-2.5 font-bold" style="${badgeStyle}">${txt}</td>`;
-      });
-
-      tr.innerHTML = html;
-      matrixBody.appendChild(tr);
-    });
-
-    // LTV SIMULATOR
-    const totalLtvRevenue = effectivePrice * ltvOrders;
-    const totalLtvMarginProfit = netProfit * ltvOrders;
-    const ltvMaxCpa = totalLtvMarginProfit;
-    const ltvFirstOrderBreakevenRoas = ltvMaxCpa > 0 ? effectivePrice / ltvMaxCpa : Infinity;
-
-    document.getElementById('ltv-revenue').textContent = fmtEur(totalLtvRevenue);
-    document.getElementById('ltv-cpa').textContent = fmtEur(ltvMaxCpa);
-    document.getElementById('ltv-roas').textContent = isFinite(ltvFirstOrderBreakevenRoas) ? ltvFirstOrderBreakevenRoas.toFixed(2) + 'x' : '∞';
-
-    // RISK INDICATOR
     const riskCard = document.getElementById('risk-card');
     const riskLabel = document.getElementById('risk-label');
     const riskDesc = document.getElementById('risk-desc');
     const riskDot = document.getElementById('risk-dot');
-    riskCard.classList.remove('glow-good','glow-warn','glow-bad');
 
-    let state = netMarginPct >= 20 ? 'good' : (netMarginPct >= 5 ? 'warn' : 'bad');
+    riskCard.classList.remove('glow-good', 'glow-warn', 'glow-bad');
 
-    if (state === 'good'){
-      riskCard.classList.add('glow-good');
-      riskLabel.textContent = 'Ottimo Margine';
-      riskLabel.style.color = 'var(--good)';
-      riskDesc.textContent = 'Spazio ideale per scalare le campagne ad acquisizione.';
-      riskDot.style.background = 'var(--good)';
-    } else if (state === 'warn'){
+    if (netProfitBeforeAds <= 0) {
+      riskCard.classList.add('glow-bad');
+      riskLabel.textContent = 'In Perdita Prima delle Ads';
+      riskLabel.style.color = 'var(--bad)';
+      riskDesc.textContent = 'I costi del prodotto e di gestione superano il prezzo di vendita.';
+      riskDot.style.background = 'var(--bad)';
+    } else if (breakevenRoas > 3.0) {
       riskCard.classList.add('glow-warn');
-      riskLabel.textContent = 'Margine a Rischio';
+      riskLabel.textContent = 'Margine Stretto (Alto Rischio)';
       riskLabel.style.color = 'var(--warn)';
-      riskDesc.textContent = 'Piccole variazioni di costo possono azzerare il profitto.';
+      riskDesc.textContent = 'Serve un ROAS elevato per andare a pareggio. Le Ads potrebbero non essere sostenibili.';
       riskDot.style.background = 'var(--warn)';
     } else {
-      riskCard.classList.add('glow-bad');
-      riskLabel.textContent = netProfit < 0 ? 'In Perdita' : 'Rischio Elevato';
-      riskLabel.style.color = 'var(--bad)';
-      riskDesc.textContent = 'I costi superano i ricavi. Rivedi subito il listino.';
-      riskDot.style.background = 'var(--bad)';
+      riskCard.classList.add('glow-good');
+      riskLabel.textContent = 'Margine Sostenibile';
+      riskLabel.style.color = 'var(--good)';
+      riskDesc.textContent = 'Unità economica solida con buon margine operativo per l\'acquisizione clienti.';
+      riskDot.style.background = 'var(--good)';
     }
 
-    // BREAKDOWN BAR
-    const clampPct = (v) => listPrice > 0 ? Math.max(0, Math.min(100, (v / listPrice) * 100)) : 0;
-    const pCogs = clampPct(cogs);
-    const pShip = clampPct(ship);
-    const pFee = clampPct(feeAmount);
-    const pReturn = clampPct(returnCost);
-    const pDiscount = clampPct(discountAmount);
-    const pProfit = Math.max(0, 100 - pCogs - pShip - pFee - pReturn - pDiscount);
+    // Breakdown segments
+    if (price > 0) {
+      document.getElementById('seg-cogs').style.width = Math.min((cogs / price) * 100, 100) + '%';
+      document.getElementById('seg-ship').style.width = Math.min((shipping / price) * 100, 100) + '%';
+      document.getElementById('seg-fee').style.width = Math.min((feeAmount / price) * 100, 100) + '%';
+      document.getElementById('seg-return').style.width = Math.min((returnsCost / price) * 100, 100) + '%';
+      document.getElementById('seg-discount').style.width = Math.min((discountAmount / price) * 100, 100) + '%';
+      document.getElementById('seg-profit').style.width = netProfitBeforeAds > 0 ? Math.min((netProfitBeforeAds / price) * 100, 100) + '%' : '0%';
+    }
 
-    document.getElementById('seg-cogs').style.width = pCogs + '%';
-    document.getElementById('seg-ship').style.width = pShip + '%';
-    document.getElementById('seg-fee').style.width = pFee + '%';
-    document.getElementById('seg-return').style.width = pReturn + '%';
-    document.getElementById('seg-discount').style.width = pDiscount + '%';
-    document.getElementById('seg-profit').style.width = pProfit + '%';
+    // Smart Suggestions
+    const sugText = document.getElementById('suggestion-text');
+    if (netProfitBeforeAds <= 0) {
+      sugText.textContent = 'Aumenta il prezzo di listino o riduci il COGS e i costi di spedizione per tornare in margine positivo.';
+    } else if (discountPct > 20) {
+      sugText.textContent = 'Uno sconto superiore al 20% erode gravemente il margine. Valuta di inserire dei bundle anziché uno sconto diretto.';
+    } else if (breakevenRoas > 2.5) {
+      sugText.textContent = 'Il Breakeven ROAS è alto. Prova ad aumentare l\'AOV proponendo prodotti complementari in fase di checkout.';
+    } else {
+      sugText.textContent = 'La struttura costi è ottimale. Puoi scalare le campagne di acquisizione mantenendo un buon cuscinetto di sicurezza.';
+    }
+
+    // Target Profit / Reverse Breakeven
+    const targetProfit = parseFloat(el['targetProfit'].value) || 0;
+    if (netProfitBeforeAds > 0) {
+      const ordersNeeded = Math.ceil((targetProfit + opex) / netProfitBeforeAds);
+      const estBudget = ordersNeeded * maxCpa;
+      document.getElementById('outTargetOrders').textContent = ordersNeeded.toLocaleString('it-IT');
+      document.getElementById('outTargetBudget').textContent = estBudget.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    } else {
+      document.getElementById('outTargetOrders').textContent = 'N/A';
+      document.getElementById('outTargetBudget').textContent = 'N/A';
+    }
+
+    // Target ROAS Simulator
+    const targetRoas = parseFloat(el['roasTarget'].value) || 1.0;
+    const targetCpa = effectivePrice / targetRoas;
+    const profitPerOrder = netProfitBeforeAds - targetCpa;
+    const finalMarginPct = effectivePrice > 0 ? (profitPerOrder / effectivePrice) * 100 : 0;
+
+    document.getElementById('target-cpa').textContent = targetCpa.toFixed(2) + ' €';
+    document.getElementById('target-profit').textContent = profitPerOrder.toFixed(2) + ' €';
+    document.getElementById('target-margin').textContent = finalMarginPct.toFixed(1) + '%';
+
+    const targetStatusMsg = document.getElementById('target-status-msg');
+    if (profitPerOrder > 0) {
+      targetStatusMsg.textContent = `A ROAS ${targetRoas.toFixed(1)}x generi ${profitPerOrder.toFixed(2)} € di profitto per ordine.`;
+      targetStatusMsg.style.color = 'var(--good)';
+    } else {
+      targetStatusMsg.textContent = `A ROAS ${targetRoas.toFixed(1)}x sei in perdita di ${Math.abs(profitPerOrder).toFixed(2)} € ad ordine!`;
+      targetStatusMsg.style.color = 'var(--bad)';
+    }
+
+    // AOV Simulator
+    const aovQty = parseInt(el['aov-qty'].value) || 1;
+    const newAov = effectivePrice * aovQty;
+    const newCogs = cogs * aovQty;
+    const newFee = (newAov * (feePct / 100)) + feeFix;
+    const newReturns = newAov * (returnsPct / 100);
+    const newProfitBeforeAds = newAov - newCogs - shipping - newFee - newReturns;
+    const newBreakevenRoas = newProfitBeforeAds > 0 ? (newAov / newProfitBeforeAds) : 0;
+
+    document.getElementById('aov-val').textContent = newAov.toFixed(2) + ' €';
+    document.getElementById('aov-roas').textContent = newProfitBeforeAds > 0 ? newBreakevenRoas.toFixed(2) + 'x' : 'N/A';
+    document.getElementById('aov-profit').textContent = newProfitBeforeAds.toFixed(2) + ' €';
+    document.getElementById('aov-status-msg').textContent = `Aumentando la quantità media a ${aovQty} pz, il Breakeven ROAS passa da ${breakevenRoas.toFixed(2)}x a ${newBreakevenRoas.toFixed(2)}x.`;
+
+    // Matrix
+    renderMatrix(effectivePrice, cogs, shipping, feePct, feeFix, returnsPct);
+
+    // LTV Simulator
+    const ltvOrders = parseFloat(el['ltv-orders'].value) || 1.0;
+    const ltvRevenue = effectivePrice * ltvOrders;
+    const ltvCpaMax = netProfitBeforeAds + ((ltvOrders - 1) * netProfitBeforeAds);
+    const ltvRoasMin = ltvCpaMax > 0 ? (effectivePrice / ltvCpaMax) : 0;
+
+    document.getElementById('ltv-revenue').textContent = ltvRevenue.toFixed(2) + ' €';
+    document.getElementById('ltv-cpa').textContent = ltvCpaMax.toFixed(2) + ' €';
+    document.getElementById('ltv-roas').textContent = ltvRoasMin > 0 ? ltvRoasMin.toFixed(2) + 'x' : 'N/A';
+    document.getElementById('ltv-status-msg').textContent = `Con ${ltvOrders} ordini medi per cliente, il ROAS minimo sul 1° ordine scende a ${ltvRoasMin.toFixed(2)}x.`;
+
+    // Chart Update
+    updateChart(effectivePrice, netProfitBeforeAds);
+  }
+
+  function renderMatrix(price, cogs, currentShip, feePct, feeFix, returnsPct) {
+    const tbody = document.getElementById('matrix-body');
+    tbody.innerHTML = '';
+
+    const discounts = [0, 10, 20, 30];
+    const shippingOptions = [currentShip, 0, currentShip + 2];
+
+    document.getElementById('th-ship-curr').textContent = `${currentShip.toFixed(2)} € (In Uso)`;
+
+    discounts.forEach(discPct => {
+      const tr = document.createElement('tr');
+      const tdLabel = document.createElement('td');
+      tdLabel.className = 'p-2 text-left font-sans text-slate-300 font-medium';
+      tdLabel.textContent = `Sconto ${discPct}%`;
+      tr.appendChild(tdLabel);
+
+      shippingOptions.forEach(ship => {
+        const td = document.createElement('td');
+        td.className = 'p-2';
+
+        const effP = price * (1 - discPct / 100);
+        const fee = (effP * (feePct / 100)) + feeFix;
+        const ret = effP * (returnsPct / 100);
+        const profit = effP - cogs - ship - fee - ret;
+
+        if (profit <= 0) {
+          td.textContent = 'N/A';
+          td.style.color = 'var(--bad)';
+        } else {
+          const roas = effP / profit;
+          td.textContent = roas.toFixed(2) + 'x';
+          if (roas <= 2.0) td.style.color = 'var(--good)';
+          else if (roas <= 3.5) td.style.color = 'var(--warn)';
+          else td.style.color = 'var(--bad)';
+        }
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  function updateChart(price, profitBeforeAds) {
+    if (!chartInstance) return;
+
+    const labels = [];
+    const data = [];
+
+    for (let r = 1.2; r <= 6.0; r += 0.4) {
+      labels.push(r.toFixed(1) + 'x');
+      const cpa = price / r;
+      const profit = profitBeforeAds - cpa;
+      data.push(profit);
+    }
+
+    chartInstance.data.labels = labels;
+    chartInstance.data.datasets[0].data = data;
+    chartInstance.update();
+  }
+
+  function applyPreset(type) {
+    const presets = {
+      fashion: { price: 69.0, discount: 0, cogs: 18.0, shipping: 5.5, feePct: 1.8, feeFix: 0.35, returns: 15.0 },
+      beauty: { price: 39.0, discount: 0, cogs: 6.0, shipping: 4.0, feePct: 1.5, feeFix: 0.25, returns: 3.0 },
+      tech: { price: 129.0, discount: 0, cogs: 55.0, shipping: 6.5, feePct: 1.5, feeFix: 0.25, returns: 8.0 },
+      highmargin: { price: 199.0, discount: 0, cogs: 25.0, shipping: 8.0, feePct: 1.5, feeFix: 0.25, returns: 5.0 }
+    };
+
+    const p = presets[type];
+    if (!p) return;
+
+    Object.keys(p).forEach(key => {
+      if (el[key]) {
+        el[key].value = p[key];
+        if (el[key + '-range']) el[key + '-range'].value = p[key];
+      }
+    });
+
+    calculateAll();
+  }
+
+  function shareScenario() {
+    const params = new URLSearchParams();
+    ids.forEach(id => {
+      if (el[id]) params.set(id, el[id].value);
+    });
+    const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+    navigator.clipboard.writeText(url).then(() => {
+      alert('Link dello scenario copiato negli appunti!');
+    });
+  }
+
+  function exportCSV() {
+    let csv = 'Parametro,Valore\n';
+    ids.forEach(id => {
+      if (el[id]) csv += `${id},${el[id].value}\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'report-breakeven-roas.csv';
+    a.click();
+  }
+
+  function loadFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    ids.forEach(id => {
+      if (params.has(id) && el[id]) {
+        el[id].value = params.get(id);
+        if (el[id + '-range']) el[id + '-range'].value = params.get(id);
+      }
+    });
   }
 
   window.addEventListener('DOMContentLoaded', () => {
     initChart();
-
-    const params = new URLSearchParams(window.location.search);
-
-    if(params.has('price') && el['price']) {
-      el['price'].value = params.get('price');
-      if(el['price-range']) el['price-range'].value = params.get('price');
-    }
-    if(params.has('cogs') && el['cogs']) {
-      el['cogs'].value = params.get('cogs');
-      if(el['cogs-range']) el['cogs-range'].value = params.get('cogs');
-    }
-    if(params.has('roas') && el['roasTarget']) {
-      el['roasTarget'].value = params.get('roas');
-      if(el['roasTarget-range']) el['roasTarget-range'].value = params.get('roas');
-    }
-
+    loadFromURL();
     calculateAll();
   });
 </script>
