@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-<!-- FASE 2: SCHEMA MARKUP (WebApplication e FAQPage) -->
+<!-- SCHEMA MARKUP (WebApplication e FAQPage) -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -323,7 +323,7 @@
         <p class="text-[10px]" style="color:var(--text-dim)">Software, stipendi o affitti distribuiti sugli ordini target mensili.</p>
       </div>
 
-      <!-- FASE 1: INLINE CAPTURE FORM / INTEGRATED LEAD BOX -->
+      <!-- INLINE CAPTURE FORM -->
       <div class="no-print pt-4 border-t" style="border-color:var(--border);">
         <div class="p-4 rounded-xl border" style="background: rgba(108,92,231,0.08); border-color: rgba(108,92,231,0.3);">
           <div class="flex items-center gap-2 mb-2">
@@ -637,7 +637,7 @@
     </section>
   </div>
 
-  <!-- FASE 3: STRUTTURAZIONE DELL'OFFERTA & MONETIZZAZIONE (Tool Consigliati / Affiliazioni) -->
+  <!-- TOOL CONSIGLIATI -->
   <section class="mt-12 no-print">
     <div class="card p-6 sm:p-8">
       <div class="flex items-center gap-2 mb-4">
@@ -683,7 +683,7 @@
     </div>
   </section>
 
-  <!-- FASE 2: CONTENT & SEO ON-PAGE (Sezione Informativa SEO) -->
+  <!-- SEZIONE INFORMATIVA SEO -->
   <article class="mt-12 card p-6 sm:p-10 space-y-8 prose prose-invert max-w-none">
     <div class="border-b pb-4" style="border-color: var(--border);">
       <h2 class="font-display text-2xl font-bold">Guida Definitiva al ROAS e alla Redditività nell'E-commerce</h2>
@@ -725,7 +725,7 @@
   </footer>
 </div>
 
-<!-- FASE 1 & 3: MODAL LEAD MAGNET + QUALIFICAZIONE HIGH-TICKET -->
+<!-- MODAL LEAD MAGNET -->
 <div id="leadModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
   <div class="card max-w-md w-full p-6 sm:p-8 relative border-2" style="border-color: var(--accent);">
     <button onclick="closeLeadModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">&times;</button>
@@ -736,7 +736,6 @@
       <p class="text-xs text-slate-400 mt-1">Includeremo l'analisi del margine netto, proiezioni LTV e il template Excel per tracciare i costi.</p>
     </div>
 
-    <!-- Integrazione con servizi email come Brevo/MailerLite via Webhook o form action -->
     <form id="leadForm" onsubmit="handleLeadSubmit(event)" class="space-y-4">
       <div>
         <label class="block text-xs font-medium text-slate-300 mb-1">Il tuo Nome</label>
@@ -756,7 +755,6 @@
         </select>
       </div>
 
-      <!-- FASE 3: HIGH-TICKET AUDIT CALL-TO-ACTION (Opzionale nel form) -->
       <div id="highTicketOption" class="p-3 rounded-lg border bg-indigo-950/30 border-indigo-500/30">
         <label class="flex items-start gap-2 cursor-pointer">
           <input type="checkbox" id="requestAudit" class="mt-0.5 rounded border-slate-700 text-indigo-600 focus:ring-indigo-500">
@@ -776,9 +774,12 @@
 <script>
   const ids = ['price','discount','cogs','shipping','fee-pct','fee-fix','returns','roasTarget','aov-qty','ltv-orders','targetProfit','opex'];
   const el = {};
+  
   ids.forEach(id => {
     el[id] = document.getElementById(id);
-    if (document.getElementById(id+'-range')) el[id+'-range'] = document.getElementById(id+'-range');
+    if (document.getElementById(id + '-range')) {
+      el[id + '-range'] = document.getElementById(id + '-range');
+    }
   });
 
   function syncPair(numEl, rangeEl){
@@ -786,7 +787,7 @@
     numEl.addEventListener('input', () => {
       if (rangeEl){
         let v = parseFloat(numEl.value);
-        if (!isNaN(v)) rangeEl.value = Math.min(Math.max(v, rangeEl.min), rangeEl.max);
+        if (!isNaN(v)) rangeEl.value = Math.min(Math.max(v, parseFloat(rangeEl.min)), parseFloat(rangeEl.max));
       }
       calculateAll();
     });
@@ -863,18 +864,14 @@
     document.body.removeChild(link);
   }
 
-  // GESTIONE INLINE CAPTURE FORM (FASE 1)
   function handleInlineLeadSubmit(e) {
     e.preventDefault();
     const email = document.getElementById('inlineEmail').value;
-    
     sendLeadToWebhook({ email, source: 'inline_calculator_form' });
-
     document.getElementById('inline-lead-msg').classList.remove('hidden');
     e.target.reset();
   }
 
-  // GESTIONE MODAL LEAD MAGNET & AUDIT HIGH-TICKET
   function openLeadModal() {
     document.getElementById('leadModal').classList.remove('hidden');
   }
@@ -905,24 +902,21 @@
     window.print();
   }
 
-  // FUNZIONE DI INVIO DATI A BREVO / MAILERLITE / ZAPIER / MAKE
   function sendLeadToWebhook(data) {
     console.log('Invio lead in corso:', data);
-    
-    // SOSTITUISCI QUESTO URL CON IL TUO WEBHOOK DI BREVO / MAILERLITE / ZAPIER / MAKE
     const webhookUrl = 'https://your-webhook-endpoint.com/leads'; 
-    
     fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
-    }).catch(err => console.log('Simulazione invio lead (Webhook non configurato):', data));
+    }).catch(err => console.log('Simulazione invio lead:', data));
   }
 
   function fmtEur(n){
     if (!isFinite(n)) return '—';
     return n.toLocaleString('it-IT', {style:'currency', currency: 'EUR', minimumFractionDigits:2, maximumFractionDigits:2});
   }
+  
   function fmtPct(n){
     if (!isFinite(n)) return '—';
     return n.toLocaleString('it-IT', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
@@ -991,7 +985,7 @@
     profitChart.update();
   }
 
-  function updateTargetProfit(netProfitPerUnit, price) {
+  function calculateTargetProfit(netProfitPerUnit, price) {
     const targetProfitEl = el['targetProfit'];
     const roasTargetEl = el['roasTarget'];
     const outOrdersEl = document.getElementById('outTargetOrders');
@@ -1068,10 +1062,12 @@
 
     let opexPerUnit = 0;
     if (opexMonthly > 0 && preliminaryNetProfit > 0) {
-      const ordersNeeded = updateTargetProfit(preliminaryNetProfit, effectivePrice);
+      const ordersNeeded = calculateTargetProfit(preliminaryNetProfit, effectivePrice);
       if (ordersNeeded > 0) {
         opexPerUnit = opexMonthly / ordersNeeded;
       }
+    } else {
+      calculateTargetProfit(preliminaryNetProfit, effectivePrice);
     }
 
     const feeAmount = effectivePrice * (feePct / 100) + feeFix;
@@ -1102,7 +1098,6 @@
     document.getElementById('out-profit').style.color = profitColor;
     document.getElementById('out-cpa').style.color = profitColor;
 
-    updateTargetProfit(netProfit, effectivePrice);
     updateChart(effectivePrice, netProfit);
     generateSmartSuggestions(netMarginPct, roasBreakeven, (cogs / (effectivePrice || 1)) * 100);
 
