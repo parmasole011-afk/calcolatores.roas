@@ -179,8 +179,6 @@
   }
   .action-btn:hover { opacity: 0.9; transform: translateY(-1px); }
   .btn-share { background: #2563eb; color: white; }
-  .btn-pdf { background: #059669; color: white; }
-  .btn-csv { background: #8b5cf6; color: white; }
   .btn-sheet { background: #10B981; color: white; }
 
   @media print {
@@ -588,7 +586,6 @@
 
       <div class="no-print space-y-2">
         <button type="button" class="action-btn btn-share" onclick="shareScenario()">🔗 <span>Condividi Scenario (Copia Link)</span></button>
-        <button type="button" class="action-btn btn-csv" onclick="exportCSV()">📊 <span>Esporta Report in CSV</span></button>
         <!-- PULSANTE PER LA COPIA AUTOMATICA DEL GOOGLE SHEET -->
         <button type="button" class="action-btn btn-sheet" onclick="window.open('https://docs.google.com/spreadsheets/d/1XJedVx9O6DbH3SYv8pHgAzD67V5wxGPpEuC_UTic-JU/copy', '_blank')">📈 <span>Crea Copia Template Google Sheet</span></button>
       </div>
@@ -774,29 +771,6 @@
     const shareUrl = `${window.location.origin}${window.location.pathname}?price=${priceVal}&cogs=${cogsVal}&roas=${roasVal}`;
     navigator.clipboard.writeText(shareUrl);
     alert('🔗 Link dello scenario copiato negli appunti!');
-  }
-
-  function exportCSV() {
-    const listPrice = el['price'].value;
-    const cogs = el['cogs'].value;
-    const roasTarget = el['roasTarget'].value;
-    const netProfit = document.getElementById('out-profit').textContent;
-    const roasBk = document.getElementById('out-roas').textContent;
-    
-    let csvContent = "data:text/csv;charset=utf-8,Parametro,Valore\n";
-    csvContent += `Prezzo Listino,${listPrice}\n`;
-    csvContent += `COGS,${cogs}\n`;
-    csvContent += `Breakeven ROAS,${roasBk}\n`;
-    csvContent += `Target ROAS,${roasTarget}\n`;
-    csvContent += `Profitto Netto Unita,${netProfit}\n`;
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `unit_economics_report.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   }
 
   function fmtEur(n){
