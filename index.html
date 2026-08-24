@@ -282,31 +282,6 @@
         <span class="text-xs font-mono px-2 py-0.5 rounded" style="background:var(--surface-2); color:var(--text-dim)">Singola Unità</span>
       </div>
 
-      <!-- IMPOSTAZIONI VALUTA E IVA INTEGRATE NEI PARAMETRI PRODOTTO -->
-      <div class="no-print p-3.5 rounded-xl border space-y-3" style="background:var(--surface-2); border-color:var(--border);">
-        <div class="flex items-center justify-between">
-          <label class="text-xs font-medium" style="color:var(--text-dim)">💱 Valuta Operativa</label>
-          <select id="currency-select" class="select-input rounded-lg px-2.5 py-1 text-xs font-bold">
-            <option value="EUR" selected>EUR (€)</option>
-            <option value="USD">USD ($)</option>
-            <option value="GBP">GBP (£)</option>
-            <option value="CHF">CHF (CHF)</option>
-          </select>
-        </div>
-
-        <div class="pt-2 border-t flex items-center justify-between gap-2" style="border-color:var(--border);">
-          <div class="flex items-center gap-2">
-            <input type="checkbox" id="vat-toggle" class="rounded accent-indigo-600 cursor-pointer w-4 h-4">
-            <label for="vat-toggle" class="cursor-pointer text-xs font-medium">🌍 Prezzi IVA Inclusa</label>
-          </div>
-          <div id="vat-rate-container" class="flex items-center gap-1 hidden">
-            <span class="text-xs" style="color:var(--text-dim)">Aliquota:</span>
-            <input id="vat-rate" type="number" step="1" class="num-input w-14 rounded-lg px-1.5 py-0.5 text-xs text-right" value="22">
-            <span class="text-xs" style="color:var(--text-dim)">%</span>
-          </div>
-        </div>
-      </div>
-
       <div class="no-print pb-2">
         <label class="text-xs font-medium block mb-2" style="color:var(--text-dim)">Carica Preset di Nicchia:</label>
         <div class="flex flex-wrap gap-2">
@@ -321,12 +296,11 @@
         <div class="flex items-center justify-between mb-2">
           <label class="text-sm font-medium">Prezzo di Listino</label>
           <div class="flex items-center gap-1">
-            <span class="text-xs curr-symbol" style="color:var(--text-dim)">€</span>
+            <span class="text-xs" style="color:var(--text-dim)">€</span>
             <input id="price" type="number" step="0.5" class="num-input w-24 rounded-lg px-2.5 py-1.5 text-sm text-right font-bold" value="49.90">
           </div>
         </div>
         <input id="price-range" type="range" min="1" max="500" step="0.5" value="49.90">
-        <p id="vat-net-price-display" class="text-[10px] mt-1 text-right hidden" style="color:var(--text-dim)">Netto IVA: 0.00</p>
       </div>
 
       <div class="p-4 rounded-xl border transition-all" style="background:var(--surface-2); border-color:var(--border);">
@@ -354,7 +328,7 @@
         <div class="flex items-center justify-between mb-2">
           <label class="text-sm font-medium">Costo del Prodotto (COGS)</label>
           <div class="flex items-center gap-1">
-            <span class="text-xs curr-symbol" style="color:var(--text-dim)">€</span>
+            <span class="text-xs" style="color:var(--text-dim)">€</span>
             <input id="cogs" type="number" step="0.5" class="num-input w-24 rounded-lg px-2 py-1 text-sm text-right" value="15.00">
           </div>
         </div>
@@ -365,7 +339,7 @@
         <div class="flex items-center justify-between mb-2">
           <label class="text-sm font-medium">Spedizione (a carico venditore)</label>
           <div class="flex items-center gap-1">
-            <span class="text-xs curr-symbol" style="color:var(--text-dim)">€</span>
+            <span class="text-xs" style="color:var(--text-dim)">€</span>
             <input id="shipping" type="number" step="0.25" class="num-input w-24 rounded-lg px-2 py-1 text-sm text-right" value="4.50">
           </div>
         </div>
@@ -382,7 +356,7 @@
             <span class="text-xs" style="color:var(--text-dim)">%</span>
           </div>
           <div class="flex items-center gap-1">
-            <span class="text-xs curr-symbol" style="color:var(--text-dim)">€</span>
+            <span class="text-xs" style="color:var(--text-dim)">€</span>
             <input id="fee-fix" type="number" step="0.05" class="num-input w-full rounded-lg px-2 py-1 text-sm text-right" value="0.25">
           </div>
         </div>
@@ -407,7 +381,7 @@
             🏢 Spese Fisse Mensili (OpEx)
           </label>
           <div class="flex items-center gap-1">
-            <span class="text-xs curr-symbol" style="color:var(--text-dim)">€</span>
+            <span class="text-xs" style="color:var(--text-dim)">€</span>
             <input id="opex" type="number" step="100" class="num-input w-24 rounded-lg px-2 py-1 text-xs text-right" value="0">
           </div>
         </div>
@@ -505,7 +479,7 @@
             <div class="flex items-center justify-between mb-1">
               <label class="text-xs font-medium">Costo Per Clic Medio (CPC)</label>
               <div class="flex items-center gap-1">
-                <span class="text-xs curr-symbol" style="color:var(--text-dim)">€</span>
+                <span class="text-xs" style="color:var(--text-dim)">€</span>
                 <input id="cpc-ads" type="number" step="0.05" class="num-input w-20 rounded-lg px-2 py-1 text-xs text-right" value="0.50">
               </div>
             </div>
@@ -543,10 +517,10 @@
         <div class="space-y-4">
           <div>
             <div class="flex items-center justify-between mb-2">
-              <label class="text-xs font-medium">Profitto Mensile Desiderato (<span class="curr-symbol">€</span>)</label>
+              <label class="text-xs font-medium">Profitto Mensile Desiderato (€)</label>
               <div class="flex items-center gap-1">
                 <input id="targetProfit" type="number" step="500" class="num-input w-24 rounded-lg px-2 py-1 text-xs text-right" value="5000">
-                <span class="text-xs font-mono curr-symbol" style="color:var(--text-dim)">€</span>
+                <span class="text-xs font-mono" style="color:var(--text-dim)">€</span>
               </div>
             </div>
             <input id="targetProfit-range" type="range" min="500" max="50000" step="500" value="5000">
@@ -890,41 +864,16 @@
 </div>
 
 <script>
-  const currencySymbols = { EUR: '€', USD: '$', GBP: '£', CHF: 'CHF' };
-  let currentCurrency = 'EUR';
-
   const ids = [
     'price','discount','cogs','shipping','fee-pct','fee-fix','returns',
     'roasTarget','aov-qty','ltv-orders','targetProfit','opex',
-    'cr-site','cpc-ads','vat-rate'
+    'cr-site','cpc-ads'
   ];
   
   const el = {};
   ids.forEach(id => {
     el[id] = document.getElementById(id);
     if (document.getElementById(id+'-range')) el[id+'-range'] = document.getElementById(id+'-range');
-  });
-
-  const currencySelect = document.getElementById('currency-select');
-  const vatToggle = document.getElementById('vat-toggle');
-  const vatRateContainer = document.getElementById('vat-rate-container');
-
-  currencySelect.addEventListener('change', (e) => {
-    currentCurrency = e.target.value;
-    const sym = currencySymbols[currentCurrency] || '€';
-    document.querySelectorAll('.curr-symbol').forEach(span => span.textContent = sym);
-    calculateAll();
-  });
-
-  vatToggle.addEventListener('change', () => {
-    if (vatToggle.checked) {
-      vatRateContainer.classList.remove('hidden');
-      document.getElementById('vat-net-price-display').classList.remove('hidden');
-    } else {
-      vatRateContainer.classList.add('hidden');
-      document.getElementById('vat-net-price-display').classList.add('hidden');
-    }
-    calculateAll();
   });
 
   function syncPair(numEl, rangeEl){
@@ -957,7 +906,6 @@
   syncPair(el['targetProfit'], el['targetProfit-range']);
   syncPair(el['cr-site'], el['cr-site-range']);
   syncPair(el['cpc-ads'], el['cpc-ads-range']);
-  syncPair(el['vat-rate'], null);
   if (el['opex']) syncPair(el['opex'], null);
 
   function applyPreset(type) {
@@ -983,17 +931,15 @@
     const priceVal = el['price'] ? el['price'].value : '';
     const cogsVal = el['cogs'] ? el['cogs'].value : '';
     const roasVal = el['roasTarget'] ? el['roasTarget'].value : '';
-    const currVal = currencySelect.value;
     
-    const shareUrl = `${window.location.origin}${window.location.pathname}?price=${priceVal}&cogs=${cogsVal}&roas=${roasVal}&curr=${currVal}`;
+    const shareUrl = `${window.location.origin}${window.location.pathname}?price=${priceVal}&cogs=${cogsVal}&roas=${roasVal}`;
     navigator.clipboard.writeText(shareUrl);
     alert('🔗 Link dello scenario copiato negli appunti!');
   }
 
   function fmtMoney(n){
     if (!isFinite(n)) return '—';
-    const locale = currentCurrency === 'EUR' ? 'it-IT' : 'en-US';
-    return n.toLocaleString(locale, {style:'currency', currency: currentCurrency, minimumFractionDigits:2, maximumFractionDigits:2});
+    return n.toLocaleString('it-IT', {style:'currency', currency: 'EUR', minimumFractionDigits:2, maximumFractionDigits:2});
   }
 
   function fmtPct(n){
@@ -1107,7 +1053,7 @@
   }
 
   function calculateAll(){
-    let rawListPrice = parseFloat(el['price'].value) || 0;
+    let listPrice = parseFloat(el['price'].value) || 0;
     const discountPct = parseFloat(el['discount'].value) || 0;
     const cogs = parseFloat(el['cogs'].value) || 0;
     const ship = parseFloat(el['shipping'].value) || 0;
@@ -1118,13 +1064,6 @@
     const aovQty = Math.max(1, parseInt(el['aov-qty'].value) || 1);
     const ltvOrders = Math.max(1, parseFloat(el['ltv-orders'].value) || 1);
     const opexMonthly = el['opex'] ? (parseFloat(el['opex'].value) || 0) : 0;
-
-    let listPrice = rawListPrice;
-    if (vatToggle.checked) {
-      const vatPct = parseFloat(el['vat-rate'].value) || 0;
-      listPrice = rawListPrice / (1 + (vatPct / 100));
-      document.getElementById('vat-net-price-display').textContent = `Netto IVA: ${fmtMoney(listPrice)}`;
-    }
 
     const discountAmount = listPrice * (discountPct / 100);
     const effectivePrice = Math.max(0, listPrice - discountAmount);
@@ -1360,12 +1299,6 @@
     if(params.has('roas') && el['roasTarget']) {
       el['roasTarget'].value = params.get('roas');
       if(el['roasTarget-range']) el['roasTarget-range'].value = params.get('roas');
-    }
-    if(params.has('curr') && currencySelect) {
-      currencySelect.value = params.get('curr');
-      currentCurrency = params.get('curr');
-      const sym = currencySymbols[currentCurrency] || '€';
-      document.querySelectorAll('.curr-symbol').forEach(span => span.textContent = sym);
     }
 
     calculateAll();
