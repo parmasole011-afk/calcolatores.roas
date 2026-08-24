@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-<!-- FASE 2: SCHEMA MARKUP (WebApplication e FAQPage) -->
+<!-- SCHEMA MARKUP -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -31,35 +31,6 @@
         "priceCurrency": "EUR"
       },
       "description": "Strumento enterprise gratuito per calcolare il Break-Even ROAS, il profitto netto reale e la sostenibilità delle campagne Ads per e-commerce."
-    },
-    {
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "Cos'è il ROAS e come si calcola?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Il ROAS (Return On Ad Spend) misura il fatturato lordo generato per ogni euro speso in pubblicità. Si calcola dividendo il Fatturato Generato dalle Ads per la Spesa Pubblicitaria."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Qual è la differenza tra ROAS e ROI?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Il ROAS considera esclusivamente le entrate lorde rispetto ai costi delle inserzioni pubblicitarie, senza tenere conto dei costi operativi. Il ROI (Return On Investment) misura invece il profitto netto effettivo, sottraendo dal fatturato tutti i costi di gestione, produzione e spedizione."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Come si calcola il Break-Even ROAS per un e-commerce?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Il Break-Even ROAS identifica il punto di pareggio dove l'azienda non guadagna e non perde. Si calcola dividendo il Prezzo di Vendita Netto per il Margine di Contribuzione Prima delle Ads."
-          }
-        }
-      ]
     }
   ]
 }
@@ -127,14 +98,14 @@
     cursor:pointer;
   }
 
-  .num-input{
+  .num-input, .select-input{
     background:var(--surface-2);
     border:1px solid var(--border);
     color:var(--text);
     font-family:'IBM Plex Mono',monospace;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
-  .num-input:focus{
+  .num-input:focus, .select-input:focus{
     outline:none;
     border-color:var(--accent);
     box-shadow:0 0 0 3px rgba(108,92,231,0.15);
@@ -180,13 +151,108 @@
   .action-btn:hover { opacity: 0.9; transform: translateY(-1px); }
   .btn-share { background: #2563eb; color: white; }
   .btn-sheet { background: #10B981; color: white; }
+  .btn-print { background: #8B5CF6; color: white; }
 
+  /* COLORI SEGMENTI BARRA AGGIORNATI PER MAX CONTRASTO E VERDE SMERALDO */
+  .bg-cogs     { background-color: #8B5CF6 !important; } /* Viola/Lilla chiaro per stacco */
+  .bg-ship     { background-color: #3B82F6 !important; } /* Blu azzurro visibile */
+  .bg-fee      { background-color: #1E1B4B !important; } /* Blu/Viola scurissimo */
+  .bg-return   { background-color: #EF4444 !important; } /* Rosso resi */
+  .bg-discount { background-color: #F59E0B !important; } /* Giallo/Ambra sconti */
+  .bg-profit   { background-color: #10B981 !important; } /* Verde Smeraldo brillante */
+
+  /* STAMPA HD: SFONDO BIANCO, TESTI NERI E BORDI VISIBILI SU OGNI ELEMENTO */
   @media print {
-    body { background: #fff !important; color: #000 !important; }
-    .no-print { display: none !important; }
-    .card { border: 1px solid #ccc !important; background: #fff !important; color: #000 !important; }
-    p, span, label, h1, h2, h3 { color: #000 !important; }
-    .num-input { background: #fff !important; border: 1px solid #ccc !important; color: #000 !important; }
+    *, *::before, *::after {
+      background: #FFFFFF !important;
+      color: #000000 !important;
+      box-shadow: none !important;
+      text-shadow: none !important;
+    }
+
+    body {
+      background: #FFFFFF !important;
+      color: #000000 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    .no-print, 
+    input[type=range] {
+      display: none !important;
+    }
+
+    .max-w-\[1400px\] {
+      max-width: 100% !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .card, 
+    .border, 
+    .border-dashed,
+    .p-4, .p-5, .p-6, .p-7,
+    .rounded-xl, .rounded-lg {
+      background: #FFFFFF !important;
+      border: 1px solid #000000 !important;
+      border-radius: 6px !important;
+    }
+
+    .num-input, 
+    .select-input, 
+    input[type=number] {
+      background: #FFFFFF !important;
+      color: #000000 !important;
+      border: 1px solid #000000 !important;
+      font-weight: bold !important;
+    }
+
+    table, th, td {
+      border: 1px solid #000000 !important;
+      border-collapse: collapse !important;
+      color: #000000 !important;
+      background: #FFFFFF !important;
+    }
+
+    th, td {
+      padding: 6px 8px !important;
+    }
+
+    p, span, label, h1, h2, h3, h4, div {
+      color: #000000 !important;
+    }
+
+    canvas {
+      background: #FFFFFF !important;
+      max-height: 220px !important;
+    }
+
+    .card, section {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    /* FORZATURA COLORI BARRA E PALLINI IN STAMPA PDF */
+    .bar-seg, .legend-dot {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    .bg-cogs     { background-color: #8B5CF6 !important; }
+    .bg-ship     { background-color: #3B82F6 !important; }
+    .bg-fee      { background-color: #1E1B4B !important; }
+    .bg-return   { background-color: #EF4444 !important; }
+    .bg-discount { background-color: #F59E0B !important; }
+    .bg-profit   { background-color: #10B981 !important; }
+
+    .bar-seg {
+      border-right: 1px solid #000000 !important;
+    }
+
+    .print-bar-container {
+      border: 1px solid #000000 !important;
+      background-color: #F1F5F9 !important;
+    }
   }
 </style>
 </head>
@@ -194,6 +260,7 @@
 
 <div class="max-w-[1400px] mx-auto px-4 sm:px-8 py-8 sm:py-12">
 
+  <!-- HEADER -->
   <header class="mb-8 sm:mb-10 text-center max-w-3xl mx-auto">
     <div class="flex items-center justify-center gap-2 mb-3">
       <div class="w-2 h-2 rounded-full animate-pulse" style="background:var(--accent)"></div>
@@ -205,6 +272,31 @@
     <p class="mt-3 text-sm sm:text-base" style="color:var(--text-dim)">
       Calcola il ROAS minimo di sostenibilità, simula il profitto target, valuta l'impatto dell'AOV, considera i costi fissi (OpEx), testa scenari promozionali e misura il valore nel tempo (LTV).
     </p>
+
+    <!-- BARRA GLOBALE: SELETTORE VALUTA E IVA -->
+    <div class="no-print mt-6 p-3 rounded-xl card flex flex-wrap items-center justify-between gap-4 text-xs">
+      <div class="flex items-center gap-2">
+        <span class="font-semibold" style="color:var(--text-dim)">💱 Valuta:</span>
+        <select id="currency-select" class="select-input rounded-lg px-2.5 py-1 text-xs font-bold">
+          <option value="EUR" selected>EUR (€)</option>
+          <option value="USD">USD ($)</option>
+          <option value="GBP">GBP (£)</option>
+          <option value="CHF">CHF (CHF)</option>
+        </select>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="vat-toggle" class="rounded accent-indigo-600 cursor-pointer w-4 h-4">
+          <label for="vat-toggle" class="cursor-pointer font-medium">🌍 Prezzi IVA Inclusa</label>
+        </div>
+        <div id="vat-rate-container" class="flex items-center gap-1 hidden">
+          <span style="color:var(--text-dim)">Aliquota:</span>
+          <input id="vat-rate" type="number" step="1" class="num-input w-14 rounded-lg px-1.5 py-0.5 text-xs text-right" value="22">
+          <span style="color:var(--text-dim)">%</span>
+        </div>
+      </div>
+    </div>
   </header>
 
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -235,6 +327,7 @@
           </div>
         </div>
         <input id="price-range" type="range" min="1" max="500" step="0.5" value="49.90">
+        <p id="vat-net-price-display" class="text-[10px] mt-1 text-right hidden" style="color:var(--text-dim)">Netto IVA: 0.00</p>
       </div>
 
       <div class="p-4 rounded-xl border transition-all" style="background:var(--surface-2); border-color:var(--border);">
@@ -383,7 +476,58 @@
         <p id="suggestion-text" class="text-xs text-slate-300">—</p>
       </div>
 
-      <!-- TARGET PROFIT / REVERSE BREAKEVEN -->
+      <!-- SIMULATORE CR % & CPC (COLORE VERDE SMERALDO UNICO) -->
+      <div class="card p-6 sm:p-7 border-dashed" style="border-color: #059669;">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🧮</span>
+            <h3 class="font-display text-sm font-semibold tracking-wide uppercase">Conversione Sito (CR %) &amp; Costo per Clic (CPC)</h3>
+          </div>
+          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(5,150,105,0.2); color: #059669;">TRAFFICO ADS</span>
+        </div>
+
+        <p class="text-xs mb-4" style="color: var(--text-dim)">
+          Verifica se il costo del traffico (CPC) e il tasso di conversione dell'e-commerce permettono di raggiungere la CPA massima.
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs font-medium">Conversion Rate Sito (CR)</label>
+              <div class="flex items-center gap-1">
+                <input id="cr-site" type="number" step="0.1" class="num-input w-20 rounded-lg px-2 py-1 text-xs text-right" value="2.0">
+                <span class="text-xs" style="color:var(--text-dim)">%</span>
+              </div>
+            </div>
+            <input id="cr-site-range" type="range" min="0.1" max="10.0" step="0.1" value="2.0">
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs font-medium">Costo Per Clic Medio (CPC)</label>
+              <div class="flex items-center gap-1">
+                <span class="text-xs curr-symbol" style="color:var(--text-dim)">€</span>
+                <input id="cpc-ads" type="number" step="0.05" class="num-input w-20 rounded-lg px-2 py-1 text-xs text-right" value="0.50">
+              </div>
+            </div>
+            <input id="cpc-ads-range" type="range" min="0.05" max="5.00" step="0.05" value="0.50">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 pt-3 border-t text-center" style="border-color: var(--border);">
+          <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
+            <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">CPA Stimata dal Traffico</p>
+            <p id="cr-estimated-cpa" class="font-display font-mono text-sm sm:text-base font-semibold mt-1" style="color: #059669;">—</p>
+          </div>
+          <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
+            <p class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Sostenibilità Traffico</p>
+            <p id="cr-status-badge" class="font-display font-mono text-xs sm:text-sm font-semibold mt-1">—</p>
+          </div>
+        </div>
+        <p id="cr-status-msg" class="text-[11px] font-medium text-center pt-2"></p>
+      </div>
+
+      <!-- TARGET PROFIT / REVERSE BREAKEVEN (COLORE ROSA MAGENTA) -->
       <div class="card p-6 sm:p-7 border-dashed" style="border-color: #EC4899;">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
@@ -422,7 +566,7 @@
         </div>
       </div>
 
-      <!-- SIMULATORE TARGET ROAS -->
+      <!-- SIMULATORE TARGET ROAS (COLORE VIOLA ACCENT) -->
       <div class="card p-6 sm:p-7 border-dashed" style="border-color: var(--accent);">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
@@ -466,7 +610,7 @@
         </div>
       </div>
 
-      <!-- SIMULATORE AOV & BUNDLE -->
+      <!-- SIMULATORE AOV & BUNDLE (COLORE VERDE MENTA) -->
       <div class="card p-6 sm:p-7 border-dashed" style="border-color: var(--good);">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
@@ -510,7 +654,7 @@
         </div>
       </div>
 
-      <!-- MATRICE DI SENSIBILITÀ & SCENARI -->
+      <!-- MATRICE DI SENSIBILITÀ & SCENARI (COLORE GIALLO/AMBRA) -->
       <div class="card p-6 sm:p-7 border-dashed" style="border-color: var(--warn);">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
@@ -540,7 +684,7 @@
         </div>
       </div>
 
-      <!-- SIMULATORE LTV / REPEAT PURCHASE -->
+      <!-- SIMULATORE LTV / REPEAT PURCHASE (COLORE BLU CIELO) -->
       <div class="card p-6 sm:p-7 border-dashed" style="border-color: #38BDF8;">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
@@ -584,30 +728,35 @@
         </div>
       </div>
 
+      <!-- AZIONI UTENTE (ESPORTAZIONE, CONDIVISIONE, SHEET) -->
       <div class="no-print space-y-2">
+        <button type="button" class="action-btn btn-print" onclick="window.print()">🖨️ <span>Stampa / Salva Report PDF</span></button>
         <button type="button" class="action-btn btn-share" onclick="shareScenario()">🔗 <span>Condividi Scenario (Copia Link)</span></button>
-        <!-- PULSANTE PER LA COPIA AUTOMATICA DEL GOOGLE SHEET -->
         <button type="button" class="action-btn btn-sheet" onclick="window.open('https://docs.google.com/spreadsheets/d/1XJedVx9O6DbH3SYv8pHgAzD67V5wxGPpEuC_UTic-JU/copy', '_blank')">📈 <span>Crea Copia Template Google Sheet</span></button>
       </div>
 
-      <!-- Breakdown bar -->
+      <!-- Breakdown bar corretto per Schermo e Stampa HD -->
       <div class="card p-6 sm:p-7">
         <p class="text-xs font-mono uppercase tracking-widest mb-4" style="color:var(--text-dim)">Composizione del Prezzo di Listino Singolo</p>
-        <div class="w-full h-8 rounded-lg overflow-hidden flex" style="background:var(--surface-2)">
-          <div id="seg-cogs" class="bar-seg h-full" style="background:#7C6BF0;width:0%"></div>
-          <div id="seg-ship" class="bar-seg h-full" style="background:#5A4FC7;width:0%"></div>
-          <div id="seg-fee" class="bar-seg h-full" style="background:#3E3A82;width:0%"></div>
-          <div id="seg-return" class="bar-seg h-full" style="background:#F87171;width:0%"></div>
-          <div id="seg-discount" class="bar-seg h-full" style="background:#FBBF24;width:0%"></div>
-          <div id="seg-profit" class="bar-seg h-full" style="background:#34D399;width:0%"></div>
+
+        <!-- Contenitore Barra -->
+        <div class="w-full h-8 rounded-lg overflow-hidden flex border border-slate-700 print-bar-container" style="background:var(--surface-2)">
+          <div id="seg-cogs" class="bar-seg h-full bg-cogs" style="width:0%"></div>
+          <div id="seg-ship" class="bar-seg h-full bg-ship" style="width:0%"></div>
+          <div id="seg-fee" class="bar-seg h-full bg-fee" style="width:0%"></div>
+          <div id="seg-return" class="bar-seg h-full bg-return" style="width:0%"></div>
+          <div id="seg-discount" class="bar-seg h-full bg-discount" style="width:0%"></div>
+          <div id="seg-profit" class="bar-seg h-full bg-profit" style="width:0%"></div>
         </div>
+
+        <!-- Legenda con Indicatori Colorati e Pieni Visibili in Stampa e Schermo -->
         <div class="grid grid-cols-2 sm:grid-cols-6 gap-2 mt-4 text-xs">
-          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#7C6BF0"></span>COGS</div>
-          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#5A4FC7"></span><span>Spedizione</span></div>
-          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#3E3A82"></span><span>Commissioni</span></div>
-          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#F87171"></span><span>Resi</span></div>
-          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#FBBF24"></span><span>Sconto</span></div>
-          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#34D399"></span><span>Profitto</span></div>
+          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full inline-block legend-dot bg-cogs border border-black/20"></span>COGS</div>
+          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full inline-block legend-dot bg-ship border border-black/20"></span>Spedizione</div>
+          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full inline-block legend-dot bg-fee border border-black/20"></span>Commissioni</div>
+          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full inline-block legend-dot bg-return border border-black/20"></span>Resi</div>
+          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full inline-block legend-dot bg-discount border border-black/20"></span>Sconto</div>
+          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full inline-block legend-dot bg-profit border border-black/20"></span>Profitto</div>
         </div>
       </div>
 
@@ -665,7 +814,7 @@
   </section>
 
   <!-- GUIDA SEO -->
-  <article class="mt-12 card p-6 sm:p-10 space-y-8 prose prose-invert max-w-none">
+  <article class="mt-12 card p-6 sm:p-10 space-y-8 prose prose-invert max-w-none no-print">
     <div class="border-b pb-4" style="border-color: var(--border);">
       <h2 class="font-display text-2xl font-bold">Guida Definitiva al ROAS e alla Redditività nell'E-commerce</h2>
       <p class="text-xs text-slate-400 mt-1">Comprendere le metriche chiave per sostenere la crescita delle tue campagne pubblicitarie.</p>
@@ -692,7 +841,7 @@
       <div class="space-y-2">
         <h3 class="font-display text-base font-semibold text-indigo-300">Come si calcola il Break-Even ROAS?</h3>
         <p class="text-xs text-slate-300 leading-relaxed">
-          Il <strong>Break-Even ROAS</strong> rappresenta la soglia minima oltre la quale le inserzioni pubblicitarie iniziano a produce un utile reale. Sotto questo valore, ogni vendita generata comporta una perdita per il negozio.
+          Il <strong>Break-Even ROAS</strong> rappresenta la soglia minima oltre la quale le inserzioni pubblicitarie iniziano a produrre un utile reale. Sotto questo valore, ogni vendita generata comporta una perdita per il negozio.
         </p>
         <p class="text-xs text-slate-400 font-mono bg-slate-900/50 p-2 rounded border border-slate-800">
           BE ROAS = Prezzo Netto / Margine Lordo
@@ -707,11 +856,41 @@
 </div>
 
 <script>
-  const ids = ['price','discount','cogs','shipping','fee-pct','fee-fix','returns','roasTarget','aov-qty','ltv-orders','targetProfit','opex'];
+  const currencySymbols = { EUR: '€', USD: '$', GBP: '£', CHF: 'CHF' };
+  let currentCurrency = 'EUR';
+
+  const ids = [
+    'price','discount','cogs','shipping','fee-pct','fee-fix','returns',
+    'roasTarget','aov-qty','ltv-orders','targetProfit','opex',
+    'cr-site','cpc-ads','vat-rate'
+  ];
+  
   const el = {};
   ids.forEach(id => {
     el[id] = document.getElementById(id);
     if (document.getElementById(id+'-range')) el[id+'-range'] = document.getElementById(id+'-range');
+  });
+
+  const currencySelect = document.getElementById('currency-select');
+  const vatToggle = document.getElementById('vat-toggle');
+  const vatRateContainer = document.getElementById('vat-rate-container');
+
+  currencySelect.addEventListener('change', (e) => {
+    currentCurrency = e.target.value;
+    const sym = currencySymbols[currentCurrency] || '€';
+    document.querySelectorAll('.curr-symbol').forEach(span => span.textContent = sym);
+    calculateAll();
+  });
+
+  vatToggle.addEventListener('change', () => {
+    if (vatToggle.checked) {
+      vatRateContainer.classList.remove('hidden');
+      document.getElementById('vat-net-price-display').classList.remove('hidden');
+    } else {
+      vatRateContainer.classList.add('hidden');
+      document.getElementById('vat-net-price-display').classList.add('hidden');
+    }
+    calculateAll();
   });
 
   function syncPair(numEl, rangeEl){
@@ -742,6 +921,9 @@
   syncPair(el['aov-qty'], el['aov-qty-range']);
   syncPair(el['ltv-orders'], el['ltv-orders-range']);
   syncPair(el['targetProfit'], el['targetProfit-range']);
+  syncPair(el['cr-site'], el['cr-site-range']);
+  syncPair(el['cpc-ads'], el['cpc-ads-range']);
+  syncPair(el['vat-rate'], null);
   if (el['opex']) syncPair(el['opex'], null);
 
   function applyPreset(type) {
@@ -767,16 +949,19 @@
     const priceVal = el['price'] ? el['price'].value : '';
     const cogsVal = el['cogs'] ? el['cogs'].value : '';
     const roasVal = el['roasTarget'] ? el['roasTarget'].value : '';
+    const currVal = currencySelect.value;
     
-    const shareUrl = `${window.location.origin}${window.location.pathname}?price=${priceVal}&cogs=${cogsVal}&roas=${roasVal}`;
+    const shareUrl = `${window.location.origin}${window.location.pathname}?price=${priceVal}&cogs=${cogsVal}&roas=${roasVal}&curr=${currVal}`;
     navigator.clipboard.writeText(shareUrl);
     alert('🔗 Link dello scenario copiato negli appunti!');
   }
 
-  function fmtEur(n){
+  function fmtMoney(n){
     if (!isFinite(n)) return '—';
-    return n.toLocaleString('it-IT', {style:'currency', currency: 'EUR', minimumFractionDigits:2, maximumFractionDigits:2});
+    const locale = currentCurrency === 'EUR' ? 'it-IT' : 'en-US';
+    return n.toLocaleString(locale, {style:'currency', currency: currentCurrency, minimumFractionDigits:2, maximumFractionDigits:2});
   }
+
   function fmtPct(n){
     if (!isFinite(n)) return '—';
     return n.toLocaleString('it-IT', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
@@ -813,9 +998,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false }
-        },
+        plugins: { legend: { display: false } },
         scales: {
           x: {
             grid: { color: '#232838' },
@@ -825,7 +1008,7 @@
           y: {
             grid: { color: '#232838' },
             ticks: { color: '#8A90A2' },
-            title: { display: true, text: 'Profitto Netto (€)', color: '#8A90A2' }
+            title: { display: true, text: 'Profitto Netto', color: '#8A90A2' }
           }
         }
       }
@@ -865,7 +1048,7 @@
         const budgetNeeded = ordersNeeded * cpaTarget;
         
         outOrdersEl.innerText = ordersNeeded.toLocaleString('it-IT') + ' ordini';
-        outBudgetEl.innerText = fmtEur(budgetNeeded);
+        outBudgetEl.innerText = fmtMoney(budgetNeeded);
         return ordersNeeded;
       }
     }
@@ -879,7 +1062,7 @@
     if (!sugText) return;
 
     if (netMarginPct < 0) {
-      sugText.textContent = "⚠️ Sei in perdita diretta sul prodotto! Riduci il COGS, rimuovi gli sconto o aumenta il prezzo prima di lanciare qualsiasi campagna Ads.";
+      sugText.textContent = "⚠️ Sei in perdita diretta sul prodotto! Riduci il COGS, rimuovi gli sconto o aumenta il prezzo prima di lanciare campagne Ads.";
     } else if (netMarginPct < 15) {
       sugText.textContent = "💡 Margine ridotto: considera di aumentare l'AOV proponendo Bundle (es. 2x o 3x) per ammortizzare le spese fisse di spedizione.";
     } else if (cogsPct > 40) {
@@ -890,7 +1073,7 @@
   }
 
   function calculateAll(){
-    const listPrice = parseFloat(el['price'].value) || 0;
+    let rawListPrice = parseFloat(el['price'].value) || 0;
     const discountPct = parseFloat(el['discount'].value) || 0;
     const cogs = parseFloat(el['cogs'].value) || 0;
     const ship = parseFloat(el['shipping'].value) || 0;
@@ -902,6 +1085,13 @@
     const ltvOrders = Math.max(1, parseFloat(el['ltv-orders'].value) || 1);
     const opexMonthly = el['opex'] ? (parseFloat(el['opex'].value) || 0) : 0;
 
+    let listPrice = rawListPrice;
+    if (vatToggle.checked) {
+      const vatPct = parseFloat(el['vat-rate'].value) || 0;
+      listPrice = rawListPrice / (1 + (vatPct / 100));
+      document.getElementById('vat-net-price-display').textContent = `Netto IVA: ${fmtMoney(listPrice)}`;
+    }
+
     const discountAmount = listPrice * (discountPct / 100);
     const effectivePrice = Math.max(0, listPrice - discountAmount);
 
@@ -911,7 +1101,7 @@
 
     if (discountPct > 0) {
       discountInfo.classList.remove('hidden');
-      effectivePriceDisplay.textContent = fmtEur(effectivePrice);
+      effectivePriceDisplay.textContent = fmtMoney(effectivePrice);
     } else {
       discountInfo.classList.add('hidden');
     }
@@ -948,13 +1138,48 @@
     }
 
     document.getElementById('out-roas').textContent = isFinite(roasBreakeven) ? roasBreakeven.toFixed(2) + 'x' : '∞';
-    document.getElementById('out-cpa').textContent = fmtEur(cpaMax);
+    document.getElementById('out-cpa').textContent = fmtMoney(cpaMax);
     document.getElementById('out-margin').textContent = fmtPct(netMarginPct);
-    document.getElementById('out-profit').textContent = fmtEur(netProfit);
+    document.getElementById('out-profit').textContent = fmtMoney(netProfit);
 
     const profitColor = netProfit >= 0 ? 'var(--good)' : 'var(--bad)';
     document.getElementById('out-profit').style.color = profitColor;
     document.getElementById('out-cpa').style.color = profitColor;
+
+    // TRAFFICO CR % & CPC
+    const crSiteVal = parseFloat(el['cr-site'].value) || 0;
+    const cpcAdsVal = parseFloat(el['cpc-ads'].value) || 0;
+    const crEstimatedCpaEl = document.getElementById('cr-estimated-cpa');
+    const crStatusBadgeEl = document.getElementById('cr-status-badge');
+    const crStatusMsgEl = document.getElementById('cr-status-msg');
+
+    if (crSiteVal > 0 && cpcAdsVal > 0) {
+      const estimatedCpa = cpcAdsVal / (crSiteVal / 100);
+      crEstimatedCpaEl.textContent = fmtMoney(estimatedCpa);
+
+      if (cpaMax <= 0) {
+        crStatusBadgeEl.textContent = "❌ NON SOSTENIBILE";
+        crStatusBadgeEl.style.color = "var(--bad)";
+        crStatusMsgEl.textContent = "Sei in perdita sul margine base prima ancora di considerare il costo del traffico.";
+        crStatusMsgEl.style.color = "var(--bad)";
+      } else if (estimatedCpa < cpaMax) {
+        const cpaBuffer = cpaMax - estimatedCpa;
+        crStatusBadgeEl.textContent = "✅ SOSTENIBILE";
+        crStatusBadgeEl.style.color = "#059669";
+        crStatusMsgEl.textContent = `Ottimo! La CPA stimata (${fmtMoney(estimatedCpa)}) è inferiore alla CPA max di breakeven (${fmtMoney(cpaMax)}). Buffer: +${fmtMoney(cpaBuffer)}/ordine.`;
+        crStatusMsgEl.style.color = "#059669";
+      } else {
+        const cpaDeficit = estimatedCpa - cpaMax;
+        crStatusBadgeEl.textContent = "⚠️ IN PERDITA";
+        crStatusBadgeEl.style.color = "var(--bad)";
+        crStatusMsgEl.textContent = `Attenzione! Con CR ${crSiteVal}% e CPC ${fmtMoney(cpcAdsVal)}, la CPA (${fmtMoney(estimatedCpa)}) supera la CPA max di breakeven di ${fmtMoney(cpaDeficit)}.`;
+        crStatusMsgEl.style.color = "var(--bad)";
+      }
+    } else {
+      crEstimatedCpaEl.textContent = "—";
+      crStatusBadgeEl.textContent = "—";
+      crStatusMsgEl.textContent = "";
+    }
 
     updateTargetProfit(netProfit, effectivePrice);
     updateChart(effectivePrice, netProfit);
@@ -964,25 +1189,24 @@
     const targetProfitVal = netProfit - targetCpaVal;
     const targetMarginVal = effectivePrice > 0 ? (targetProfitVal / effectivePrice) * 100 : 0;
 
-    const elTargetCpa = document.getElementById('target-cpa');
+    document.getElementById('target-cpa').textContent = fmtMoney(targetCpaVal);
+    document.getElementById('target-profit').textContent = fmtMoney(targetProfitVal);
+    document.getElementById('target-margin').textContent = fmtPct(targetMarginVal);
+
     const elTargetProfit = document.getElementById('target-profit');
     const elTargetMargin = document.getElementById('target-margin');
     const elTargetStatusMsg = document.getElementById('target-status-msg');
-
-    elTargetCpa.textContent = fmtEur(targetCpaVal);
-    elTargetProfit.textContent = fmtEur(targetProfitVal);
-    elTargetMargin.textContent = fmtPct(targetMarginVal);
 
     if (targetRoas < roasBreakeven) {
       elTargetProfit.style.color = 'var(--bad)';
       elTargetMargin.style.color = 'var(--bad)';
       elTargetStatusMsg.style.color = 'var(--bad)';
-      elTargetStatusMsg.textContent = `❌ ${targetRoas.toFixed(1)}x ROAS < Breakeven (${roasBreakeven.toFixed(2)}x): -${fmtEur(Math.abs(targetProfitVal))}`;
+      elTargetStatusMsg.textContent = `❌ ${targetRoas.toFixed(1)}x ROAS < Breakeven (${roasBreakeven.toFixed(2)}x): -${fmtMoney(Math.abs(targetProfitVal))}`;
     } else {
       elTargetProfit.style.color = 'var(--good)';
       elTargetMargin.style.color = 'var(--good)';
       elTargetStatusMsg.style.color = 'var(--good)';
-      elTargetStatusMsg.textContent = `✅ ${targetRoas.toFixed(1)}x ROAS → +${fmtEur(targetProfitVal)} (${targetMarginVal.toFixed(1)}%)`;
+      elTargetStatusMsg.textContent = `✅ ${targetRoas.toFixed(1)}x ROAS → +${fmtMoney(targetProfitVal)} (${targetMarginVal.toFixed(1)}%)`;
     }
 
     const aovRevenue = effectivePrice * aovQty;
@@ -994,13 +1218,13 @@
     const aovNetProfit = aovRevenue - aovTotalCosts;
     const aovBreakevenRoas = aovNetProfit > 0 ? aovRevenue / aovNetProfit : Infinity;
 
-    document.getElementById('aov-val').textContent = fmtEur(aovRevenue);
+    document.getElementById('aov-val').textContent = fmtMoney(aovRevenue);
     document.getElementById('aov-roas').textContent = isFinite(aovBreakevenRoas) ? aovBreakevenRoas.toFixed(2) + 'x' : '∞';
-    document.getElementById('aov-profit').textContent = fmtEur(aovNetProfit);
+    document.getElementById('aov-profit').textContent = fmtMoney(aovNetProfit);
 
-    document.getElementById('th-ship-curr').textContent = `In Uso (${fmtEur(ship)})`;
-    document.getElementById('th-ship-free').textContent = `${fmtEur(0)} (Gratis)`;
-    document.getElementById('th-ship-plus').textContent = fmtEur(ship + 2);
+    document.getElementById('th-ship-curr').textContent = `In Uso (${fmtMoney(ship)})`;
+    document.getElementById('th-ship-free').textContent = `${fmtMoney(0)} (Gratis)`;
+    document.getElementById('th-ship-plus').textContent = fmtMoney(ship + 2);
 
     const discountsToTest = [0, 10, 20, 30];
     const shipsToTest = [ship, 0, ship + 2];
@@ -1038,8 +1262,8 @@
     const ltvMaxCpa = totalLtvMarginProfit;
     const ltvFirstOrderBreakevenRoas = ltvMaxCpa > 0 ? effectivePrice / ltvMaxCpa : Infinity;
 
-    document.getElementById('ltv-revenue').textContent = fmtEur(totalLtvRevenue);
-    document.getElementById('ltv-cpa').textContent = fmtEur(ltvMaxCpa);
+    document.getElementById('ltv-revenue').textContent = fmtMoney(totalLtvRevenue);
+    document.getElementById('ltv-cpa').textContent = fmtMoney(ltvMaxCpa);
     document.getElementById('ltv-roas').textContent = isFinite(ltvFirstOrderBreakevenRoas) ? ltvFirstOrderBreakevenRoas.toFixed(2) + 'x' : '∞';
 
     const riskCard = document.getElementById('risk-card');
@@ -1102,6 +1326,12 @@
     if(params.has('roas') && el['roasTarget']) {
       el['roasTarget'].value = params.get('roas');
       if(el['roasTarget-range']) el['roasTarget-range'].value = params.get('roas');
+    }
+    if(params.has('curr') && currencySelect) {
+      currencySelect.value = params.get('curr');
+      currentCurrency = params.get('curr');
+      const sym = currencySymbols[currentCurrency] || '€';
+      document.querySelectorAll('.curr-symbol').forEach(span => span.textContent = sym);
     }
 
     calculateAll();
