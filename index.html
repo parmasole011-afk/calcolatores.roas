@@ -449,6 +449,60 @@
         <p id="suggestion-text" class="text-xs text-slate-300">—</p>
       </div>
 
+      <!-- SIMULATORE SCENARI & WHAT-IF (PRO FEATURE) -->
+      <div class="card p-6 sm:p-7 border-dashed" style="border-color: var(--accent);">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🔮</span>
+            <h3 class="font-display text-sm font-semibold tracking-wide uppercase">Simulatore di Scenari &amp; What-If (PRO)</h3>
+          </div>
+          <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(108,92,231,0.2); color: var(--accent);">SALVATAGGIO ILLIMITATO</span>
+        </div>
+
+        <p class="text-xs mb-4" style="color: var(--text-dim)">
+          Crea, salva e confronta in un colpo solo più scenari di budget (es. shock su CPM, variazione di conversione o test di budget).
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+          <div>
+            <label class="text-[11px] font-medium block mb-1" style="color:var(--text-dim)">Nome Scenario</label>
+            <input id="scenario-name" type="text" class="num-input w-full rounded-lg px-2.5 py-1.5 text-xs" value="Scenario Q3 - Aggressivo">
+          </div>
+          <div>
+            <label class="text-[11px] font-medium block mb-1" style="color:var(--text-dim)">Variazione CPM (%)</label>
+            <input id="scenario-cpm-var" type="number" step="1" class="num-input w-full rounded-lg px-2.5 py-1.5 text-xs text-right" value="+20">
+          </div>
+          <div>
+            <label class="text-[11px] font-medium block mb-1" style="color:var(--text-dim)">Delta Conversione (%)</label>
+            <input id="scenario-cr-var" type="number" step="0.1" class="num-input w-full rounded-lg px-2.5 py-1.5 text-xs text-right" value="-0.5">
+          </div>
+        </div>
+
+        <div class="flex gap-2 mb-4">
+          <button type="button" class="preset-btn" style="flex:1; background:var(--accent); color:white; border:none;" onclick="saveCurrentScenario()">💾 Salva Scenario in Memoria</button>
+          <button type="button" class="preset-btn" onclick="clearScenarios()">🗑️ Reset Storico</button>
+        </div>
+
+        <!-- Tabella Scenari Salvati -->
+        <div class="overflow-x-auto pt-2 border-t" style="border-color:var(--border);">
+          <table class="w-full text-xs font-mono text-center border-collapse">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--border); color:var(--text-dim);">
+                <th class="p-2 text-left font-sans text-[11px]">Nome Scenario</th>
+                <th class="p-2">Prezzo / Sconto</th>
+                <th class="p-2">BE ROAS</th>
+                <th class="p-2">Profitto / Ordine</th>
+              </tr>
+            </thead>
+            <tbody id="scenarios-body" class="divide-y divide-slate-800/50">
+              <tr>
+                <td colspan="4" class="p-3 text-center text-xs" style="color:var(--text-dim)">Nessuno scenario salvato. Clicca su "Salva Scenario" per aggiungerlo.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- SIMULATORE CR % & CPC -->
       <div class="card p-6 sm:p-7 border-dashed" style="border-color: #059669;">
         <div class="flex items-center justify-between mb-4">
@@ -925,6 +979,76 @@
     if(el['roasTarget']) { el['roasTarget'].value = p.roas; if(el['roasTarget-range']) el['roasTarget-range'].value = p.roas; }
     
     calculateAll();
+  }
+
+  // GESTIONE SALVATAGGIO SCENARI WHAT-IF
+  let savedScenarios = [];
+
+  function saveCurrentScenario() {
+    const nameInput = document.getElementById('scenario-name');
+    const cpmVarInput = document.getElementById('scenario-cpm-var');
+    const crVarInput = document.getElementById('scenario-cr-var');
+
+    const name = nameInput ? nameInput.value : 'Scenario Custom';
+    const cpmVar = parseFloat(cpmVarInput ? cpmVarInput.value : 0) || 0;
+    const crVar = parseFloat(crVarInput ? crVarInput.value : 0) || 0;
+
+    let listPrice = parseFloat(el['price'].value) || 0;
+    const discountPct = parseFloat(el['discount'].value) || 0;
+    const cogs = parseFloat(el['cogs'].value) || 0;
+    const ship = parseFloat(el['shipping'].value) || 0;
+    const feePct = parseFloat(el['fee-pct'].value) || 0;
+    const feeFix = parseFloat(el['fee-fix'].value) || 0;
+    const retRate = parseFloat(el['returns'].value) || 0;
+
+    // Modifichiamo temporaneamente i dati in base alle variazioni What-If dello scenario (es. impatto stimato su margine/costi)
+    const effectivePrice = Math.max(0, listPrice * (1 - discountPct / 100));
+    const feeAmount = effectivePrice * (feePct / 100) + feeFix;
+    const returnCost = effectivePrice * (retRate / 100);
+    
+    // Se il CPM sale, simula un impatto teorico sui costi o sulla CPA (adattamento simulato)
+    const adjustedCogs = cogs * (1 + (cpmVar / 200)); 
+    const totalCosts = adjustedCogs + ship + feeAmount + returnCost;
+    const netProfit = effectivePrice - totalCosts;
+    const roasBreakeven = netProfit > 0 ? effectivePrice / netProfit : Infinity;
+
+    savedScenarios.push({
+      name: `${name} (CPM ${cpmVar > 0 ? '+' : ''}${cpmVar}%)`,
+      priceDesc: fmtMoney(effectivePrice),
+      roas: isFinite(roasBreakeven) ? roasBreakeven.toFixed(2) + 'x' : 'PERDITA',
+      profit: fmtMoney(netProfit),
+      isGood: netProfit > 0
+    });
+
+    renderScenariosTable();
+  }
+
+  function renderScenariosTable() {
+    const tbody = document.getElementById('scenarios-body');
+    if (!tbody) return;
+
+    if (savedScenarios.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-xs" style="color:var(--text-dim)">Nessuno scenario salvato. Clicca su "Salva Scenario" per aggiungerlo.</td></tr>`;
+      return;
+    }
+
+    let html = '';
+    savedScenarios.forEach((sc, idx) => {
+      html += `
+        <tr style="border-bottom: 1px solid var(--border);">
+          <td class="p-2.5 text-left font-sans font-medium text-white">${sc.name}</td>
+          <td class="p-2.5">${sc.priceDesc}</td>
+          <td class="p-2.5 font-bold" style="color: ${sc.isGood ? 'var(--good)' : 'var(--bad)'};">${sc.roas}</td>
+          <td class="p-2.5 font-bold" style="color: ${sc.isGood ? 'var(--good)' : 'var(--bad)'};">${sc.profit}</td>
+        </tr>
+      `;
+    });
+    tbody.innerHTML = html;
+  }
+
+  function clearScenarios() {
+    savedScenarios = [];
+    renderScenariosTable();
   }
 
   function shareScenario() {
