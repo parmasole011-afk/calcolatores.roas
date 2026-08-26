@@ -93,10 +93,6 @@
     box-shadow:0 0 0 3px rgba(108,92,231,0.15);
   }
 
-  .glow-good{box-shadow:0 0 0 1px rgba(52,211,153,0.35), 0 0 40px -8px rgba(52,211,153,0.35);}
-  .glow-warn{box-shadow:0 0 0 1px rgba(251,191,36,0.35), 0 0 40px -8px rgba(251,191,36,0.35);}
-  .glow-bad{box-shadow:0 0 0 1px rgba(248,113,113,0.35), 0 0 40px -8px rgba(248,113,113,0.35);}
-
   .bar-seg{transition:width .35s cubic-bezier(0.4, 0, 0.2, 1);}
   .fade-num{transition:color .25s ease, transform .15s ease;}
 
@@ -161,12 +157,6 @@
       border: 1px solid #000000 !important;
       color: #000000 !important;
     }
-    .bg-cogs     { background-color: #8B5CF6 !important; }
-    .bg-ship     { background-color: #3B82F6 !important; }
-    .bg-fee      { background-color: #1E1B4B !important; }
-    .bg-return   { background-color: #EF4444 !important; }
-    .bg-discount { background-color: #F59E0B !important; }
-    .bg-profit   { background-color: #10B981 !important; }
   }
 </style>
 </head>
@@ -781,7 +771,6 @@
 </div>
 
 <script>
-  // Rilevamento automatico lingua del PC / Browser dell'utente
   const userLang = (navigator.language || navigator.userLanguage || 'it').toLowerCase();
   const isItalian = userLang.startsWith('it');
 
@@ -1009,120 +998,44 @@
   };
 
   const t = isItalian ? dict.it : dict.en;
-
-  // Imposta attributo lang sull'HTML
   document.getElementById('html-root').setAttribute('lang', isItalian ? 'it' : 'en');
 
-  // Assegnazione automatica dei testi tradotti agli elementi della pagina
   const mapping = {
-    'meta-title': 'metaTitle',
-    'txt-subhead': 'subhead',
-    'txt-main-title': 'mainTitle',
-    'txt-main-desc': 'mainDesc',
-    'txt-sec-params': 'secParams',
-    'txt-single-unit': 'singleUnit',
-    'txt-preset-label': 'presetLabel',
-    'txt-label-price': 'labelPrice',
-    'txt-label-discount': 'labelDiscount',
-    'txt-effective-price': 'effPriceText',
-    'txt-label-cogs': 'labelCogs',
-    'txt-label-shipping': 'labelShipping',
-    'txt-label-fees': 'labelFees',
-    'txt-label-returns': 'labelReturns',
-    'txt-label-opex': 'labelOpex',
-    'txt-desc-opex': 'descOpex',
-    'txt-box-status': 'boxStatus',
-    'txt-out-roas-title': 'outRoasTitle',
-    'txt-out-roas-desc': 'outRoasDesc',
-    'txt-out-cpa-title': 'outCpaTitle',
-    'txt-out-cpa-desc': 'outCpaDesc',
-    'txt-out-margin-title': 'outMarginTitle',
-    'txt-out-margin-desc': 'outMarginDesc',
-    'txt-out-profit-title': 'outProfitTitle',
-    'txt-out-profit-desc': 'outProfitDesc',
-    'txt-chart-title': 'chartTitle',
-    'txt-chart-badge': 'chartBadge',
-    'txt-sug-title': 'sugTitle',
-    'txt-sim-title': 'simTitle',
-    'txt-sim-badge': 'simBadge',
-    'txt-sim-desc': 'simDesc',
-    'txt-label-scenname': 'labelScenName',
-    'txt-label-cpmvar': 'labelCpmVar',
-    'txt-label-crvar': 'labelCrVar',
-    'txt-btn-savescen': 'btnSaveScen',
-    'txt-btn-resetscen': 'btnResetScen',
-    'txt-th-scenname': 'thScenName',
-    'txt-th-price': 'thPrice',
-    'txt-th-be': 'thBe',
-    'txt-th-profit': 'thProfit',
-    'txt-empty-scen': 'emptyScen',
-    'txt-tr-title': 'trTitle',
-    'txt-tr-badge': 'trBadge',
-    'txt-tr-desc': 'trDesc',
-    'txt-label-crsite': 'labelCrSite',
-    'txt-label-cpc': 'labelCpc',
-    'txt-tr-estcpa': 'trEstCpa',
-    'txt-tr-sust': 'trSust',
-    'txt-rev-title': 'revTitle',
-    'txt-rev-badge': 'revBadge',
-    'txt-rev-desc': 'revDesc',
-    'txt-label-tprof': 'labelTProf',
-    'txt-rev-orders': 'revOrders',
-    'txt-rev-budget': 'revBudget',
-    'txt-troas-title': 'troasTitle',
-    'txt-troas-badge': 'troasBadge',
-    'txt-troas-desc': 'troasDesc',
-    'txt-label-roastarget': 'labelRoasTarget',
-    'txt-troas-cpa': 'troasCpa',
-    'txt-troas-profit': 'troasProfit',
-    'txt-troas-margin': 'troasMargin',
-    'txt-aov-title': 'aovTitle',
-    'txt-aov-badge': 'aovBadge',
-    'txt-aov-desc': 'aovDesc',
-    'txt-label-aovqty': 'labelAovQty',
-    'txt-aov-newval': 'aovNewVal',
-    'txt-aov-newroas': 'aovNewRoas',
-    'txt-aov-newprof': 'aovNewProf',
-    'txt-mat-title': 'matTitle',
-    'txt-mat-badge': 'matBadge',
-    'txt-mat-desc': 'matDesc',
-    'txt-th-matrixcol': 'thMatrixCol',
-    'txt-ltv-title': 'ltvTitle',
-    'txt-ltv-badge': 'ltvBadge',
-    'txt-ltv-desc': 'ltvDesc',
-    'txt-label-ltvorders': 'labelLtvOrders',
-    'txt-unit-orders': 'unitOrders',
-    'txt-ltv-rev': 'ltvRev',
-    'txt-ltv-cpamax': 'ltvCpaMax',
-    'txt-ltv-roasmin': 'ltvRoasMin',
-    'txt-btn-print': 'btnPrint',
-    'txt-btn-share': 'btnShare',
-    'txt-btn-sheet': 'btnSheet',
-    'txt-bar-title': 'barTitle',
-    'leg-ship': 'legShip',
-    'leg-fee': 'legFee',
-    'leg-return': 'legReturn',
-    'leg-disc': 'legDisc',
-    'leg-prof': 'legProf',
-    'txt-tools-title': 'toolsTitle',
-    'txt-tools-desc': 'toolsDesc',
-    'txt-badge-plat': 'badgePlat',
-    'txt-tool1-desc': 'tool1Desc',
-    'txt-tool1-link': 'tool1Link',
-    'txt-badge-email': 'badgeEmail',
-    'txt-tool2-desc': 'tool2Desc',
-    'txt-badge-track': 'badgeTrack',
-    'txt-tool3-desc': 'tool3Desc',
-    'txt-tool3-link': 'tool3Link',
-    'txt-seo-title': 'seoTitle',
-    'txt-seo-sub': 'seoSub',
-    'txt-seo-h1': 'seoH1',
-    'txt-seo-p1': 'seoP1',
-    'txt-seo-h2': 'seoH2',
-    'txt-seo-p2': 'seoP2',
-    'txt-seo-h3': 'seoH3',
-    'txt-seo-p3': 'seoP3',
-    'txt-footer': 'footer'
+    'meta-title': 'metaTitle', 'txt-subhead': 'subhead', 'txt-main-title': 'mainTitle',
+    'txt-main-desc': 'mainDesc', 'txt-sec-params': 'secParams', 'txt-single-unit': 'singleUnit',
+    'txt-preset-label': 'presetLabel', 'txt-label-price': 'labelPrice', 'txt-label-discount': 'labelDiscount',
+    'txt-effective-price': 'effPriceText', 'txt-label-cogs': 'labelCogs', 'txt-label-shipping': 'labelShipping',
+    'txt-label-fees': 'labelFees', 'txt-label-returns': 'labelReturns', 'txt-label-opex': 'labelOpex',
+    'txt-desc-opex': 'descOpex', 'txt-box-status': 'boxStatus', 'txt-out-roas-title': 'outRoasTitle',
+    'txt-out-roas-desc': 'outRoasDesc', 'txt-out-cpa-title': 'outCpaTitle', 'txt-out-cpa-desc': 'outCpaDesc',
+    'txt-out-margin-title': 'outMarginTitle', 'txt-out-margin-desc': 'outMarginDesc', 'txt-out-profit-title': 'outProfitTitle',
+    'txt-out-profit-desc': 'outProfitDesc', 'txt-chart-title': 'chartTitle', 'txt-chart-badge': 'chartBadge',
+    'txt-sug-title': 'sugTitle', 'txt-sim-title': 'simTitle', 'txt-sim-badge': 'simBadge',
+    'txt-sim-desc': 'simDesc', 'txt-label-scenname': 'labelScenName', 'txt-label-cpmvar': 'labelCpmVar',
+    'txt-label-crvar': 'labelCrVar', 'txt-btn-savescen': 'btnSaveScen', 'txt-btn-resetscen': 'btnResetScen',
+    'txt-th-scenname': 'thScenName', 'txt-th-price': 'thPrice', 'txt-th-be': 'thBe',
+    'txt-th-profit': 'thProfit', 'txt-empty-scen': 'emptyScen', 'txt-tr-title': 'trTitle',
+    'txt-tr-badge': 'trBadge', 'txt-tr-desc': 'trDesc', 'txt-label-crsite': 'labelCrSite',
+    'txt-label-cpc': 'labelCpc', 'txt-tr-estcpa': 'trEstCpa', 'txt-tr-sust': 'trSust',
+    'txt-rev-title': 'revTitle', 'txt-rev-badge': 'revBadge', 'txt-rev-desc': 'revDesc',
+    'txt-label-tprof': 'labelTProf', 'txt-rev-orders': 'revOrders', 'txt-rev-budget': 'revBudget',
+    'txt-troas-title': 'troasTitle', 'txt-troas-badge': 'troasBadge', 'txt-troas-desc': 'troasDesc',
+    'txt-label-roastarget': 'labelRoasTarget', 'txt-troas-cpa': 'troasCpa', 'txt-troas-profit': 'troasProfit',
+    'txt-troas-margin': 'troasMargin', 'txt-aov-title': 'aovTitle', 'txt-aov-badge': 'aovBadge',
+    'txt-aov-desc': 'aovDesc', 'txt-label-aovqty': 'labelAovQty', 'txt-aov-newval': 'aovNewVal',
+    'txt-aov-newroas': 'aovNewRoas', 'txt-aov-newprof': 'aovNewProf', 'txt-mat-title': 'matTitle',
+    'txt-mat-badge': 'matBadge', 'txt-mat-desc': 'matDesc', 'txt-th-matrixcol': 'thMatrixCol',
+    'txt-ltv-title': 'ltvTitle', 'txt-ltv-badge': 'ltvBadge', 'txt-ltv-desc': 'ltvDesc',
+    'txt-label-ltvorders': 'labelLtvOrders', 'txt-unit-orders': 'unitOrders', 'txt-ltv-rev': 'ltvRev',
+    'txt-ltv-cpamax': 'ltvCpaMax', 'txt-ltv-roasmin': 'ltvRoasMin', 'txt-btn-print': 'btnPrint',
+    'txt-btn-share': 'btnShare', 'txt-btn-sheet': 'btnSheet', 'txt-bar-title': 'barTitle',
+    'leg-ship': 'legShip', 'leg-fee': 'legFee', 'leg-return': 'legReturn', 'leg-disc': 'legDisc',
+    'leg-prof': 'legProf', 'txt-tools-title': 'toolsTitle', 'txt-tools-desc': 'toolsDesc',
+    'txt-badge-plat': 'badgePlat', 'txt-tool1-desc': 'tool1Desc', 'txt-tool1-link': 'tool1Link',
+    'txt-badge-email': 'badgeEmail', 'txt-tool2-desc': 'tool2Desc', 'txt-badge-track': 'badgeTrack',
+    'txt-tool3-desc': 'tool3Desc', 'txt-tool3-link': 'tool3Link', 'txt-seo-title': 'seoTitle',
+    'txt-seo-sub': 'seoSub', 'txt-seo-h1': 'seoH1', 'txt-seo-p1': 'seoP1', 'txt-seo-h2': 'seoH2',
+    'txt-seo-p2': 'seoP2', 'txt-seo-h3': 'seoH3', 'txt-seo-p3': 'seoP3', 'txt-footer': 'footer'
   };
 
   for (let id in mapping) {
@@ -1140,7 +1053,6 @@
     }
   }
 
-  // --- Logica Calcolatore ---
   const ids = [
     'price','discount','cogs','shipping','fee-pct','fee-fix','returns',
     'roasTarget','aov-qty','ltv-orders','targetProfit','opex',
@@ -1285,16 +1197,6 @@
   function fmtPct(n){
     if (!isFinite(n)) return '—';
     return n.toLocaleString(isItalian ? 'it-IT' : 'en-US', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
-  }
-
-  function computeRoasForParams(listPrice, discountPct, cogs, ship, feePct, feeFix, retRate, opexPerUnit = 0){
-    const effectivePrice = Math.max(0, listPrice * (1 - discountPct / 100));
-    const feeAmount = effectivePrice * (feePct / 100) + feeFix;
-    const returnCost = effectivePrice * (retRate / 100);
-    const totalCosts = cogs + ship + feeAmount + returnCost + opexPerUnit;
-    const netProfit = effectivePrice - totalCosts;
-    if (netProfit <= 0) return { roas: Infinity, profit: netProfit };
-    return { roas: effectivePrice / netProfit, profit: netProfit };
   }
 
   let profitChart = null;
@@ -1554,105 +1456,76 @@
     const discountsToTest = [0, 10, 20, 30];
     const shipsToTest = [ship, 0, ship + 2];
     const matrixBody = document.getElementById('matrix-body');
-    matrixBody.innerHTML = '';
-
-    discountsToTest.forEach(dPct => {
-      const tr = document.createElement('tr');
-      const isCurrentDiscount = Math.abs(dPct - discountPct) < 0.5;
-      
-      let html = `<td class="p-2.5 text-left font-sans font-medium" style="color: ${isCurrentDiscount ? 'var(--accent)' : 'var(--text)'};">
-        ${dPct}% ${isCurrentDiscount ? '◀' : ''}
-      </td>`;
-
-      shipsToTest.forEach(sVal => {
-        const res = computeRoasForParams(listPrice, dPct, cogs, sVal, feePct, feeFix, retRate, opexPerUnit);
-        let txt = isFinite(res.roas) ? res.roas.toFixed(2) + 'x' : (isItalian ? 'PERDITA' : 'LOSS');
-        let badgeStyle = 'color: var(--good);';
-
-        if (!isFinite(res.roas) || res.profit <= 0) {
-          badgeStyle = 'color: var(--bad); font-bold;';
-        } else if (res.roas > 3.5) {
-          badgeStyle = 'color: var(--warn);';
-        }
-
-        html += `<td class="p-2.5 font-bold" style="${badgeStyle}">${txt}</td>`;
+    if (matrixBody) {
+      matrixBody.innerHTML = '';
+      discountsToTest.forEach(dPct => {
+        let rowHtml = `<tr style="border-bottom: 1px solid var(--border);"><td class="p-2 text-left font-sans font-medium text-white">-${dPct}%</td>`;
+        shipsToTest.forEach(sCost => {
+          const testPrice = Math.max(0, listPrice * (1 - dPct / 100));
+          const testFee = testPrice * (feePct / 100) + feeFix;
+          const testRet = testPrice * (retRate / 100);
+          const testProf = testPrice - (cogs + sCost + testFee + testRet + opexPerUnit);
+          const testBe = testProf > 0 ? testPrice / testProf : Infinity;
+          const cellColor = testBe < 3 ? 'var(--good)' : (testBe < 5 ? 'var(--warn)' : 'var(--bad)');
+          rowHtml += `<td class="p-2 font-bold" style="color: ${cellColor};">${isFinite(testBe) ? testBe.toFixed(2) + 'x' : '—'}</td>`;
+        });
+        rowHtml += '</tr>';
+        matrixBody.innerHTML += rowHtml;
       });
+    }
 
-      tr.innerHTML = html;
-      matrixBody.appendChild(tr);
-    });
+    const ltvRevenue = effectivePrice * ltvOrders;
+    const ltvCogs = cogs * ltvOrders;
+    const ltvShip = ship * ltvOrders;
+    const ltvFee = ltvRevenue * (feePct / 100) + (feeFix * ltvOrders);
+    const ltvReturn = ltvRevenue * (retRate / 100);
+    const ltvTotalCosts = ltvCogs + ltvShip + ltvFee + ltvReturn + (opexPerUnit * ltvOrders);
+    const ltvNetProfit = ltvRevenue - ltvTotalCosts;
+    const ltvMinRoasFirst = netProfit > 0 ? effectivePrice / ltvNetProfit : Infinity;
 
-    const totalLtvRevenue = effectivePrice * ltvOrders;
-    const totalLtvMarginProfit = netProfit * ltvOrders;
-    const ltvMaxCpa = totalLtvMarginProfit;
-    const ltvFirstOrderBreakevenRoas = ltvMaxCpa > 0 ? effectivePrice / ltvMaxCpa : Infinity;
+    document.getElementById('ltv-revenue').textContent = fmtMoney(ltvRevenue);
+    document.getElementById('ltv-cpa').textContent = fmtMoney(ltvNetProfit);
+    document.getElementById('ltv-roas').textContent = isFinite(ltvMinRoasFirst) ? ltvMinRoasFirst.toFixed(2) + 'x' : '∞';
+    document.getElementById('ltv-status-msg').textContent = isItalian 
+      ? `💡 Acquistando un cliente a ${fmtMoney(cpaMax)}, con ${ltvOrders} ordini medi puoi arrivare a sostenere una CPA fino a ${fmtMoney(ltvNetProfit)}!` 
+      : `💡 By acquiring a customer at ${fmtMoney(cpaMax)}, with ${ltvOrders} average orders you can sustain a CPA up to ${fmtMoney(ltvNetProfit)}!`;
 
-    document.getElementById('ltv-revenue').textContent = fmtMoney(totalLtvRevenue);
-    document.getElementById('ltv-cpa').textContent = fmtMoney(ltvMaxCpa);
-    document.getElementById('ltv-roas').textContent = isFinite(ltvFirstOrderBreakevenRoas) ? ltvFirstOrderBreakevenRoas.toFixed(2) + 'x' : '∞';
+    const totalBarDenom = effectivePrice > 0 ? effectivePrice : 1;
+    document.getElementById('seg-cogs').style.width = Math.min(100, (cogs / totalBarDenom) * 100) + '%';
+    document.getElementById('seg-ship').style.width = Math.min(100, (ship / totalBarDenom) * 100) + '%';
+    document.getElementById('seg-fee').style.width = Math.min(100, (feeAmount / totalBarDenom) * 100) + '%';
+    document.getElementById('seg-return').style.width = Math.min(100, (returnCost / totalBarDenom) * 100) + '%';
+    document.getElementById('seg-discount').style.width = Math.min(100, (discountAmount / totalBarDenom) * 100) + '%';
+    document.getElementById('seg-profit').style.width = Math.max(0, Math.min(100, (netProfit / totalBarDenom) * 100)) + '%';
 
     const riskCard = document.getElementById('risk-card');
     const riskLabel = document.getElementById('risk-label');
     const riskDesc = document.getElementById('risk-desc');
     const riskDot = document.getElementById('risk-dot');
-    riskCard.classList.remove('glow-good','glow-warn','glow-bad');
 
-    let state = netMarginPct >= 20 ? 'good' : (netMarginPct >= 5 ? 'warn' : 'bad');
-
-    if (state === 'good'){
-      riskCard.classList.add('glow-good');
-      riskLabel.textContent = isItalian ? 'Ottimo Margine' : 'Great Margin';
-      riskLabel.style.color = 'var(--good)';
-      riskDesc.textContent = isItalian ? 'Spazio ideale per scalare le campagne ad acquisizione.' : 'Ideal headroom to scale acquisition campaigns.';
-      riskDot.style.background = 'var(--good)';
-    } else if (state === 'warn'){
-      riskCard.classList.add('glow-warn');
-      riskLabel.textContent = isItalian ? 'Margine a Rischio' : 'At-Risk Margin';
-      riskLabel.style.color = 'var(--warn)';
-      riskDesc.textContent = isItalian ? 'Piccole variazioni di costo possono azzerare il profitto.' : 'Small cost fluctuations can wipe out profit.';
-      riskDot.style.background = 'var(--warn)';
+    if (netProfit <= 0) {
+      riskCard.className = "card p-6 transition-all duration-300 glow-bad";
+      riskLabel.textContent = isItalian ? "Margine Negativo (In Perdita)" : "Negative Margin (At a Loss)";
+      riskLabel.style.color = "var(--bad)";
+      riskDesc.textContent = isItalian ? "I costi superano il prezzo effettivo incassato. Impossibile sostenere campagne Ads." : "Costs exceed actual collected price. Impossible to sustain ad campaigns.";
+      riskDot.style.background = "var(--bad)";
+    } else if (roasBreakeven > 3.5) {
+      riskCard.className = "card p-6 transition-all duration-300 glow-warn";
+      riskLabel.textContent = isItalian ? "Sostenibilità Difficile (High BE ROAS)" : "Difficult Sustainability (High BE ROAS)";
+      riskLabel.style.color = "var(--warn)";
+      riskDesc.textContent = isItalian ? `Richiede un ROAS superiore a ${roasBreakeven.toFixed(2)}x. Margine ridotto per le Ads.` : `Requires a ROAS above ${roasBreakeven.toFixed(2)}x. Tight margin for Ads.`;
+      riskDot.style.background = "var(--warn)";
     } else {
-      riskCard.classList.add('glow-bad');
-      riskLabel.textContent = netProfit < 0 ? (isItalian ? 'In Perdita' : 'At a Loss') : (isItalian ? 'Rischio Elevato' : 'High Risk');
-      riskLabel.style.color = 'var(--bad)';
-      riskDesc.textContent = isItalian ? 'I costi superano i ricavi. Rivedi subito il listino.' : 'Costs exceed revenues. Review pricing immediately.';
-      riskDot.style.background = 'var(--bad)';
+      riskCard.className = "card p-6 transition-all duration-300 glow-good";
+      riskLabel.textContent = isItalian ? "Margine Eccellente &amp; Scalabile" : "Excellent & Scalable Margin";
+      riskLabel.style.color = "var(--good)";
+      riskDesc.textContent = isItalian ? `Breakeven ROAS basso (${roasBreakeven.toFixed(2)}x). Ampio margine per scalare su Meta/Google Ads.` : `Low Breakeven ROAS (${roasBreakeven.toFixed(2)}x). Ample margin to scale on Meta/Google Ads.`;
+      riskDot.style.background = "var(--good)";
     }
-
-    const clampPct = (v) => listPrice > 0 ? Math.max(0, Math.min(100, (v / listPrice) * 100)) : 0;
-    const pCogs = clampPct(cogs);
-    const pShip = clampPct(ship);
-    const pFee = clampPct(feeAmount);
-    const pReturn = clampPct(returnCost);
-    const pDiscount = clampPct(discountAmount);
-    const pProfit = Math.max(0, 100 - pCogs - pShip - pFee - pReturn - pDiscount);
-
-    document.getElementById('seg-cogs').style.width = pCogs + '%';
-    document.getElementById('seg-ship').style.width = pShip + '%';
-    document.getElementById('seg-fee').style.width = pFee + '%';
-    document.getElementById('seg-return').style.width = pReturn + '%';
-    document.getElementById('seg-discount').style.width = pDiscount + '%';
-    document.getElementById('seg-profit').style.width = pProfit + '%';
   }
 
   window.addEventListener('DOMContentLoaded', () => {
     initChart();
-
-    const params = new URLSearchParams(window.location.search);
-
-    if(params.has('price') && el['price']) {
-      el['price'].value = params.get('price');
-      if(el['price-range']) el['price-range'].value = params.get('price');
-    }
-    if(params.has('cogs') && el['cogs']) {
-      el['cogs'].value = params.get('cogs');
-      if(el['cogs-range']) el['cogs-range'].value = params.get('cogs');
-    }
-    if(params.has('roas') && el['roasTarget']) {
-      el['roasTarget'].value = params.get('roas');
-      if(el['roasTarget-range']) el['roasTarget-range'].value = params.get('roas');
-    }
-
     calculateAll();
   });
 </script>
