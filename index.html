@@ -1131,7 +1131,6 @@
       if (id === 'meta-title') {
         elTarget.textContent = t[mapping[id]];
       } else if (elTarget.tagName === 'BUTTON' || elTarget.tagName === 'A') {
-        // Se contiene tag span interni o simili
         const span = elTarget.querySelector('span');
         if (span) span.innerHTML = t[mapping[id]];
         else elTarget.innerHTML = t[mapping[id]];
