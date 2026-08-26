@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="it" id="html-root">
+<html lang="en" id="html-root">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title id="meta-title">Breakeven ROAS, AOV, Matrix & LTV — Calcolatore Enterprise Global</title>
+<title id="meta-title">Breakeven ROAS, AOV, Matrix & LTV — Enterprise Global Calculator</title>
 
 <!-- IMPACT SITE VERIFICATION -->
 <meta name='impact-site-verification' value='4f94e5c1-c063-426e-9c09-096228c01b3'>
@@ -11,7 +11,7 @@
 <!-- GoatCounter Analytics -->
 <script data-goatcounter="https://sole.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 
-<!-- Chart.js per i grafici dinamici -->
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script src="https://cdn.tailwindcss.com"></script>
@@ -93,6 +93,10 @@
     box-shadow:0 0 0 3px rgba(108,92,231,0.15);
   }
 
+  .glow-good{box-shadow:0 0 0 1px rgba(52,211,153,0.35), 0 0 40px -8px rgba(52,211,153,0.35);}
+  .glow-warn{box-shadow:0 0 0 1px rgba(251,191,36,0.35), 0 0 40px -8px rgba(251,191,36,0.35);}
+  .glow-bad{box-shadow:0 0 0 1px rgba(248,113,113,0.35), 0 0 40px -8px rgba(248,113,113,0.35);}
+
   .bar-seg{transition:width .35s cubic-bezier(0.4, 0, 0.2, 1);}
   .fade-num{transition:color .25s ease, transform .15s ease;}
 
@@ -157,6 +161,12 @@
       border: 1px solid #000000 !important;
       color: #000000 !important;
     }
+    .bg-cogs     { background-color: #8B5CF6 !important; }
+    .bg-ship     { background-color: #3B82F6 !important; }
+    .bg-fee      { background-color: #1E1B4B !important; }
+    .bg-return   { background-color: #EF4444 !important; }
+    .bg-discount { background-color: #F59E0B !important; }
+    .bg-profit   { background-color: #10B981 !important; }
   }
 </style>
 </head>
@@ -171,10 +181,10 @@
       <span id="txt-subhead" class="text-xs font-mono tracking-widest uppercase" style="color:var(--text-dim)">Unit Economics · E-commerce Enterprise</span>
     </div>
     <h1 id="txt-main-title" class="font-display text-3xl sm:text-5xl font-semibold tracking-tight">
-      Breakeven ROAS &amp; Profitto Reale
+      Breakeven ROAS &amp; Real Profit
     </h1>
     <p id="txt-main-desc" class="mt-3 text-sm sm:text-base" style="color:var(--text-dim)">
-      Calcola il ROAS minimo di sostenibilità, simula il profitto target, valuta l'impatto dell'AOV, considera i costi fissi (OpEx), testa scenari promozionali e misura il valore nel tempo (LTV).
+      Calculate minimum sustainability ROAS, simulate target profit, evaluate AOV impact, factor in fixed costs (OpEx), test promo scenarios, and measure lifetime value (LTV).
     </p>
   </header>
 
@@ -183,23 +193,23 @@
     <!-- INPUT PANEL -->
     <section class="lg:col-span-5 card p-6 sm:p-7 space-y-6 lg:sticky lg:top-6">
       <div class="flex items-center justify-between border-b pb-4" style="border-color: var(--border);">
-        <h2 id="txt-sec-params" class="font-display text-sm font-semibold tracking-wide uppercase" style="color:var(--text-dim)">Parametri Prodotto</h2>
-        <span id="txt-single-unit" class="text-xs font-mono px-2 py-0.5 rounded" style="background:var(--surface-2); color:var(--text-dim)">Singola Unità</span>
+        <h2 id="txt-sec-params" class="font-display text-sm font-semibold tracking-wide uppercase" style="color:var(--text-dim)">Product Parameters</h2>
+        <span id="txt-single-unit" class="text-xs font-mono px-2 py-0.5 rounded" style="background:var(--surface-2); color:var(--text-dim)">Single Unit</span>
       </div>
 
       <div class="no-print pb-2">
-        <label id="txt-preset-label" class="text-xs font-medium block mb-2" style="color:var(--text-dim)">Carica Preset di Nicchia:</label>
+        <label id="txt-preset-label" class="text-xs font-medium block mb-2" style="color:var(--text-dim)">Load Niche Preset:</label>
         <div class="flex flex-wrap gap-2">
           <button type="button" class="preset-btn" onclick="applyPreset('fashion')">👗 Fashion</button>
           <button type="button" class="preset-btn" onclick="applyPreset('beauty')">💄 Beauty</button>
           <button type="button" class="preset-btn" onclick="applyPreset('tech')">🎧 Tech</button>
-          <button type="button" class="preset-btn" onclick="applyPreset('highmargin')">💎 Lusso</button>
+          <button type="button" class="preset-btn" onclick="applyPreset('highmargin')">💎 Luxury</button>
         </div>
       </div>
 
       <div>
         <div class="flex items-center justify-between mb-2">
-          <label id="txt-label-price" class="text-sm font-medium">Prezzo di Listino</label>
+          <label id="txt-label-price" class="text-sm font-medium">List Price</label>
           <div class="flex items-center gap-1">
             <span class="text-xs" style="color:var(--text-dim)">€</span>
             <input id="price" type="number" step="0.5" class="num-input w-24 rounded-lg px-2.5 py-1.5 text-sm text-right font-bold" value="49.90">
@@ -211,7 +221,7 @@
       <div class="p-4 rounded-xl border transition-all" style="background:var(--surface-2); border-color:var(--border);">
         <div class="flex items-center justify-between mb-2">
           <label id="txt-label-discount" class="text-sm font-medium flex items-center gap-1.5" style="color:var(--warn)">
-            🏷️ <span>Sconto / Promozione</span>
+            🏷️ <span>Discount / Promo</span>
           </label>
           <div class="flex items-center gap-1">
             <input id="discount" type="number" step="1" class="num-input w-20 rounded-lg px-2 py-1 text-sm text-right" value="0">
@@ -222,8 +232,8 @@
         
         <div id="discount-info" class="text-xs space-y-1 hidden">
           <div class="flex justify-between" style="color:var(--text-dim)">
-            <span id="txt-effective-price">Prezzo Scontato Reale:</span>
-            <strong id="effective-price-display" class="font-mono text-white">49,90 €</strong>
+            <span id="txt-effective-price">Real Discounted Price:</span>
+            <strong id="effective-price-display" class="font-mono text-white">49.90 €</strong>
           </div>
           <div id="discount-alert" class="pt-1 font-medium text-[11px]"></div>
         </div>
@@ -231,7 +241,7 @@
 
       <div>
         <div class="flex items-center justify-between mb-2">
-          <label id="txt-label-cogs" class="text-sm font-medium">Costo del Prodotto (COGS)</label>
+          <label id="txt-label-cogs" class="text-sm font-medium">Cost of Goods Sold (COGS)</label>
           <div class="flex items-center gap-1">
             <span class="text-xs" style="color:var(--text-dim)">€</span>
             <input id="cogs" type="number" step="0.5" class="num-input w-24 rounded-lg px-2 py-1 text-sm text-right" value="15.00">
@@ -242,7 +252,7 @@
 
       <div>
         <div class="flex items-center justify-between mb-2">
-          <label id="txt-label-shipping" class="text-sm font-medium">Spedizione (a carico venditore)</label>
+          <label id="txt-label-shipping" class="text-sm font-medium">Shipping (paid by seller)</label>
           <div class="flex items-center gap-1">
             <span class="text-xs" style="color:var(--text-dim)">€</span>
             <input id="shipping" type="number" step="0.25" class="num-input w-24 rounded-lg px-2 py-1 text-sm text-right" value="4.50">
@@ -253,7 +263,7 @@
 
       <div>
         <div class="flex items-center justify-between mb-2">
-          <label id="txt-label-fees" class="text-sm font-medium">Commissioni di Pagamento</label>
+          <label id="txt-label-fees" class="text-sm font-medium">Payment Gateway Fees</label>
         </div>
         <div class="grid grid-cols-2 gap-3 mb-2">
           <div class="flex items-center gap-1">
@@ -270,7 +280,7 @@
 
       <div>
         <div class="flex items-center justify-between mb-2">
-          <label id="txt-label-returns" class="text-sm font-medium">Tasso Stimato di Reso</label>
+          <label id="txt-label-returns" class="text-sm font-medium">Estimated Return Rate</label>
           <div class="flex items-center gap-1">
             <input id="returns" type="number" step="0.5" class="num-input w-24 rounded-lg px-2 py-1 text-xs text-right" value="5">
             <span class="text-xs" style="color:var(--text-dim)">%</span>
@@ -279,18 +289,18 @@
         <input id="returns-range" type="range" min="0" max="40" step="0.5" value="5">
       </div>
 
-      <!-- COSTI FISSI STRUTTURALI -->
+      <!-- FIXED STRUCTURAL COSTS -->
       <div class="pt-2 border-t" style="border-color:var(--border);">
         <div class="flex items-center justify-between mb-2">
           <label id="txt-label-opex" class="text-xs font-medium flex items-center gap-1" style="color:var(--text-dim)">
-            🏢 Spese Fisse Mensili (OpEx)
+            🏢 Monthly Fixed Costs (OpEx)
           </label>
           <div class="flex items-center gap-1">
             <span class="text-xs" style="color:var(--text-dim)">€</span>
             <input id="opex" type="number" step="100" class="num-input w-24 rounded-lg px-2 py-1 text-xs text-right" value="0">
           </div>
         </div>
-        <p id="txt-desc-opex" class="text-[10px]" style="color:var(--text-dim)">Software, stipendi o affitti distribuiti sugli ordini target mensili.</p>
+        <p id="txt-desc-opex" class="text-[10px]" style="color:var(--text-dim)">Software, salaries, or rent distributed over monthly target orders.</p>
       </div>
     </section>
 
@@ -300,7 +310,7 @@
       <div id="risk-card" class="card p-6 transition-all duration-300">
         <div class="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-4">
           <div>
-            <p id="txt-box-status" class="text-xs font-mono uppercase tracking-widest mb-1" style="color:var(--text-dim)">Stato del Margine</p>
+            <p id="txt-box-status" class="text-xs font-mono uppercase tracking-widest mb-1" style="color:var(--text-dim)">Margin Status</p>
             <h3 id="risk-label" class="font-display text-2xl sm:text-3xl font-semibold">—</h3>
             <p id="risk-desc" class="text-sm mt-1" style="color:var(--text-dim)">—</p>
           </div>
@@ -310,35 +320,35 @@
 
       <div class="grid grid-cols-2 gap-4">
         <div class="card p-5 sm:p-6">
-          <p id="txt-out-roas-title" class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">ROAS di Breakeven</p>
+          <p id="txt-out-roas-title" class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">Breakeven ROAS</p>
           <p id="out-roas" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
-          <p id="txt-out-roas-desc" class="text-xs mt-2" style="color:var(--text-dim)">Ritorno minimo sulle Ads per non perdere</p>
+          <p id="txt-out-roas-desc" class="text-xs mt-2" style="color:var(--text-dim)">Minimum Ad return to break even</p>
         </div>
         <div class="card p-5 sm:p-6">
-          <p id="txt-out-cpa-title" class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">CPA Massima</p>
+          <p id="txt-out-cpa-title" class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">Max CPA</p>
           <p id="out-cpa" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
-          <p id="txt-out-cpa-desc" class="text-xs mt-2" style="color:var(--text-dim)">Spesa max per acquisire un cliente</p>
+          <p id="txt-out-cpa-desc" class="text-xs mt-2" style="color:var(--text-dim)">Max ad spend to acquire a customer</p>
         </div>
         <div class="card p-5 sm:p-6">
-          <p id="txt-out-margin-title" class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">Margine Netto Reale</p>
+          <p id="txt-out-margin-title" class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">Real Net Margin</p>
           <p id="out-margin" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
-          <p id="txt-out-margin-desc" class="text-xs mt-2" style="color:var(--text-dim)">Sul prezzo effettivo incassato</p>
+          <p id="txt-out-margin-desc" class="text-xs mt-2" style="color:var(--text-dim)">On actual collected price</p>
         </div>
         <div class="card p-5 sm:p-6">
-          <p id="txt-out-profit-title" class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">Profitto Netto / Unità</p>
+          <p id="txt-out-profit-title" class="text-xs font-mono uppercase tracking-widest mb-2" style="color:var(--text-dim)">Net Profit / Unit</p>
           <p id="out-profit" class="font-display font-mono text-3xl sm:text-4xl font-semibold fade-num">—</p>
-          <p id="txt-out-profit-desc" class="text-xs mt-2" style="color:var(--text-dim)">Dopo tutti i costi prima delle Ads</p>
+          <p id="txt-out-profit-desc" class="text-xs mt-2" style="color:var(--text-dim)">After all costs before Ads</p>
         </div>
       </div>
 
-      <!-- GRAFICO DINAMICO -->
+      <!-- DYNAMIC CHART -->
       <div class="card p-6 sm:p-7">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <span class="text-base">📈</span>
-            <h3 id="txt-chart-title" class="font-display text-sm font-semibold tracking-wide uppercase">Curva di Profitto &amp; Buffer di Sicurezza Ads</h3>
+            <h3 id="txt-chart-title" class="font-display text-sm font-semibold tracking-wide uppercase">Profit Curve &amp; Ads Safety Buffer</h3>
           </div>
-          <span id="txt-chart-badge" class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(108,92,231,0.2); color: var(--accent);">ANALISI VISIVA</span>
+          <span id="txt-chart-badge" class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(108,92,231,0.2); color: var(--accent);">VISUAL ANALYSIS</span>
         </div>
         <div class="w-full h-64">
           <canvas id="profitChart"></canvas>
@@ -349,82 +359,82 @@
       <div id="smart-suggestions" class="card p-5 border-l-4" style="border-left-color: var(--accent); background: var(--surface-2);">
         <div class="flex items-center gap-2 mb-2">
           <span>💡</span>
-          <h4 id="txt-sug-title" class="font-display text-xs font-semibold tracking-wide uppercase">Consiglio Strategico Automatico</h4>
+          <h4 id="txt-sug-title" class="font-display text-xs font-semibold tracking-wide uppercase">Automatic Strategic Advice</h4>
         </div>
         <p id="suggestion-text" class="text-xs text-slate-300">—</p>
       </div>
 
-      <!-- SIMULATORE SCENARI & WHAT-IF (PRO FEATURE) -->
+      <!-- SCENARIO & WHAT-IF SIMULATOR (PRO FEATURE) -->
       <div class="card p-6 sm:p-7 border-dashed" style="border-color: var(--accent);">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <span class="text-base">🔮</span>
-            <h3 id="txt-sim-title" class="font-display text-sm font-semibold tracking-wide uppercase">Simulatore di Scenari &amp; What-If (PRO)</h3>
+            <h3 id="txt-sim-title" class="font-display text-sm font-semibold tracking-wide uppercase">Scenario Simulator &amp; What-If (PRO)</h3>
           </div>
-          <span id="txt-sim-badge" class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(108,92,231,0.2); color: var(--accent);">SALVATAGGIO ILLIMITATO</span>
+          <span id="txt-sim-badge" class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(108,92,231,0.2); color: var(--accent);">UNLIMITED SAVING</span>
         </div>
 
         <p id="txt-sim-desc" class="text-xs mb-4" style="color: var(--text-dim)">
-          Crea, salva e confronta in un colpo solo più scenari di budget (es. shock su CPM, variazione di conversione o test di budget).
+          Create, save, and compare multiple budget scenarios at once (e.g., CPM shock, conversion changes, or budget tests).
         </p>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
           <div>
-            <label id="txt-label-scenname" class="text-[11px] font-medium block mb-1" style="color:var(--text-dim)">Nome Scenario</label>
-            <input id="scenario-name" type="text" class="num-input w-full rounded-lg px-2.5 py-1.5 text-xs" value="Scenario Q3 - Aggressivo">
+            <label id="txt-label-scenname" class="text-[11px] font-medium block mb-1" style="color:var(--text-dim)">Scenario Name</label>
+            <input id="scenario-name" type="text" class="num-input w-full rounded-lg px-2.5 py-1.5 text-xs" value="Q3 Scenario - Aggressive">
           </div>
           <div>
-            <label id="txt-label-cpmvar" class="text-[11px] font-medium block mb-1" style="color:var(--text-dim)">Variazione CPM (%)</label>
+            <label id="txt-label-cpmvar" class="text-[11px] font-medium block mb-1" style="color:var(--text-dim)">CPM Variation (%)</label>
             <input id="scenario-cpm-var" type="number" step="1" class="num-input w-full rounded-lg px-2.5 py-1.5 text-xs text-right" value="+20">
           </div>
           <div>
-            <label id="txt-label-crvar" class="text-[11px] font-medium block mb-1" style="color:var(--text-dim)">Delta Conversione (%)</label>
+            <label id="txt-label-crvar" class="text-[11px] font-medium block mb-1" style="color:var(--text-dim)">Conversion Delta (%)</label>
             <input id="scenario-cr-var" type="number" step="0.1" class="num-input w-full rounded-lg px-2.5 py-1.5 text-xs text-right" value="-0.5">
           </div>
         </div>
 
         <div class="flex gap-2 mb-4">
-          <button id="txt-btn-savescen" type="button" class="preset-btn" style="flex:1; background:var(--accent); color:white; border:none;" onclick="saveCurrentScenario()">💾 Salva Scenario in Memoria</button>
-          <button id="txt-btn-resetscen" type="button" class="preset-btn" onclick="clearScenarios()">🗑️ Reset Storico</button>
+          <button id="txt-btn-savescen" type="button" class="preset-btn" style="flex:1; background:var(--accent); color:white; border:none;" onclick="saveCurrentScenario()">💾 Save Scenario to Memory</button>
+          <button id="txt-btn-resetscen" type="button" class="preset-btn" onclick="clearScenarios()">🗑️ Reset History</button>
         </div>
 
         <div class="overflow-x-auto pt-2 border-t" style="border-color:var(--border);">
           <table class="w-full text-xs font-mono text-center border-collapse">
             <thead>
               <tr style="border-bottom: 1px solid var(--border); color:var(--text-dim);">
-                <th id="txt-th-scenname" class="p-2 text-left font-sans text-[11px]">Nome Scenario</th>
-                <th id="txt-th-price" class="p-2">Prezzo / Sconto</th>
+                <th id="txt-th-scenname" class="p-2 text-left font-sans text-[11px]">Scenario Name</th>
+                <th id="txt-th-price" class="p-2">Price / Discount</th>
                 <th id="txt-th-be" class="p-2">BE ROAS</th>
-                <th id="txt-th-profit" class="p-2">Profitto / Ordine</th>
+                <th id="txt-th-profit" class="p-2">Profit / Order</th>
               </tr>
             </thead>
             <tbody id="scenarios-body" class="divide-y divide-slate-800/50">
               <tr>
-                <td colspan="4" id="txt-empty-scen" class="p-3 text-center text-xs" style="color:var(--text-dim)">Nessuno scenario salvato. Clicca su "Salva Scenario" per aggiungerlo.</td>
+                <td colspan="4" id="txt-empty-scen" class="p-3 text-center text-xs" style="color:var(--text-dim)">No scenarios saved. Click "Save Scenario" to add one.</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- SIMULATORE CR % & CPC -->
+      <!-- CR % & CPC SIMULATOR -->
       <div class="card p-6 sm:p-7 border-dashed" style="border-color: #059669;">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <span class="text-base">🧮</span>
-            <h3 id="txt-tr-title" class="font-display text-sm font-semibold tracking-wide uppercase">Conversione Sito (CR %) &amp; Costo per Clic (CPC)</h3>
+            <h3 id="txt-tr-title" class="font-display text-sm font-semibold tracking-wide uppercase">Site Conversion (CR %) &amp; Cost Per Click (CPC)</h3>
           </div>
-          <span id="txt-tr-badge" class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(5,150,105,0.2); color: #059669;">TRAFFICO ADS</span>
+          <span id="txt-tr-badge" class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(5,150,105,0.2); color: #059669;">ADS TRAFFIC</span>
         </div>
 
         <p id="txt-tr-desc" class="text-xs mb-4" style="color: var(--text-dim)">
-          Verifica se il costo del traffico (CPC) e il tasso di conversione dell'e-commerce permettono di raggiungere la CPA massima.
+          Check if traffic cost (CPC) and e-commerce conversion rate allow you to reach the max CPA.
         </p>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label id="txt-label-crsite" class="text-xs font-medium">Conversion Rate Sito (CR)</label>
+              <label id="txt-label-crsite" class="text-xs font-medium">Site Conversion Rate (CR)</label>
               <div class="flex items-center gap-1">
                 <input id="cr-site" type="number" step="0.1" class="num-input w-20 rounded-lg px-2 py-1 text-xs text-right" value="2.0">
                 <span class="text-xs" style="color:var(--text-dim)">%</span>
@@ -435,7 +445,7 @@
 
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label id="txt-label-cpc" class="text-xs font-medium">Costo Per Clic Medio (CPC)</label>
+              <label id="txt-label-cpc" class="text-xs font-medium">Average Cost Per Click (CPC)</label>
               <div class="flex items-center gap-1">
                 <span class="text-xs" style="color:var(--text-dim)">€</span>
                 <input id="cpc-ads" type="number" step="0.05" class="num-input w-20 rounded-lg px-2 py-1 text-xs text-right" value="0.50">
@@ -447,35 +457,35 @@
 
         <div class="grid grid-cols-2 gap-3 pt-3 border-t text-center" style="border-color: var(--border);">
           <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
-            <p id="txt-tr-estcpa" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">CPA Stimata dal Traffico</p>
+            <p id="txt-tr-estcpa" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Estimated Traffic CPA</p>
             <p id="cr-estimated-cpa" class="font-display font-mono text-sm sm:text-base font-semibold mt-1" style="color: #059669;">—</p>
           </div>
           <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
-            <p id="txt-tr-sust" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Sostenibilità Traffico</p>
+            <p id="txt-tr-sust" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Traffic Sustainability</p>
             <p id="cr-status-badge" class="font-display font-mono text-xs sm:text-sm font-semibold mt-1">—</p>
           </div>
         </div>
         <p id="cr-status-msg" class="text-[11px] font-medium text-center pt-2"></p>
       </div>
 
-      <!-- TARGET PROFIT / REVERSE BREAKEVEN -->
+      <!-- REVERSE BREAKEVEN (TARGET PROFIT) -->
       <div class="card p-6 sm:p-7 border-dashed" style="border-color: #EC4899;">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <span class="text-base">🎯</span>
             <h3 id="txt-rev-title" class="font-display text-sm font-semibold tracking-wide uppercase">Reverse Breakeven (Target Profit)</h3>
           </div>
-          <span id="txt-rev-badge" class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(236,72,153,0.2); color: #EC4899;">OBIETTIVO MENSILE</span>
+          <span id="txt-rev-badge" class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(236,72,153,0.2); color: #EC4899;">MONTHLY GOAL</span>
         </div>
 
         <p id="txt-rev-desc" class="text-xs mb-4" style="color: var(--text-dim)">
-          Inserisci il profitto netto mensile che desideri generare per scoprire quanti ordini devi fare e che budget Ads serve.
+          Enter the desired monthly net profit to discover how many orders you need and what ad budget is required.
         </p>
 
         <div class="space-y-4">
           <div>
             <div class="flex items-center justify-between mb-2">
-              <label id="txt-label-tprof" class="text-xs font-medium">Profitto Mensile Desiderato (€)</label>
+              <label id="txt-label-tprof" class="text-xs font-medium">Desired Monthly Profit (€)</label>
               <div class="flex items-center gap-1">
                 <input id="targetProfit" type="number" step="500" class="num-input w-24 rounded-lg px-2 py-1 text-xs text-right" value="5000">
                 <span class="text-xs font-mono" style="color:var(--text-dim)">€</span>
@@ -486,35 +496,35 @@
 
           <div class="grid grid-cols-2 gap-3 pt-3 border-t text-center" style="border-color: var(--border);">
             <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
-              <p id="txt-rev-orders" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Ordini Necessari</p>
+              <p id="txt-rev-orders" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Required Orders</p>
               <p id="outTargetOrders" class="font-display font-mono text-sm sm:text-base font-semibold mt-1" style="color: #EC4899;">0</p>
             </div>
             <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
-              <p id="txt-rev-budget" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Budget ADS Stimato</p>
-              <p id="outTargetBudget" class="font-display font-mono text-sm sm:text-base font-semibold mt-1" style="color: #EC4899;">0,00 €</p>
+              <p id="txt-rev-budget" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Estimated Ad Budget</p>
+              <p id="outTargetBudget" class="font-display font-mono text-sm sm:text-base font-semibold mt-1" style="color: #EC4899;">0.00 €</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- SIMULATORE TARGET ROAS -->
+      <!-- TARGET ROAS SIMULATOR -->
       <div class="card p-6 sm:p-7 border-dashed" style="border-color: var(--accent);">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <span class="text-base">🚀</span>
-            <h3 id="txt-troas-title" class="font-display text-sm font-semibold tracking-wide uppercase">Simulatore Profitto Target</h3>
+            <h3 id="txt-troas-title" class="font-display text-sm font-semibold tracking-wide uppercase">Target Profit Simulator</h3>
           </div>
-          <span id="txt-troas-badge" class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(108,92,231,0.2); color: var(--accent);">PRO · GRATIS</span>
+          <span id="txt-troas-badge" class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(108,92,231,0.2); color: var(--accent);">PRO · FREE</span>
         </div>
 
         <p id="txt-troas-desc" class="text-xs mb-4" style="color: var(--text-dim)">
-          Imposta il ROAS che vuoi raggiungere con le Ads per scoprire quanto profitto ti rimane in tasca su ogni ordine.
+          Set the target ROAS you want from Ads to see how much profit remains in your pocket per order.
         </p>
 
         <div class="space-y-4">
           <div>
             <div class="flex items-center justify-between mb-2">
-              <label id="txt-label-roastarget" class="text-xs font-medium">ROAS Obiettivo Ads</label>
+              <label id="txt-label-roastarget" class="text-xs font-medium">Target Ads ROAS</label>
               <div class="flex items-center gap-1">
                 <input id="roasTarget" type="number" step="0.1" class="num-input w-20 rounded-lg px-2 py-1 text-xs text-right" value="3.0">
                 <span class="text-xs font-mono" style="color:var(--text-dim)">x</span>
@@ -525,15 +535,15 @@
 
           <div class="grid grid-cols-3 gap-3 pt-3 border-t text-center" style="border-color: var(--border);">
             <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
-              <p id="txt-troas-cpa" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">CPA Target</p>
+              <p id="txt-troas-cpa" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Target CPA</p>
               <p id="target-cpa" class="font-display font-mono text-sm sm:text-base font-semibold mt-1">—</p>
             </div>
             <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
-              <p id="txt-troas-profit" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Profitto / Ordine</p>
+              <p id="txt-troas-profit" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Profit / Order</p>
               <p id="target-profit" class="font-display font-mono text-sm sm:text-base font-semibold mt-1">—</p>
             </div>
             <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
-              <p id="txt-troas-margin" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Margine Finale</p>
+              <p id="txt-troas-margin" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Final Margin</p>
               <p id="target-margin" class="font-display font-mono text-sm sm:text-base font-semibold mt-1">—</p>
             </div>
           </div>
@@ -541,27 +551,27 @@
         </div>
       </div>
 
-      <!-- SIMULATORE AOV & BUNDLE -->
+      <!-- AOV & BUNDLE SIMULATOR -->
       <div class="card p-6 sm:p-7 border-dashed" style="border-color: var(--good);">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <span class="text-base">📦</span>
-            <h3 id="txt-aov-title" class="font-display text-sm font-semibold tracking-wide uppercase">Simulatore Carrello Medio (AOV / Bundle)</h3>
+            <h3 id="txt-aov-title" class="font-display text-sm font-semibold tracking-wide uppercase">Average Order Value Simulator (AOV / Bundle)</h3>
           </div>
-          <span id="txt-aov-badge" class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(52,211,153,0.2); color: var(--good);">EFFETTO SCALA</span>
+          <span id="txt-aov-badge" class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(52,211,153,0.2); color: var(--good);">SCALE EFFECT</span>
         </div>
 
         <p id="txt-aov-desc" class="text-xs mb-4" style="color: var(--text-dim)">
-          Vendere più unità nello stesso ordine abbatte l'impatto della spedizione e delle commissioni fisse.
+          Selling multiple units per order lowers the impact of shipping and fixed payment fees.
         </p>
 
         <div class="space-y-4">
           <div>
             <div class="flex items-center justify-between mb-2">
-              <label id="txt-label-aovqty" class="text-xs font-medium">Unità medie per ordine</label>
+              <label id="txt-label-aovqty" class="text-xs font-medium">Average units per order</label>
               <div class="flex items-center gap-1">
                 <input id="aov-qty" type="number" step="1" class="num-input w-20 rounded-lg px-2 py-1 text-xs text-right" value="2">
-                <span class="text-xs font-mono" style="color:var(--text-dim)">pz</span>
+                <span class="text-xs font-mono" style="color:var(--text-dim)">pcs</span>
               </div>
             </div>
             <input id="aov-qty-range" type="range" min="1" max="10" step="1" value="2">
@@ -569,15 +579,15 @@
 
           <div class="grid grid-cols-3 gap-3 pt-3 border-t text-center" style="border-color: var(--border);">
             <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
-              <p id="txt-aov-newval" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Nuovo AOV</p>
+              <p id="txt-aov-newval" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">New AOV</p>
               <p id="aov-val" class="font-display font-mono text-sm sm:text-base font-semibold mt-1">—</p>
             </div>
             <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
-              <p id="txt-aov-newroas" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Nuovo Breakeven ROAS</p>
+              <p id="txt-aov-newroas" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">New Breakeven ROAS</p>
               <p id="aov-roas" class="font-display font-mono text-sm sm:text-base font-semibold mt-1" style="color:var(--good);">—</p>
             </div>
             <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
-              <p id="txt-aov-newprof" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Profitto ad Ordine</p>
+              <p id="txt-aov-newprof" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Profit per Order</p>
               <p id="aov-profit" class="font-display font-mono text-sm sm:text-base font-semibold mt-1" style="color:var(--good);">—</p>
             </div>
           </div>
@@ -585,28 +595,28 @@
         </div>
       </div>
 
-      <!-- MATRICE DI SENSIBILITÀ & SCENARI -->
+      <!-- SENSITIVITY MATRIX & SCENARIOS -->
       <div class="card p-6 sm:p-7 border-dashed" style="border-color: var(--warn);">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <span class="text-base">📊</span>
-            <h3 id="txt-mat-title" class="font-display text-sm font-semibold tracking-wide uppercase">Matrice Scenari Sconto vs Spedizione</h3>
+            <h3 id="txt-mat-title" class="font-display text-sm font-semibold tracking-wide uppercase">Discount vs Shipping Scenario Matrix</h3>
           </div>
           <span id="txt-mat-badge" class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(251,191,36,0.2); color: var(--warn);">STRESS TEST</span>
         </div>
 
         <p id="txt-mat-desc" class="text-xs mb-4" style="color: var(--text-dim)">
-          Tabella comparativa: scopri come varia il Breakeven ROAS applicando diversi sconti o cambiando la tariffa di spedizione.
+          Comparative table: see how Breakeven ROAS changes with different discounts or shipping rates.
         </p>
 
         <div class="overflow-x-auto">
           <table class="w-full text-xs font-mono text-center border-collapse">
             <thead>
               <tr style="border-bottom: 1px solid var(--border);">
-                <th id="txt-th-matrixcol" class="p-2 text-left font-sans text-[11px]" style="color: var(--text-dim);">Sconto ↓ \ Spedizione →</th>
-                <th id="th-ship-curr" class="p-2">In Uso</th>
-                <th id="th-ship-free" class="p-2">0,00 € (Gratis)</th>
-                <th id="th-ship-plus" class="p-2">+2,00 €</th>
+                <th id="txt-th-matrixcol" class="p-2 text-left font-sans text-[11px]" style="color: var(--text-dim);">Discount ↓ \ Shipping →</th>
+                <th id="th-ship-curr" class="p-2">Current</th>
+                <th id="th-ship-free" class="p-2">0.00 € (Free)</th>
+                <th id="th-ship-plus" class="p-2">+2.00 €</th>
               </tr>
             </thead>
             <tbody id="matrix-body" class="divide-y divide-slate-800/50">
@@ -615,27 +625,27 @@
         </div>
       </div>
 
-      <!-- SIMULATORE LTV / REPEAT PURCHASE -->
+      <!-- LTV / REPEAT PURCHASE SIMULATOR -->
       <div class="card p-6 sm:p-7 border-dashed" style="border-color: #38BDF8;">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <span class="text-base">🔄</span>
-            <h3 id="txt-ltv-title" class="font-display text-sm font-semibold tracking-wide uppercase">Simulatore LTV &amp; Riacquisti Futuri</h3>
+            <h3 id="txt-ltv-title" class="font-display text-sm font-semibold tracking-wide uppercase">LTV &amp; Future Repeat Purchases Simulator</h3>
           </div>
           <span id="txt-ltv-badge" class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full font-bold" style="background: rgba(56,189,248,0.2); color: #38BDF8;">LIFETIME VALUE</span>
         </div>
 
         <p id="txt-ltv-desc" class="text-xs mb-4" style="color: var(--text-dim)">
-          I clienti non comprano una volta sola. Calcola quanto puoi spendere per acquisire un cliente al 1° ordine sapendo quanto riacquisterà nei mesi successivi (senza ulteriori spese di Ads).
+          Customers buy more than once. Calculate how much you can spend to acquire a customer on the 1st order knowing future repeat purchases (without additional Ad spend).
         </p>
 
         <div class="space-y-4">
           <div>
             <div class="flex items-center justify-between mb-2">
-              <label id="txt-label-ltvorders" class="text-xs font-medium">Numero medio di ordini per cliente (LTV)</label>
+              <label id="txt-label-ltvorders" class="text-xs font-medium">Average orders per customer (LTV)</label>
               <div class="flex items-center gap-1">
                 <input id="ltv-orders" type="number" step="0.1" class="num-input w-20 rounded-lg px-2 py-1 text-xs text-right" value="1.5">
-                <span id="txt-unit-orders" class="text-xs font-mono" style="color:var(--text-dim)">ordini</span>
+                <span id="txt-unit-orders" class="text-xs font-mono" style="color:var(--text-dim)">orders</span>
               </div>
             </div>
             <input id="ltv-orders-range" type="range" min="1.0" max="5.0" step="0.1" value="1.5">
@@ -643,15 +653,15 @@
 
           <div class="grid grid-cols-3 gap-3 pt-3 border-t text-center" style="border-color: var(--border);">
             <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
-              <p id="txt-ltv-rev" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">LTV Incassato</p>
+              <p id="txt-ltv-rev" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Collected LTV</p>
               <p id="ltv-revenue" class="font-display font-mono text-sm sm:text-base font-semibold mt-1" style="color: #38BDF8;">—</p>
             </div>
             <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
-              <p id="txt-ltv-cpamax" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">CPA Max a LTV</p>
+              <p id="txt-ltv-cpamax" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Max CPA at LTV</p>
               <p id="ltv-cpa" class="font-display font-mono text-sm sm:text-base font-semibold mt-1" style="color: #38BDF8;">—</p>
             </div>
             <div class="p-2.5 rounded-lg" style="background: var(--surface-2);">
-              <p id="txt-ltv-roasmin" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">ROAS 1° Ordine Min.</p>
+              <p id="txt-ltv-roasmin" class="text-[10px] uppercase font-mono" style="color: var(--text-dim);">Min 1st Order ROAS</p>
               <p id="ltv-roas" class="font-display font-mono text-sm sm:text-base font-semibold mt-1" style="color: #38BDF8;">—</p>
             </div>
           </div>
@@ -659,16 +669,16 @@
         </div>
       </div>
 
-      <!-- AZIONI UTENTE -->
+      <!-- USER ACTIONS -->
       <div class="no-print space-y-2">
-        <button id="txt-btn-print" type="button" class="action-btn btn-print" onclick="window.print()">🖨️ <span>Stampa / Salva Report PDF</span></button>
-        <button id="txt-btn-share" type="button" class="action-btn btn-share" onclick="shareScenario()">🔗 <span>Condividi Scenario (Copia Link)</span></button>
-        <button id="txt-btn-sheet" type="button" class="action-btn btn-sheet" onclick="window.open('https://docs.google.com/spreadsheets/d/1XJedVx9O6DbH3SYv8pHgAzD67V5wxGPpEuC_UTic-JU/copy', '_blank')">📈 <span>Crea Copia Template Google Sheet</span></button>
+        <button id="txt-btn-print" type="button" class="action-btn btn-print" onclick="window.print()">🖨️ <span>Print / Save PDF Report</span></button>
+        <button id="txt-btn-share" type="button" class="action-btn btn-share" onclick="shareScenario()">🔗 <span>Share Scenario (Copy Link)</span></button>
+        <button id="txt-btn-sheet" type="button" class="action-btn btn-sheet" onclick="window.open('https://docs.google.com/spreadsheets/d/1XJedVx9O6DbH3SYv8pHgAzD67V5wxGPpEuC_UTic-JU/copy', '_blank')">📈 <span>Create Google Sheet Template Copy</span></button>
       </div>
 
       <!-- Breakdown bar -->
       <div class="card p-6 sm:p-7">
-        <p id="txt-bar-title" class="text-xs font-mono uppercase tracking-widest mb-4" style="color:var(--text-dim)">Composizione del Prezzo di Listino Singolo</p>
+        <p id="txt-bar-title" class="text-xs font-mono uppercase tracking-widest mb-4" style="color:var(--text-dim)">Single List Price Breakdown</p>
 
         <div class="w-full h-8 rounded-lg overflow-hidden flex border border-slate-700 print-bar-container" style="background:var(--surface-2)">
           <div id="seg-cogs" class="bar-seg h-full bg-cogs" style="width:0%"></div>
@@ -679,38 +689,57 @@
           <div id="seg-profit" class="bar-seg h-full bg-profit" style="width:0%"></div>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-6 gap-2 mt-4 text-xs">
-          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full inline-block legend-dot bg-cogs border border-black/20"></span>COGS</div>
-          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full inline-block legend-dot bg-ship border border-black/20" id="leg-ship">Spedizione</span></div>
-          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full inline-block legend-dot bg-fee border border-black/20" id="leg-fee">Commissioni</span></div>
-          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full inline-block legend-dot bg-return border border-black/20" id="leg-return">Resi</span></div>
-          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full inline-block legend-dot bg-discount border border-black/20" id="leg-disc">Sconto</span></div>
-          <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full inline-block legend-dot bg-profit border border-black/20" id="leg-prof">Profitto</span></div>
+        <!-- FIX LEGEND OVERLAPS: Aggiunto gap adeguato, flex-wrap e allineamento corretto -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mt-4 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full shrink-0 bg-cogs border border-black/20"></span>
+            <span class="truncate">COGS</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full shrink-0 bg-ship border border-black/20"></span>
+            <span class="truncate" id="leg-ship">Shipping</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full shrink-0 bg-fee border border-black/20"></span>
+            <span class="truncate" id="leg-fee">Fees</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full shrink-0 bg-return border border-black/20"></span>
+            <span class="truncate" id="leg-return">Returns</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full shrink-0 bg-discount border border-black/20"></span>
+            <span class="truncate" id="leg-disc">Discount</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full shrink-0 bg-profit border border-black/20"></span>
+            <span class="truncate" id="leg-prof">Profit</span>
+          </div>
         </div>
       </div>
 
     </section>
   </div>
 
-  <!-- TOOL CONSIGLIATI -->
+  <!-- RECOMMENDED TOOLS -->
   <section class="mt-12 no-print">
     <div class="card p-6 sm:p-8">
       <div class="flex items-center gap-2 mb-4">
         <span class="text-xl">🛠️</span>
-        <h3 id="txt-tools-title" class="font-display text-lg font-bold">Tool Consigliati per Ottimizzare i Margini del tuo E-commerce</h3>
+        <h3 id="txt-tools-title" class="font-display text-lg font-bold">Recommended Tools to Optimize E-commerce Margins</h3>
       </div>
-      <p id="txt-tools-desc" class="text-xs text-slate-400 mb-6">Integrazioni e software essenziali per monitorare l'attribuzione pubblicitaria, automatizzare le email e scalare le vendite.</p>
+      <p id="txt-tools-desc" class="text-xs text-slate-400 mb-6">Essential integrations and software to monitor ad attribution, automate emails, and scale sales.</p>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="p-4 rounded-xl border flex flex-col justify-between" style="background:var(--surface-2); border-color:var(--border);">
           <div>
             <div class="flex items-center justify-between mb-2">
               <span class="font-bold text-sm">Shopify</span>
-              <span id="txt-badge-plat" class="text-[10px] px-2 py-0.5 rounded font-mono bg-emerald-500/10 text-emerald-400">Piattaforma</span>
+              <span id="txt-badge-plat" class="text-[10px] px-2 py-0.5 rounded font-mono bg-emerald-500/10 text-emerald-400">Platform</span>
             </div>
-            <p id="txt-tool1-desc" class="text-xs text-slate-400">Crea e gestisci il tuo negozio online con la migliore infrastruttura di checkout al mondo.</p>
+            <p id="txt-tool1-desc" class="text-xs text-slate-400">Create and manage your online store with the best checkout infrastructure in the world.</p>
           </div>
-          <a id="txt-tool1-link" href="https://shopify.pxf.io/c/7677082/1061744/13624" target="_blank" rel="noopener sponsored" class="mt-4 text-xs font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1">Provalo gratis a 1€/mese &rarr;</a>
+          <a id="txt-tool1-link" href="https://shopify.pxf.io/c/7677082/1061744/13624" target="_blank" rel="noopener sponsored" class="mt-4 text-xs font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1">Try free for €1/mo &rarr;</a>
         </div>
 
         <div class="p-4 rounded-xl border flex flex-col justify-between" style="background:var(--surface-2); border-color:var(--border);">
@@ -719,7 +748,7 @@
               <span class="font-bold text-sm">Klaviyo / Brevo</span>
               <span id="txt-badge-email" class="text-[10px] px-2 py-0.5 rounded font-mono bg-sky-500/10 text-sky-400">Email Marketing</span>
             </div>
-            <p id="txt-tool2-desc" class="text-xs text-slate-400">Aumenta il valore LTV dei tuoi clienti recuperando i carrelli abbandonati in automatico.</p>
+            <p id="txt-tool2-desc" class="text-xs text-slate-400">Increase your customers' LTV by automatically recovering abandoned carts.</p>
           </div>
           <div class="mt-4 flex items-center gap-3">
             <a href="https://www.klaviyo.com" target="_blank" rel="noopener sponsored" class="text-xs font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1">Klaviyo &rarr;</a>
@@ -734,325 +763,158 @@
               <span class="font-bold text-sm">Triple Whale</span>
               <span id="txt-badge-track" class="text-[10px] px-2 py-0.5 rounded font-mono bg-amber-500/10 text-amber-400">Tracking Ads</span>
             </div>
-            <p id="txt-tool3-desc" class="text-xs text-slate-400">Traccia il ROAS reale in prima persona senza perdite dovute agli aggiornamenti di iOS.</p>
+            <p id="txt-tool3-desc" class="text-xs text-slate-400">Track real ROAS firsthand without losses caused by iOS updates.</p>
           </div>
-          <a id="txt-tool3-link" href="https://www.triplewhale.com" target="_blank" rel="noopener sponsored" class="mt-4 text-xs font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1">Scopri le funzionalità &rarr;</a>
+          <a id="txt-tool3-link" href="https://www.triplewhale.com" target="_blank" rel="noopener sponsored" class="mt-4 text-xs font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1">Explore features &rarr;</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- GUIDA SEO -->
+  <!-- SEO GUIDE -->
   <article class="mt-12 card p-6 sm:p-10 space-y-8 prose prose-invert max-w-none no-print">
     <div class="border-b pb-4" style="border-color: var(--border);">
-      <h2 id="txt-seo-title" class="font-display text-2xl font-bold">Guida Definitiva al ROAS e alla Redditività nell'E-commerce</h2>
-      <p id="txt-seo-sub" class="text-xs text-slate-400 mt-1">Comprendere le metriche chiave per sostenere la crescita delle tue campagne pubblicitarie.</p>
+      <h2 id="txt-seo-title" class="font-display text-2xl font-bold">Definitive Guide to ROAS and E-commerce Profitability</h2>
+      <p id="txt-seo-sub" class="text-xs text-slate-400 mt-1">Understand key metrics to sustain the growth of your advertising campaigns.</p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="space-y-2">
-        <h3 id="txt-seo-h1" class="font-display text-base font-semibold text-indigo-300">Cos'è il ROAS e come si calcola?</h3>
-        <p id="txt-seo-p1" class="text-xs text-slate-300 leading-relaxed">Il ROAS (Return On Ad Spend) è la metrica che indica quanto fatturato viene generato per ogni euro investito nelle campagne pubblicitarie.</p>
+        <h3 id="txt-seo-h1" class="font-display text-base font-semibold text-indigo-300">What is ROAS and how is it calculated?</h3>
+        <p id="txt-seo-p1" class="text-xs text-slate-300 leading-relaxed">ROAS (Return On Ad Spend) is the metric indicating how much revenue is generated for every euro invested in advertising.</p>
       </div>
       <div class="space-y-2">
-        <h3 id="txt-seo-h2" class="font-display text-base font-semibold text-indigo-300">Differenza tra ROAS e ROI</h3>
-        <p id="txt-seo-p2" class="text-xs text-slate-300 leading-relaxed">Mentre il ROAS valuta unicamente la resa lorda della spesa pubblicitaria, il ROI misura il vero guadagno netto prendendo in considerazione tutti i costi operativi.</p>
+        <h3 id="txt-seo-h2" class="font-display text-base font-semibold text-indigo-300">Difference between ROAS and ROI</h3>
+        <p id="txt-seo-p2" class="text-xs text-slate-300 leading-relaxed">While ROAS measures only the gross return on ad spend, ROI measures true net gain by factoring in all operating costs.</p>
       </div>
       <div class="space-y-2">
-        <h3 id="txt-seo-h3" class="font-display text-base font-semibold text-indigo-300">Come si calcola il Break-Even ROAS?</h3>
-        <p id="txt-seo-p3" class="text-xs text-slate-300 leading-relaxed">Il Break-Even ROAS rappresenta la soglia minima oltre la quale le inserzioni pubblicitarie iniziano a produrre un utile reale.</p>
+        <h3 id="txt-seo-h3" class="font-display text-base font-semibold text-indigo-300">How to calculate Break-Even ROAS?</h3>
+        <p id="txt-seo-p3" class="text-xs text-slate-300 leading-relaxed">Break-Even ROAS represents the minimum threshold above which ad placements start generating a real profit.</p>
       </div>
     </div>
   </article>
 
   <footer id="txt-footer" class="mt-10 text-center text-xs no-print" style="color:var(--text-dim)">
-    Calcolo indicativo — non costituisce consulenza finanziaria. Modello di analisi aggiornato all'ecosistema E-commerce Enterprise.
+    Indicative calculation — does not constitute financial advice. Analysis model updated for the Enterprise E-commerce ecosystem.
   </footer>
 </div>
 
 <script>
-  const userLang = (navigator.language || navigator.userLanguage || 'it').toLowerCase();
-  const isItalian = userLang.startsWith('it');
-
-  const dict = {
-    it: {
-      metaTitle: "Breakeven ROAS, AOV, Matrix & LTV — Calcolatore Enterprise Global",
-      subhead: "Unit Economics · E-commerce Enterprise",
-      mainTitle: "Breakeven ROAS & Profitto Reale",
-      mainDesc: "Calcola il ROAS minimo di sostenibilità, simula il profitto target, valuta l'impatto dell'AOV, considera i costi fissi (OpEx), testa scenari promozionali e misura il valore nel tempo (LTV).",
-      secParams: "Parametri Prodotto",
-      singleUnit: "Singola Unità",
-      presetLabel: "Carica Preset di Nicchia:",
-      labelPrice: "Prezzo di Listino",
-      labelDiscount: "🏷️ Sconto / Promozione",
-      effPriceText: "Prezzo Scontato Reale:",
-      labelCogs: "Costo del Prodotto (COGS)",
-      labelShipping: "Spedizione (a carico venditore)",
-      labelFees: "Commissioni di Pagamento",
-      labelReturns: "Tasso Stimato di Reso",
-      labelOpex: "🏢 Spese Fisse Mensili (OpEx)",
-      descOpex: "Software, stipendi o affitti distribuiti sugli ordini target mensili.",
-      boxStatus: "Stato del Margine",
-      outRoasTitle: "ROAS di Breakeven",
-      outRoasDesc: "Ritorno minimo sulle Ads per non perdere",
-      outCpaTitle: "CPA Massima",
-      outCpaDesc: "Spesa max per acquisire un cliente",
-      outMarginTitle: "Margine Netto Reale",
-      outMarginDesc: "Sul prezzo effettivo incassato",
-      outProfitTitle: "Profitto Netto / Unità",
-      outProfitDesc: "Dopo tutti i costi prima delle Ads",
-      chartTitle: "Curva di Profitto & Buffer di Sicurezza Ads",
-      chartBadge: "ANALISI VISIVA",
-      sugTitle: "Consiglio Strategico Automatico",
-      simTitle: "Simulatore di Scenari & What-If (PRO)",
-      simBadge: "SALVATAGGIO ILLIMITATO",
-      simDesc: "Crea, salva e confronta in un colpo solo più scenari di budget (es. shock su CPM, variazione di conversione o test di budget).",
-      labelScenName: "Nome Scenario",
-      labelCpmVar: "Variazione CPM (%)",
-      labelCrVar: "Delta Conversione (%)",
-      btnSaveScen: "💾 Salva Scenario in Memoria",
-      btnResetScen: "🗑️ Reset Storico",
-      thScenName: "Nome Scenario",
-      thPrice: "Prezzo / Sconto",
-      thBe: "BE ROAS",
-      thProfit: "Profitto / Ordine",
-      emptyScen: "Nessuno scenario salvato. Clicca su \"Salva Scenario\" per aggiungerlo.",
-      trTitle: "Conversione Sito (CR %) & Costo per Clic (CPC)",
-      trBadge: "TRAFFICO ADS",
-      trDesc: "Verifica se il costo del traffico (CPC) e il tasso di conversione dell'e-commerce permettono di raggiungere la CPA massima.",
-      labelCrSite: "Conversion Rate Sito (CR)",
-      labelCpc: "Costo Per Clic Medio (CPC)",
-      trEstCpa: "CPA Stimata dal Traffico",
-      trSust: "Sostenibilità Traffico",
-      revTitle: "Reverse Breakeven (Target Profit)",
-      revBadge: "OBIETTIVO MENSILE",
-      revDesc: "Inserisci il profitto netto mensile che desideri generare per scoprire quanti ordini devi fare e che budget Ads serve.",
-      labelTProf: "Profitto Mensile Desiderato (€)",
-      revOrders: "Ordini Necessari",
-      revBudget: "Budget ADS Stimato",
-      troasTitle: "Simulatore Profitto Target",
-      troasBadge: "PRO · GRATIS",
-      troasDesc: "Imposta il ROAS che vuoi raggiungere con le Ads per scoprire quanto profitto ti rimane in tasca su ogni ordine.",
-      labelRoasTarget: "ROAS Obiettivo Ads",
-      troasCpa: "CPA Target",
-      troasProfit: "Profitto / Ordine",
-      troasMargin: "Margine Finale",
-      aovTitle: "Simulatore Carrello Medio (AOV / Bundle)",
-      aovBadge: "EFFETTO SCALA",
-      aovDesc: "Vendere più unità nello stesso ordine abbatte l'impatto della spedizione e delle commissioni fisse.",
-      labelAovQty: "Unità medie per ordine",
-      aovNewVal: "Nuovo AOV",
-      aovNewRoas: "Nuovo Breakeven ROAS",
-      aovNewProf: "Profitto ad Ordine",
-      matTitle: "Matrice Scenari Sconto vs Spedizione",
-      matBadge: "STRESS TEST",
-      matDesc: "Tabella comparativa: scopri come varia il Breakeven ROAS applicando diversi sconti o cambiando la tariffa di spedizione.",
-      thMatrixCol: "Sconto ↓ \\ Spedizione →",
-      ltvTitle: "Simulatore LTV & Riacquisti Futuri",
-      ltvBadge: "LIFETIME VALUE",
-      ltvDesc: "I clienti non comprano una volta sola. Calcola quanto puoi spendere per acquisire un cliente al 1° ordine sapendo quanto riacquisterà nei mesi successivi.",
-      labelLtvOrders: "Numero medio di ordini per cliente (LTV)",
-      unitOrders: "ordini",
-      ltvRev: "LTV Incassato",
-      ltvCpaMax: "CPA Max a LTV",
-      ltvRoasMin: "ROAS 1° Ordine Min.",
-      btnPrint: "🖨️ Stampa / Salva Report PDF",
-      btnShare: "🔗 Condividi Scenario (Copia Link)",
-      btnSheet: "📈 Crea Copia Template Google Sheet",
-      barTitle: "Composizione del Prezzo di Listino Singolo",
-      legShip: "Spedizione",
-      legFee: "Commissioni",
-      legReturn: "Resi",
-      legDisc: "Sconto",
-      legProf: "Profitto",
-      toolsTitle: "Tool Consigliati per Ottimizzare i Margini del tuo E-commerce",
-      toolsDesc: "Integrazioni e software essenziali per monitorare l'attribuzione pubblicitaria, automatizzare le email e scalare le vendite.",
-      badgePlat: "Piattaforma",
-      tool1Desc: "Crea e gestisci il tuo negozio online con la migliore infrastruttura di checkout al mondo.",
-      tool1Link: "Provalo gratis a 1€/mese &rarr;",
-      badgeEmail: "Email Marketing",
-      tool2Desc: "Aumenta il valore LTV dei tuoi clienti recuperando i carrelli abbandonati in automatico.",
-      badgeTrack: "Tracking Ads",
-      tool3Desc: "Traccia il ROAS reale in prima persona senza perdite dovute agli aggiornamenti di iOS.",
-      tool3Link: "Scopri le funzionalità &rarr;",
-      seoTitle: "Guida Definitiva al ROAS e alla Redditività nell'E-commerce",
-      seoSub: "Comprendere le metriche chiave per sostenere la crescita delle tue campagne pubblicitarie.",
-      seoH1: "Cos'è il ROAS e come si calcola?",
-      seoP1: "Il ROAS (Return On Ad Spend) è la metrica che indica quanto fatturato viene generato per ogni euro investito nelle campagne pubblicitarie.",
-      seoH2: "Differenza tra ROAS e ROI",
-      seoP2: "Mentre il ROAS valuta unicamente la resa lorda della spesa pubblicitaria, il ROI misura il vero guadagno netto prendendo in considerazione tutti i costi operativi.",
-      seoH3: "Come si calcola il Break-Even ROAS?",
-      seoP3: "Il Break-Even ROAS rappresenta la soglia minima oltre la quale le inserzioni pubblicitarie iniziano a produrre un utile reale.",
-      footer: "Calcolo indicativo — non costituisce consulenza finanziaria. Modello di analisi aggiornato all'ecosistema E-commerce Enterprise."
-    },
-    en: {
-      metaTitle: "Breakeven ROAS, AOV, Matrix & LTV — Enterprise Global Calculator",
-      subhead: "Unit Economics · E-commerce Enterprise",
-      mainTitle: "Breakeven ROAS & Real Profit",
-      mainDesc: "Calculate minimum sustainability ROAS, simulate target profit, evaluate AOV impact, factor in fixed costs (OpEx), test promo scenarios, and measure lifetime value (LTV).",
-      secParams: "Product Parameters",
-      singleUnit: "Single Unit",
-      presetLabel: "Load Niche Preset:",
-      labelPrice: "List Price",
-      labelDiscount: "🏷️ Discount / Promo",
-      effPriceText: "Real Discounted Price:",
-      labelCogs: "Cost of Goods Sold (COGS)",
-      labelShipping: "Shipping (paid by seller)",
-      labelFees: "Payment Gateway Fees",
-      labelReturns: "Estimated Return Rate",
-      labelOpex: "🏢 Monthly Fixed Costs (OpEx)",
-      descOpex: "Software, salaries, or rent distributed over monthly target orders.",
-      boxStatus: "Margin Status",
-      outRoasTitle: "Breakeven ROAS",
-      outRoasDesc: "Minimum Ad return to break even",
-      outCpaTitle: "Max CPA",
-      outCpaDesc: "Max ad spend to acquire a customer",
-      outMarginTitle: "Real Net Margin",
-      outMarginDesc: "On actual collected price",
-      outProfitTitle: "Net Profit / Unit",
-      outProfitDesc: "After all costs before Ads",
-      chartTitle: "Profit Curve & Ads Safety Buffer",
-      chartBadge: "VISUAL ANALYSIS",
-      sugTitle: "Automatic Strategic Advice",
-      simTitle: "Scenario Simulator & What-If (PRO)",
-      simBadge: "UNLIMITED SAVING",
-      simDesc: "Create, save, and compare multiple budget scenarios at once (e.g., CPM shock, conversion changes, or budget tests).",
-      labelScenName: "Scenario Name",
-      labelCpmVar: "CPM Variation (%)",
-      labelCrVar: "Conversion Delta (%)",
-      btnSaveScen: "💾 Save Scenario to Memory",
-      btnResetScen: "🗑️ Reset History",
-      thScenName: "Scenario Name",
-      thPrice: "Price / Discount",
-      thBe: "BE ROAS",
-      thProfit: "Profit / Order",
-      emptyScen: "No scenarios saved. Click \"Save Scenario\" to add one.",
-      trTitle: "Site Conversion (CR %) & Cost Per Click (CPC)",
-      trBadge: "ADS TRAFFIC",
-      trDesc: "Check if traffic cost (CPC) and e-commerce conversion rate allow you to reach the max CPA.",
-      labelCrSite: "Site Conversion Rate (CR)",
-      labelCpc: "Average Cost Per Click (CPC)",
-      trEstCpa: "Estimated Traffic CPA",
-      trSust: "Traffic Sustainability",
-      revTitle: "Reverse Breakeven (Target Profit)",
-      revBadge: "MONTHLY GOAL",
-      revDesc: "Enter the desired monthly net profit to discover how many orders you need and what ad budget is required.",
-      labelTProf: "Desired Monthly Profit (€)",
-      revOrders: "Required Orders",
-      revBudget: "Estimated Ad Budget",
-      troasTitle: "Target Profit Simulator",
-      troasBadge: "PRO · FREE",
-      troasDesc: "Set the target ROAS you want from Ads to see how much profit remains in your pocket per order.",
-      labelRoasTarget: "Target Ads ROAS",
-      troasCpa: "Target CPA",
-      troasProfit: "Profit / Order",
-      troasMargin: "Final Margin",
-      aovTitle: "Average Order Value Simulator (AOV / Bundle)",
-      aovBadge: "SCALE EFFECT",
-      aovDesc: "Selling multiple units per order lowers the impact of shipping and fixed payment fees.",
-      labelAovQty: "Average units per order",
-      aovNewVal: "New AOV",
-      aovNewRoas: "New Breakeven ROAS",
-      aovNewProf: "Profit per Order",
-      matTitle: "Discount vs Shipping Scenario Matrix",
-      matBadge: "STRESS TEST",
-      matDesc: "Comparative table: see how Breakeven ROAS changes with different discounts or shipping rates.",
-      thMatrixCol: "Discount ↓ \\ Shipping →",
-      ltvTitle: "LTV & Future Repeat Purchases Simulator",
-      ltvBadge: "LIFETIME VALUE",
-      ltvDesc: "Customers buy more than once. Calculate how much you can spend to acquire a customer on the 1st order knowing future repeat purchases.",
-      labelLtvOrders: "Average orders per customer (LTV)",
-      unitOrders: "orders",
-      ltvRev: "Collected LTV",
-      ltvCpaMax: "Max CPA at LTV",
-      ltvRoasMin: "Min 1st Order ROAS",
-      btnPrint: "🖨️ Print / Save PDF Report",
-      btnShare: "🔗 Share Scenario (Copy Link)",
-      btnSheet: "📈 Create Google Sheet Template Copy",
-      barTitle: "Single List Price Breakdown",
-      legShip: "Shipping",
-      legFee: "Fees",
-      legReturn: "Returns",
-      legDisc: "Discount",
-      legProf: "Profit",
-      toolsTitle: "Recommended Tools to Optimize E-commerce Margins",
-      toolsDesc: "Essential integrations and software to monitor ad attribution, automate emails, and scale sales.",
-      badgePlat: "Platform",
-      tool1Desc: "Create and manage your online store with the best checkout infrastructure in the world.",
-      tool1Link: "Try free for €1/mo &rarr;",
-      badgeEmail: "Email Marketing",
-      tool2Desc: "Increase your customers' LTV by automatically recovering abandoned carts.",
-      badgeTrack: "Tracking Ads",
-      tool3Desc: "Track real ROAS firsthand without losses caused by iOS updates.",
-      tool3Link: "Explore features &rarr;",
-      seoTitle: "Definitive Guide to ROAS and E-commerce Profitability",
-      seoSub: "Understand key metrics to sustain the growth of your advertising campaigns.",
-      seoH1: "What is ROAS and how is it calculated?",
-      seoP1: "ROAS (Return On Ad Spend) is the metric indicating how much revenue is generated for every euro invested in advertising.",
-      seoH2: "Difference between ROAS and ROI",
-      seoP2: "While ROAS measures only the gross return on ad spend, ROI measures true net gain by factoring in all operating costs.",
-      seoH3: "How to calculate Break-Even ROAS?",
-      seoP3: "Break-Even ROAS represents the minimum threshold above which ad placements start generating a real profit.",
-      footer: "Indicative calculation — does not constitute financial advice. Analysis model updated for the Enterprise E-commerce ecosystem."
-    }
+  // Force English directly
+  const t = {
+    metaTitle: "Breakeven ROAS, AOV, Matrix & LTV — Enterprise Global Calculator",
+    subhead: "Unit Economics · E-commerce Enterprise",
+    mainTitle: "Breakeven ROAS & Real Profit",
+    mainDesc: "Calculate minimum sustainability ROAS, simulate target profit, evaluate AOV impact, factor in fixed costs (OpEx), test promo scenarios, and measure lifetime value (LTV).",
+    secParams: "Product Parameters",
+    singleUnit: "Single Unit",
+    presetLabel: "Load Niche Preset:",
+    labelPrice: "List Price",
+    labelDiscount: "🏷️ Discount / Promo",
+    effPriceText: "Real Discounted Price:",
+    labelCogs: "Cost of Goods Sold (COGS)",
+    labelShipping: "Shipping (paid by seller)",
+    labelFees: "Payment Gateway Fees",
+    labelReturns: "Estimated Return Rate",
+    labelOpex: "🏢 Monthly Fixed Costs (OpEx)",
+    descOpex: "Software, salaries, or rent distributed over monthly target orders.",
+    boxStatus: "Margin Status",
+    outRoasTitle: "Breakeven ROAS",
+    outRoasDesc: "Minimum Ad return to break even",
+    outCpaTitle: "Max CPA",
+    outCpaDesc: "Max ad spend to acquire a customer",
+    outMarginTitle: "Real Net Margin",
+    outMarginDesc: "On actual collected price",
+    outProfitTitle: "Net Profit / Unit",
+    outProfitDesc: "After all costs before Ads",
+    chartTitle: "Profit Curve & Ads Safety Buffer",
+    chartBadge: "VISUAL ANALYSIS",
+    sugTitle: "Automatic Strategic Advice",
+    simTitle: "Scenario Simulator & What-If (PRO)",
+    simBadge: "UNLIMITED SAVING",
+    simDesc: "Create, save, and compare multiple budget scenarios at once (e.g., CPM shock, conversion changes, or budget tests).",
+    labelScenName: "Scenario Name",
+    labelCpmVar: "CPM Variation (%)",
+    labelCrVar: "Conversion Delta (%)",
+    btnSaveScen: "💾 Save Scenario to Memory",
+    btnResetScen: "🗑️ Reset History",
+    thScenName: "Scenario Name",
+    thPrice: "Price / Discount",
+    thBe: "BE ROAS",
+    thProfit: "Profit / Order",
+    emptyScen: "No scenarios saved. Click \"Save Scenario\" to add one.",
+    trTitle: "Site Conversion (CR %) & Cost Per Click (CPC)",
+    trBadge: "ADS TRAFFIC",
+    trDesc: "Check if traffic cost (CPC) and e-commerce conversion rate allow you to reach the max CPA.",
+    labelCrSite: "Site Conversion Rate (CR)",
+    labelCpc: "Average Cost Per Click (CPC)",
+    trEstCpa: "Estimated Traffic CPA",
+    trSust: "Traffic Sustainability",
+    revTitle: "Reverse Breakeven (Target Profit)",
+    revBadge: "MONTHLY GOAL",
+    revDesc: "Enter the desired monthly net profit to discover how many orders you need and what ad budget is required.",
+    labelTProf: "Desired Monthly Profit (€)",
+    revOrders: "Required Orders",
+    revBudget: "Estimated Ad Budget",
+    troasTitle: "Target Profit Simulator",
+    troasBadge: "PRO · FREE",
+    troasDesc: "Set the target ROAS you want from Ads to see how much profit remains in your pocket per order.",
+    labelRoasTarget: "Target Ads ROAS",
+    troasCpa: "Target CPA",
+    troasProfit: "Profit / Order",
+    troasMargin: "Final Margin",
+    aovTitle: "Average Order Value Simulator (AOV / Bundle)",
+    aovBadge: "SCALE EFFECT",
+    aovDesc: "Selling multiple units per order lowers the impact of shipping and fixed payment fees.",
+    labelAovQty: "Average units per order",
+    aovNewVal: "New AOV",
+    aovNewRoas: "New Breakeven ROAS",
+    aovNewProf: "Profit per Order",
+    matTitle: "Discount vs Shipping Scenario Matrix",
+    matBadge: "STRESS TEST",
+    matDesc: "Comparative table: see how Breakeven ROAS changes with different discounts or shipping rates.",
+    thMatrixCol: "Discount ↓ \\ Shipping →",
+    ltvTitle: "LTV & Future Repeat Purchases Simulator",
+    ltvBadge: "LIFETIME VALUE",
+    ltvDesc: "Customers buy more than once. Calculate how much you can spend to acquire a customer on the 1st order knowing future repeat purchases.",
+    labelLtvOrders: "Average orders per customer (LTV)",
+    unitOrders: "orders",
+    ltvRev: "Collected LTV",
+    ltvCpaMax: "Max CPA at LTV",
+    ltvRoasMin: "Min 1st Order ROAS",
+    btnPrint: "🖨️ Print / Save PDF Report",
+    btnShare: "🔗 Share Scenario (Copy Link)",
+    btnSheet: "📈 Create Google Sheet Template Copy",
+    barTitle: "Single List Price Breakdown",
+    legShip: "Shipping",
+    legFee: "Fees",
+    legReturn: "Returns",
+    legDisc: "Discount",
+    legProf: "Profit",
+    toolsTitle: "Recommended Tools to Optimize E-commerce Margins",
+    toolsDesc: "Essential integrations and software to monitor ad attribution, automate emails, and scale sales.",
+    badgePlat: "Platform",
+    tool1Desc: "Create and manage your online store with the best checkout infrastructure in the world.",
+    tool1Link: "Try free for €1/mo &rarr;",
+    badgeEmail: "Email Marketing",
+    tool2Desc: "Increase your customers' LTV by automatically recovering abandoned carts.",
+    badgeTrack: "Tracking Ads",
+    tool3Desc: "Track real ROAS firsthand without losses caused by iOS updates.",
+    tool3Link: "Explore features &rarr;",
+    seoTitle: "Definitive Guide to ROAS and E-commerce Profitability",
+    seoSub: "Understand key metrics to sustain the growth of your advertising campaigns.",
+    seoH1: "What is ROAS and how is it calculated?",
+    seoP1: "ROAS (Return On Ad Spend) is the metric indicating how much revenue is generated for every euro invested in advertising.",
+    seoH2: "Difference between ROAS and ROI",
+    seoP2: "While ROAS measures only the gross return on ad spend, ROI measures true net gain by factoring in all operating costs.",
+    seoH3: "How to calculate Break-Even ROAS?",
+    seoP3: "Break-Even ROAS represents the minimum threshold above which ad placements start generating a real profit.",
+    footer: "Indicative calculation — does not constitute financial advice. Analysis model updated for the Enterprise E-commerce ecosystem."
   };
 
-  const t = isItalian ? dict.it : dict.en;
-  document.getElementById('html-root').setAttribute('lang', isItalian ? 'it' : 'en');
+  document.getElementById('html-root').setAttribute('lang', 'en');
 
-  const mapping = {
-    'meta-title': 'metaTitle', 'txt-subhead': 'subhead', 'txt-main-title': 'mainTitle',
-    'txt-main-desc': 'mainDesc', 'txt-sec-params': 'secParams', 'txt-single-unit': 'singleUnit',
-    'txt-preset-label': 'presetLabel', 'txt-label-price': 'labelPrice', 'txt-label-discount': 'labelDiscount',
-    'txt-effective-price': 'effPriceText', 'txt-label-cogs': 'labelCogs', 'txt-label-shipping': 'labelShipping',
-    'txt-label-fees': 'labelFees', 'txt-label-returns': 'labelReturns', 'txt-label-opex': 'labelOpex',
-    'txt-desc-opex': 'descOpex', 'txt-box-status': 'boxStatus', 'txt-out-roas-title': 'outRoasTitle',
-    'txt-out-roas-desc': 'outRoasDesc', 'txt-out-cpa-title': 'outCpaTitle', 'txt-out-cpa-desc': 'outCpaDesc',
-    'txt-out-margin-title': 'outMarginTitle', 'txt-out-margin-desc': 'outMarginDesc', 'txt-out-profit-title': 'outProfitTitle',
-    'txt-out-profit-desc': 'outProfitDesc', 'txt-chart-title': 'chartTitle', 'txt-chart-badge': 'chartBadge',
-    'txt-sug-title': 'sugTitle', 'txt-sim-title': 'simTitle', 'txt-sim-badge': 'simBadge',
-    'txt-sim-desc': 'simDesc', 'txt-label-scenname': 'labelScenName', 'txt-label-cpmvar': 'labelCpmVar',
-    'txt-label-crvar': 'labelCrVar', 'txt-btn-savescen': 'btnSaveScen', 'txt-btn-resetscen': 'btnResetScen',
-    'txt-th-scenname': 'thScenName', 'txt-th-price': 'thPrice', 'txt-th-be': 'thBe',
-    'txt-th-profit': 'thProfit', 'txt-empty-scen': 'emptyScen', 'txt-tr-title': 'trTitle',
-    'txt-tr-badge': 'trBadge', 'txt-tr-desc': 'trDesc', 'txt-label-crsite': 'labelCrSite',
-    'txt-label-cpc': 'labelCpc', 'txt-tr-estcpa': 'trEstCpa', 'txt-tr-sust': 'trSust',
-    'txt-rev-title': 'revTitle', 'txt-rev-badge': 'revBadge', 'txt-rev-desc': 'revDesc',
-    'txt-label-tprof': 'labelTProf', 'txt-rev-orders': 'revOrders', 'txt-rev-budget': 'revBudget',
-    'txt-troas-title': 'troasTitle', 'txt-troas-badge': 'troasBadge', 'txt-troas-desc': 'troasDesc',
-    'txt-label-roastarget': 'labelRoasTarget', 'txt-troas-cpa': 'troasCpa', 'txt-troas-profit': 'troasProfit',
-    'txt-troas-margin': 'troasMargin', 'txt-aov-title': 'aovTitle', 'txt-aov-badge': 'aovBadge',
-    'txt-aov-desc': 'aovDesc', 'txt-label-aovqty': 'labelAovQty', 'txt-aov-newval': 'aovNewVal',
-    'txt-aov-newroas': 'aovNewRoas', 'txt-aov-newprof': 'aovNewProf', 'txt-mat-title': 'matTitle',
-    'txt-mat-badge': 'matBadge', 'txt-mat-desc': 'matDesc', 'txt-th-matrixcol': 'thMatrixCol',
-    'txt-ltv-title': 'ltvTitle', 'txt-ltv-badge': 'ltvBadge', 'txt-ltv-desc': 'ltvDesc',
-    'txt-label-ltvorders': 'labelLtvOrders', 'txt-unit-orders': 'unitOrders', 'txt-ltv-rev': 'ltvRev',
-    'txt-ltv-cpamax': 'ltvCpaMax', 'txt-ltv-roasmin': 'ltvRoasMin', 'txt-btn-print': 'btnPrint',
-    'txt-btn-share': 'btnShare', 'txt-btn-sheet': 'btnSheet', 'txt-bar-title': 'barTitle',
-    'leg-ship': 'legShip', 'leg-fee': 'legFee', 'leg-return': 'legReturn', 'leg-disc': 'legDisc',
-    'leg-prof': 'legProf', 'txt-tools-title': 'toolsTitle', 'txt-tools-desc': 'toolsDesc',
-    'txt-badge-plat': 'badgePlat', 'txt-tool1-desc': 'tool1Desc', 'txt-tool1-link': 'tool1Link',
-    'txt-badge-email': 'badgeEmail', 'txt-tool2-desc': 'tool2Desc', 'txt-badge-track': 'badgeTrack',
-    'txt-tool3-desc': 'tool3Desc', 'txt-tool3-link': 'tool3Link', 'txt-seo-title': 'seoTitle',
-    'txt-seo-sub': 'seoSub', 'txt-seo-h1': 'seoH1', 'txt-seo-p1': 'seoP1', 'txt-seo-h2': 'seoH2',
-    'txt-seo-p2': 'seoP2', 'txt-seo-h3': 'seoH3', 'txt-seo-p3': 'seoP3', 'txt-footer': 'footer'
-  };
-
-  for (let id in mapping) {
-    const elTarget = document.getElementById(id);
-    if (elTarget && t[mapping[id]]) {
-      if (id === 'meta-title') {
-        elTarget.textContent = t[mapping[id]];
-      } else if (elTarget.tagName === 'BUTTON' || elTarget.tagName === 'A') {
-        const span = elTarget.querySelector('span');
-        if (span) span.innerHTML = t[mapping[id]];
-        else elTarget.innerHTML = t[mapping[id]];
-      } else {
-        elTarget.innerHTML = t[mapping[id]];
-      }
-    }
-  }
-
+  // --- Calculator Logic ---
   const ids = [
     'price','discount','cogs','shipping','fee-pct','fee-fix','returns',
     'roasTarget','aov-qty','ltv-orders','targetProfit','opex',
@@ -1121,7 +983,7 @@
   function saveCurrentScenario() {
     const nameInput = document.getElementById('scenario-name');
     const cpmVarInput = document.getElementById('scenario-cpm-var');
-    const name = nameInput ? nameInput.value : 'Scenario Custom';
+    const name = nameInput ? nameInput.value : 'Custom Scenario';
     const cpmVar = parseFloat(cpmVarInput ? cpmVarInput.value : 0) || 0;
 
     let listPrice = parseFloat(el['price'].value) || 0;
@@ -1143,7 +1005,7 @@
     savedScenarios.push({
       name: `${name} (CPM ${cpmVar > 0 ? '+' : ''}${cpmVar}%)`,
       priceDesc: fmtMoney(effectivePrice),
-      roas: isFinite(roasBreakeven) ? roasBreakeven.toFixed(2) + 'x' : (isItalian ? 'PERDITA' : 'LOSS'),
+      roas: isFinite(roasBreakeven) ? roasBreakeven.toFixed(2) + 'x' : 'LOSS',
       profit: fmtMoney(netProfit),
       isGood: netProfit > 0
     });
@@ -1186,17 +1048,27 @@
     
     const shareUrl = `${window.location.origin}${window.location.pathname}?price=${priceVal}&cogs=${cogsVal}&roas=${roasVal}`;
     navigator.clipboard.writeText(shareUrl);
-    alert(isItalian ? '🔗 Link dello scenario copiato negli appunti!' : '🔗 Scenario link copied to clipboard!');
+    alert('🔗 Scenario link copied to clipboard!');
   }
 
   function fmtMoney(n){
     if (!isFinite(n)) return '—';
-    return n.toLocaleString(isItalian ? 'it-IT' : 'en-US', {style:'currency', currency: 'EUR', minimumFractionDigits:2, maximumFractionDigits:2});
+    return n.toLocaleString('en-US', {style:'currency', currency: 'EUR', minimumFractionDigits:2, maximumFractionDigits:2});
   }
 
   function fmtPct(n){
     if (!isFinite(n)) return '—';
-    return n.toLocaleString(isItalian ? 'it-IT' : 'en-US', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
+    return n.toLocaleString('en-US', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
+  }
+
+  function computeRoasForParams(listPrice, discountPct, cogs, ship, feePct, feeFix, retRate, opexPerUnit = 0){
+    const effectivePrice = Math.max(0, listPrice * (1 - discountPct / 100));
+    const feeAmount = effectivePrice * (feePct / 100) + feeFix;
+    const returnCost = effectivePrice * (retRate / 100);
+    const totalCosts = cogs + ship + feeAmount + returnCost + opexPerUnit;
+    const netProfit = effectivePrice - totalCosts;
+    if (netProfit <= 0) return { roas: Infinity, profit: netProfit };
+    return { roas: effectivePrice / netProfit, profit: netProfit };
   }
 
   let profitChart = null;
@@ -1225,12 +1097,12 @@
           x: {
             grid: { color: '#232838' },
             ticks: { color: '#8A90A2' },
-            title: { display: true, text: 'ROAS Ads', color: '#8A90A2' }
+            title: { display: true, text: 'Ad ROAS', color: '#8A90A2' }
           },
           y: {
             grid: { color: '#232838' },
             ticks: { color: '#8A90A2' },
-            title: { display: true, text: isItalian ? 'Profitto Netto' : 'Net Profit', color: '#8A90A2' }
+            title: { display: true, text: 'Net Profit', color: '#8A90A2' }
           }
         }
       }
@@ -1269,13 +1141,13 @@
         const ordersNeeded = Math.ceil(targetProfit / profitPerOrderWithAds);
         const budgetNeeded = ordersNeeded * cpaTarget;
         
-        outOrdersEl.innerText = ordersNeeded.toLocaleString(isItalian ? 'it-IT' : 'en-US') + (isItalian ? ' ordini' : ' orders');
+        outOrdersEl.innerText = ordersNeeded.toLocaleString('en-US') + ' orders';
         outBudgetEl.innerText = fmtMoney(budgetNeeded);
         return ordersNeeded;
       }
     }
-    outOrdersEl.innerText = "N/D";
-    outBudgetEl.innerText = "N/D";
+    outOrdersEl.innerText = "N/A";
+    outBudgetEl.innerText = "N/A";
     return 0;
   }
 
@@ -1283,26 +1155,14 @@
     const sugText = document.getElementById('suggestion-text');
     if (!sugText) return;
 
-    if (isItalian) {
-      if (netMarginPct < 0) {
-        sugText.textContent = "⚠️ Sei in perdita diretta sul prodotto! Riduci il COGS, rimuovi gli sconti o aumenta il prezzo prima di lanciare campagne Ads.";
-      } else if (netMarginPct < 15) {
-        sugText.textContent = "💡 Margine ridotto: considera di aumentare l'AOV proponendo Bundle (es. 2x o 3x) per ammortizzare le spese fisse di spedizione.";
-      } else if (cogsPct > 40) {
-        sugText.textContent = "📦 Il costo del prodotto (COGS) incide per oltre il 40% del prezzo. Negozia i prezzi con il fornitore per abbassare il Breakeven ROAS.";
-      } else {
-        sugText.textContent = "✅ Ottima struttura costi! Hai un buffer sufficiente per scalare su Ads ed accettare variazioni di CPM/CPA.";
-      }
+    if (netMarginPct < 0) {
+      sugText.textContent = "⚠️ Direct loss on product! Reduce COGS, remove discounts, or increase price before running ad campaigns.";
+    } else if (netMarginPct < 15) {
+      sugText.textContent = "💡 Low margin: consider increasing AOV with bundles (e.g., 2x or 3x) to offset fixed shipping costs.";
+    } else if (cogsPct > 40) {
+      sugText.textContent = "📦 COGS accounts for over 40% of the price. Negotiate with suppliers to lower your Breakeven ROAS.";
     } else {
-      if (netMarginPct < 0) {
-        sugText.textContent = "⚠️ Direct loss on product! Reduce COGS, remove discounts, or increase price before running ad campaigns.";
-      } else if (netMarginPct < 15) {
-        sugText.textContent = "💡 Low margin: consider increasing AOV with bundles (e.g., 2x or 3x) to offset fixed shipping costs.";
-      } else if (cogsPct > 40) {
-        sugText.textContent = "📦 COGS accounts for over 40% of the price. Negotiate with suppliers to lower your Breakeven ROAS.";
-      } else {
-        sugText.textContent = "✅ Great cost structure! You have enough buffer to scale on Ads and withstand CPM/CPA fluctuations.";
-      }
+      sugText.textContent = "✅ Great cost structure! You have enough buffer to scale on Ads and withstand CPM/CPA fluctuations.";
     }
   }
 
@@ -1357,10 +1217,10 @@
     if (discountPct > 0) {
       if (netProfit <= 0) {
         discountAlert.style.color = 'var(--bad)';
-        discountAlert.textContent = isItalian ? '⚠️ Con questo sconto sei in perdita!' : '⚠️ This discount puts you at a loss!';
+        discountAlert.textContent = '⚠️ This discount puts you at a loss!';
       } else {
         discountAlert.style.color = 'var(--warn)';
-        discountAlert.textContent = isItalian ? `⚠️ Sconto applicato: Breakeven ROAS a ${roasBreakeven.toFixed(2)}x` : `⚠️ Discount applied: Breakeven ROAS at ${roasBreakeven.toFixed(2)}x`;
+        discountAlert.textContent = `⚠️ Discount applied: Breakeven ROAS at ${roasBreakeven.toFixed(2)}x`;
       }
     }
 
@@ -1385,21 +1245,21 @@
       crEstimatedCpaEl.textContent = fmtMoney(estimatedCpa);
 
       if (cpaMax <= 0) {
-        crStatusBadgeEl.textContent = isItalian ? "❌ NON SOSTENIBILE" : "❌ UNSUSTAINABLE";
+        crStatusBadgeEl.textContent = "❌ UNSUSTAINABLE";
         crStatusBadgeEl.style.color = "var(--bad)";
-        crStatusMsgEl.textContent = isItalian ? "Sei in perdita sul margine base prima ancora di considerare il costo del traffico." : "You are losing money on base margin before even considering traffic cost.";
+        crStatusMsgEl.textContent = "You are losing money on base margin before even considering traffic cost.";
         crStatusMsgEl.style.color = "var(--bad)";
       } else if (estimatedCpa < cpaMax) {
         const cpaBuffer = cpaMax - estimatedCpa;
-        crStatusBadgeEl.textContent = isItalian ? "✅ SOSTENIBILE" : "✅ SUSTAINABLE";
+        crStatusBadgeEl.textContent = "✅ SUSTAINABLE";
         crStatusBadgeEl.style.color = "#059669";
-        crStatusMsgEl.textContent = isItalian ? `Ottimo! La CPA stimata (${fmtMoney(estimatedCpa)}) è inferiore alla CPA max (${fmtMoney(cpaMax)}). Buffer: +${fmtMoney(cpaBuffer)}/ordine.` : `Great! Estimated CPA (${fmtMoney(estimatedCpa)}) is below max CPA (${fmtMoney(cpaMax)}). Buffer: +${fmtMoney(cpaBuffer)}/order.`;
+        crStatusMsgEl.textContent = `Great! Estimated CPA (${fmtMoney(estimatedCpa)}) is below max CPA (${fmtMoney(cpaMax)}). Buffer: +${fmtMoney(cpaBuffer)}/order.`;
         crStatusMsgEl.style.color = "#059669";
       } else {
         const cpaDeficit = estimatedCpa - cpaMax;
-        crStatusBadgeEl.textContent = isItalian ? "⚠️ IN PERDITA" : "⚠️ AT A LOSS";
+        crStatusBadgeEl.textContent = "⚠️ AT A LOSS";
         crStatusBadgeEl.style.color = "var(--bad)";
-        crStatusMsgEl.textContent = isItalian ? `Attenzione! La CPA (${fmtMoney(estimatedCpa)}) supera la CPA max di ${fmtMoney(cpaDeficit)}.` : `Warning! CPA (${fmtMoney(estimatedCpa)}) exceeds max CPA by ${fmtMoney(cpaDeficit)}.`;
+        crStatusMsgEl.textContent = `Warning! CPA (${fmtMoney(estimatedCpa)}) exceeds max CPA by ${fmtMoney(cpaDeficit)}.`;
         crStatusMsgEl.style.color = "var(--bad)";
       }
     } else {
@@ -1428,12 +1288,12 @@
       elTargetProfit.style.color = 'var(--bad)';
       elTargetMargin.style.color = 'var(--bad)';
       elTargetStatusMsg.style.color = 'var(--bad)';
-      elTargetStatusMsg.textContent = isItalian ? `❌ ${targetRoas.toFixed(1)}x ROAS < Breakeven (${roasBreakeven.toFixed(2)}x): -${fmtMoney(Math.abs(targetProfitVal))}` : `❌ ${targetRoas.toFixed(1)}x ROAS < Breakeven (${roasBreakeven.toFixed(2)}x): -${fmtMoney(Math.abs(targetProfitVal))}`;
+      elTargetStatusMsg.textContent = `❌ ${targetRoas.toFixed(1)}x ROAS < Breakeven (${roasBreakeven.toFixed(2)}x): -${fmtMoney(Math.abs(targetProfitVal))}`;
     } else {
       elTargetProfit.style.color = 'var(--good)';
       elTargetMargin.style.color = 'var(--good)';
       elTargetStatusMsg.style.color = 'var(--good)';
-      elTargetStatusMsg.textContent = isItalian ? `✅ ${targetRoas.toFixed(1)}x ROAS → +${fmtMoney(targetProfitVal)} (${targetMarginVal.toFixed(1)}%)` : `✅ ${targetRoas.toFixed(1)}x ROAS → +${fmtMoney(targetProfitVal)} (${targetMarginVal.toFixed(1)}%)`;
+      elTargetStatusMsg.textContent = `✅ ${targetRoas.toFixed(1)}x ROAS → +${fmtMoney(targetProfitVal)} (${targetMarginVal.toFixed(1)}%)`;
     }
 
     const aovRevenue = effectivePrice * aovQty;
@@ -1449,85 +1309,115 @@
     document.getElementById('aov-roas').textContent = isFinite(aovBreakevenRoas) ? aovBreakevenRoas.toFixed(2) + 'x' : '∞';
     document.getElementById('aov-profit').textContent = fmtMoney(aovNetProfit);
 
-    document.getElementById('th-ship-curr').textContent = (isItalian ? `In Uso (${fmtMoney(ship)})` : `Current (${fmtMoney(ship)})`);
-    document.getElementById('th-ship-free').textContent = `${fmtMoney(0)} (${isItalian ? 'Gratis' : 'Free'})`;
+    document.getElementById('th-ship-curr').textContent = `Current (${fmtMoney(ship)})`;
+    document.getElementById('th-ship-free').textContent = `${fmtMoney(0)} (Free)`;
     document.getElementById('th-ship-plus').textContent = fmtMoney(ship + 2);
 
     const discountsToTest = [0, 10, 20, 30];
     const shipsToTest = [ship, 0, ship + 2];
     const matrixBody = document.getElementById('matrix-body');
-    if (matrixBody) {
-      matrixBody.innerHTML = '';
-      discountsToTest.forEach(dPct => {
-        let rowHtml = `<tr style="border-bottom: 1px solid var(--border);"><td class="p-2 text-left font-sans font-medium text-white">-${dPct}%</td>`;
-        shipsToTest.forEach(sCost => {
-          const testPrice = Math.max(0, listPrice * (1 - dPct / 100));
-          const testFee = testPrice * (feePct / 100) + feeFix;
-          const testRet = testPrice * (retRate / 100);
-          const testProf = testPrice - (cogs + sCost + testFee + testRet + opexPerUnit);
-          const testBe = testProf > 0 ? testPrice / testProf : Infinity;
-          const cellColor = testBe < 3 ? 'var(--good)' : (testBe < 5 ? 'var(--warn)' : 'var(--bad)');
-          rowHtml += `<td class="p-2 font-bold" style="color: ${cellColor};">${isFinite(testBe) ? testBe.toFixed(2) + 'x' : '—'}</td>`;
-        });
-        rowHtml += '</tr>';
-        matrixBody.innerHTML += rowHtml;
+    matrixBody.innerHTML = '';
+
+    discountsToTest.forEach(dPct => {
+      const tr = document.createElement('tr');
+      const isCurrentDiscount = Math.abs(dPct - discountPct) < 0.5;
+      
+      let html = `<td class="p-2.5 text-left font-sans font-medium" style="color: ${isCurrentDiscount ? 'var(--accent)' : 'var(--text)'};">
+        ${dPct}% ${isCurrentDiscount ? '◀' : ''}
+      </td>`;
+
+      shipsToTest.forEach(sVal => {
+        const res = computeRoasForParams(listPrice, dPct, cogs, sVal, feePct, feeFix, retRate, opexPerUnit);
+        let txt = isFinite(res.roas) ? res.roas.toFixed(2) + 'x' : 'LOSS';
+        let badgeStyle = 'color: var(--good);';
+
+        if (!isFinite(res.roas) || res.profit <= 0) {
+          badgeStyle = 'color: var(--bad); font-bold;';
+        } else if (res.roas > 3.5) {
+          badgeStyle = 'color: var(--warn);';
+        }
+
+        html += `<td class="p-2.5 font-bold" style="${badgeStyle}">${txt}</td>`;
       });
-    }
 
-    const ltvRevenue = effectivePrice * ltvOrders;
-    const ltvCogs = cogs * ltvOrders;
-    const ltvShip = ship * ltvOrders;
-    const ltvFee = ltvRevenue * (feePct / 100) + (feeFix * ltvOrders);
-    const ltvReturn = ltvRevenue * (retRate / 100);
-    const ltvTotalCosts = ltvCogs + ltvShip + ltvFee + ltvReturn + (opexPerUnit * ltvOrders);
-    const ltvNetProfit = ltvRevenue - ltvTotalCosts;
-    const ltvMinRoasFirst = netProfit > 0 ? effectivePrice / ltvNetProfit : Infinity;
+      tr.innerHTML = html;
+      matrixBody.appendChild(tr);
+    });
 
-    document.getElementById('ltv-revenue').textContent = fmtMoney(ltvRevenue);
-    document.getElementById('ltv-cpa').textContent = fmtMoney(ltvNetProfit);
-    document.getElementById('ltv-roas').textContent = isFinite(ltvMinRoasFirst) ? ltvMinRoasFirst.toFixed(2) + 'x' : '∞';
-    document.getElementById('ltv-status-msg').textContent = isItalian 
-      ? `💡 Acquistando un cliente a ${fmtMoney(cpaMax)}, con ${ltvOrders} ordini medi puoi arrivare a sostenere una CPA fino a ${fmtMoney(ltvNetProfit)}!` 
-      : `💡 By acquiring a customer at ${fmtMoney(cpaMax)}, with ${ltvOrders} average orders you can sustain a CPA up to ${fmtMoney(ltvNetProfit)}!`;
+    const totalLtvRevenue = effectivePrice * ltvOrders;
+    const totalLtvMarginProfit = netProfit * ltvOrders;
+    const ltvMaxCpa = totalLtvMarginProfit;
+    const ltvFirstOrderBreakevenRoas = ltvMaxCpa > 0 ? effectivePrice / ltvMaxCpa : Infinity;
 
-    const totalBarDenom = effectivePrice > 0 ? effectivePrice : 1;
-    document.getElementById('seg-cogs').style.width = Math.min(100, (cogs / totalBarDenom) * 100) + '%';
-    document.getElementById('seg-ship').style.width = Math.min(100, (ship / totalBarDenom) * 100) + '%';
-    document.getElementById('seg-fee').style.width = Math.min(100, (feeAmount / totalBarDenom) * 100) + '%';
-    document.getElementById('seg-return').style.width = Math.min(100, (returnCost / totalBarDenom) * 100) + '%';
-    document.getElementById('seg-discount').style.width = Math.min(100, (discountAmount / totalBarDenom) * 100) + '%';
-    document.getElementById('seg-profit').style.width = Math.max(0, Math.min(100, (netProfit / totalBarDenom) * 100)) + '%';
+    document.getElementById('ltv-revenue').textContent = fmtMoney(totalLtvRevenue);
+    document.getElementById('ltv-cpa').textContent = fmtMoney(ltvMaxCpa);
+    document.getElementById('ltv-roas').textContent = isFinite(ltvFirstOrderBreakevenRoas) ? ltvFirstOrderBreakevenRoas.toFixed(2) + 'x' : '∞';
 
     const riskCard = document.getElementById('risk-card');
     const riskLabel = document.getElementById('risk-label');
     const riskDesc = document.getElementById('risk-desc');
     const riskDot = document.getElementById('risk-dot');
+    riskCard.classList.remove('glow-good','glow-warn','glow-bad');
 
-    if (netProfit <= 0) {
-      riskCard.className = "card p-6 transition-all duration-300 glow-bad";
-      riskLabel.textContent = isItalian ? "Margine Negativo (In Perdita)" : "Negative Margin (At a Loss)";
-      riskLabel.style.color = "var(--bad)";
-      riskDesc.textContent = isItalian ? "I costi superano il prezzo effettivo incassato. Impossibile sostenere campagne Ads." : "Costs exceed actual collected price. Impossible to sustain ad campaigns.";
-      riskDot.style.background = "var(--bad)";
-    } else if (roasBreakeven > 3.5) {
-      riskCard.className = "card p-6 transition-all duration-300 glow-warn";
-      riskLabel.textContent = isItalian ? "Sostenibilità Difficile (High BE ROAS)" : "Difficult Sustainability (High BE ROAS)";
-      riskLabel.style.color = "var(--warn)";
-      riskDesc.textContent = isItalian ? `Richiede un ROAS superiore a ${roasBreakeven.toFixed(2)}x. Margine ridotto per le Ads.` : `Requires a ROAS above ${roasBreakeven.toFixed(2)}x. Tight margin for Ads.`;
-      riskDot.style.background = "var(--warn)";
+    let state = netMarginPct >= 20 ? 'good' : (netMarginPct >= 5 ? 'warn' : 'bad');
+
+    if (state === 'good'){
+      riskCard.classList.add('glow-good');
+      riskLabel.textContent = 'Great Margin';
+      riskLabel.style.color = 'var(--good)';
+      riskDesc.textContent = 'Ideal headroom to scale acquisition campaigns.';
+      riskDot.style.background = 'var(--good)';
+    } else if (state === 'warn'){
+      riskCard.classList.add('glow-warn');
+      riskLabel.textContent = 'At-Risk Margin';
+      riskLabel.style.color = 'var(--warn)';
+      riskDesc.textContent = 'Small cost fluctuations can wipe out profit.';
+      riskDot.style.background = 'var(--warn)';
     } else {
-      riskCard.className = "card p-6 transition-all duration-300 glow-good";
-      riskLabel.textContent = isItalian ? "Margine Eccellente &amp; Scalabile" : "Excellent & Scalable Margin";
-      riskLabel.style.color = "var(--good)";
-      riskDesc.textContent = isItalian ? `Breakeven ROAS basso (${roasBreakeven.toFixed(2)}x). Ampio margine per scalare su Meta/Google Ads.` : `Low Breakeven ROAS (${roasBreakeven.toFixed(2)}x). Ample margin to scale on Meta/Google Ads.`;
-      riskDot.style.background = "var(--good)";
+      riskCard.classList.add('glow-bad');
+      riskLabel.textContent = netProfit < 0 ? 'At a Loss' : 'High Risk';
+      riskLabel.style.color = 'var(--bad)';
+      riskDesc.textContent = 'Costs exceed revenues. Review pricing immediately.';
+      riskDot.style.background = 'var(--bad)';
     }
+
+    const clampPct = (v) => listPrice > 0 ? Math.max(0, Math.min(100, (v / listPrice) * 100)) : 0;
+    const pCogs = clampPct(cogs);
+    const pShip = clampPct(ship);
+    const pFee = clampPct(feeAmount);
+    const pReturn = clampPct(returnCost);
+    const pDiscount = clampPct(discountAmount);
+    const pProfit = Math.max(0, 100 - pCogs - pShip - pFee - pReturn - pDiscount);
+
+    document.getElementById('seg-cogs').style.width = pCogs + '%';
+    document.getElementById('seg-ship').style.width = pShip + '%';
+    document.getElementById('seg-fee').style.width = pFee + '%';
+    document.getElementById('seg-return').style.width = pReturn + '%';
+    document.getElementById('seg-discount').style.width = pDiscount + '%';
+    document.getElementById('seg-profit').style.width = pProfit + '%';
   }
 
   window.addEventListener('DOMContentLoaded', () => {
     initChart();
+
+    const params = new URLSearchParams(window.location.search);
+
+    if(params.has('price') && el['price']) {
+      el['price'].value = params.get('price');
+      if(el['price-range']) el['price-range'].value = params.get('price');
+    }
+    if(params.has('cogs') && el['cogs']) {
+      el['cogs'].value = params.get('cogs');
+      if(el['cogs-range']) el['cogs-range'].value = params.get('cogs');
+    }
+    if(params.has('roas') && el['roasTarget']) {
+      el['roasTarget'].value = params.get('roas');
+      if(el['roasTarget-range']) el['roasTarget-range'].value = params.get('roas');
+    }
+
     calculateAll();
   });
 </script>
+
 </body>
 </html>
