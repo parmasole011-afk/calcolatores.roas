@@ -831,7 +831,7 @@
   </footer>
 </div>
 
-<script>
+<script type="module">
   // Force English directly
   const t = {
     metaTitle: "Breakeven ROAS, AOV, Matrix & LTV — Enterprise Global Calculator",
@@ -1081,6 +1081,12 @@
     navigator.clipboard.writeText(shareUrl);
     alert('🔗 Scenario link copied to clipboard!');
   }
+
+  // Espone le funzioni a window per mantenerle accessibili agli attributi onclick nell'HTML
+  window.applyPreset = applyPreset;
+  window.saveCurrentScenario = saveCurrentScenario;
+  window.clearScenarios = clearScenarios;
+  window.shareScenario = shareScenario;
 
   function fmtMoney(n){
     if (!isFinite(n)) return '—';
